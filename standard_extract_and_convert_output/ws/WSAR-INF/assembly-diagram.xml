@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wdnm:Diagram xmlns:wdnm="http://workday.com/studio/editors/notation">
+  <element href="assembly.xml#WorkdayAssembly"/>
+  <visualProperties>
+    <element href="assembly.xml#aggregatexmlmessage"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#aggregate_xml_response_data"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#convert_consolidated"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#convert_via_schema"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#CallStoreMessageInFileSubRoutine_splitxml"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#reset_counter_xml"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#aggregatetextmessage"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#aggregate_text_response_data"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#call_store_msg_return_msg"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#reset_counter"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#aggregatezipfilemessage"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#encode_file"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#aggregate_zip_response_data"/>
+  </visualProperties>
+  <visualProperties x="421" y="569">
+    <element href="assembly.xml#cp-msg-txt"/>
+  </visualProperties>
+  <connections type="routesTo">
+    <source href="assembly.xml#aggregatexmlmessage"/>
+    <target href="assembly.xml#aggregate_xml_response_data"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#aggregate_xml_response_data"/>
+    <target href="assembly.xml#convert_consolidated"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#convert_consolidated"/>
+    <target href="assembly.xml#convert_via_schema"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#convert_via_schema"/>
+    <target href="assembly.xml#CallStoreMessageInFileSubRoutine_splitxml"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#CallStoreMessageInFileSubRoutine_splitxml"/>
+    <target href="assembly.xml#reset_counter_xml"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#aggregatetextmessage"/>
+    <target href="assembly.xml#aggregate_text_response_data"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_store_msg_return_msg"/>
+    <target href="assembly.xml#reset_counter"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#aggregatezipfilemessage"/>
+    <target href="assembly.xml#encode_file"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#encode_file"/>
+    <target href="assembly.xml#aggregate_zip_response_data"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#aggregate_text_response_data"/>
+    <target href="assembly.xml#cp-msg-txt"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#cp-msg-txt"/>
+    <target href="assembly.xml#call_store_msg_return_msg"/>
+  </connections>
+  <swimlanes bgColor="8454016" name="aggregate xml data" alignment="MIDDLE">
+    <elements href="assembly.xml#aggregatexmlmessage"/>
+    <elements href="assembly.xml#aggregate_xml_response_data"/>
+    <elements href="assembly.xml#convert_consolidated"/>
+  </swimlanes>
+  <swimlanes bgColor="8454016" name="convert to text output" alignment="MIDDLE">
+    <elements href="assembly.xml#convert_via_schema"/>
+    <elements href="assembly.xml#CallStoreMessageInFileSubRoutine_splitxml"/>
+    <elements href="assembly.xml#reset_counter_xml"/>
+  </swimlanes>
+  <swimlanes bgColor="8454016" name="aggregate text data" alignment="MIDDLE">
+    <elements href="assembly.xml#aggregatetextmessage"/>
+    <elements href="assembly.xml#aggregate_text_response_data"/>
+    <elements href="assembly.xml#cp-msg-txt"/>
+    <elements href="assembly.xml#call_store_msg_return_msg"/>
+    <elements href="assembly.xml#reset_counter"/>
+  </swimlanes>
+  <swimlanes bgColor="8454016" name="aggregate zip file" alignment="MIDDLE">
+    <elements href="assembly.xml#aggregatezipfilemessage"/>
+    <elements href="assembly.xml#encode_file"/>
+    <elements href="assembly.xml#aggregate_zip_response_data"/>
+  </swimlanes>
+  <swimlanes x="28" y="11" bgColor="12632256" name="aggregate results" orientation="VERTICAL" elements="//@swimlanes.0 //@swimlanes.1 //@swimlanes.2 //@swimlanes.3" alignment="MIDDLE"/>
+</wdnm:Diagram>

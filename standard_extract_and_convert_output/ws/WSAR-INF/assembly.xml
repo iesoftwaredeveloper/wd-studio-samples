@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+     xmlns="http://www.springframework.org/schema/beans"
+     xmlns:beans="http://www.springframework.org/schema/beans"
+     xmlns:atom="http://www.w3.org/2005/Atom"
+     xmlns:cc="http://www.capeclear.com/assembly/10"
+     xmlns:cloud="urn:com.workday/esb/cloud/10.0"
+     xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+     xmlns:pi="urn:com.workday/picof"
+     xmlns:wd="urn:com.workday/bsvc"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ 
+	<cc:assembly id="WorkdayAssembly" version="2017.35">
+        <cc:aggregator id="aggregate_zip_response_data" force-batch-on-last-message="true" force-batch-when="(props['page.current'] == props['page.total'] || props['page.total'] == -1 || props['close.batch'] == 'yes' || (props['webservice.application'] == 'RAAS' &amp;&amp; util.isLastMessageInBatch())) &amp;&amp; props['allow.batch.close'] == 'yes'">
+            <cc:size-batch-strategy batch-size="500000"/>
+            <cc:zip-file-collater output="variable" output-variable="upload.data" message-entity-name="@{props['xmlmatch_value']}"/>
+        </cc:aggregator>
+        <cc:async-mediation id="encode_file" routes-to="aggregate_zip_response_data">
+            <cc:steps>
+                <cc:eval id="setcomparisonprops">
+                    <cc:expression>props['xmlmatch_value'] = vars['converted.data'].xpath(&quot;//attachment_data/@file_name&quot;)</cc:expression>
+                    <cc:expression>vars['file.content'] = vars['converted.data'].xpath(&quot;//attachment_data/file_content&quot;)</cc:expression>
+                    <cc:expression>props['file.encoding'] = vars['converted.data'].xpath(&quot;//attachment_data/@file_encoding&quot;)</cc:expression>
+                </cc:eval>
+                <cc:base64-decode id="Base64Decode" output="message" output-mimetype="application/pdf" input="variable" input-variable="file.content"/>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:local-in id="aggregatezipfilemessage" routes-to="encode_file"/>
+        <cc:async-mediation id="reset_counter" execute-steps-when="props['webservice.application']=='RAAS' &amp;&amp; props['split.output.file']==true">
+            <cc:steps>
+                <cc:eval id="update_page">
+                    <cc:expression>props['counter.loop'] = 0</cc:expression>
+                    <cc:expression>vars['upload.data'] = ''</cc:expression>
+                    <cc:expression>props['loop']=props['loop']+1</cc:expression>
+                </cc:eval>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:local-out id="call_store_msg_return_msg" routes-response-to="reset_counter" endpoint="vm://standard_logging/store_msg_for_output_file">
+            
+            <cc:set name="document.deliver" value="props['deliver.documents']"/>
+            <cc:set name="document.delivery.services" value="props['document.delivery.services']"/>
+        <cc:set name="output.filename" value="props['output.filename']"/></cc:local-out>
+        <cc:aggregator id="aggregate_text_response_data" routes-to="cp-msg-txt" allow-external-control="false" force-batch-on-last-message="true" force-batch-when="(props['page.current'] == props['page.total'])">
+            <cc:size-batch-strategy batch-size="1500000"/>
+            <cc:message-content-collater output="variable" output-variable="upload.data"/>
+        </cc:aggregator>
+        <cc:local-in id="aggregatetextmessage" routes-to="aggregate_text_response_data" access="public"><cc:parameter name="page.current"/><cc:parameter name="page.total"/><cc:parameter default="'Output Filename Not Set.txt'" name="output.filename" required="true"/><cc:parameter default="false" name="document.deliver" required="true"/><cc:parameter name="document.delivery.services"/></cc:local-in>
+        <cc:async-mediation id="reset_counter_xml" execute-steps-when="props['webservice.application']=='RAAS' &amp;&amp; props['split.output.file']==true">
+            <cc:steps>
+                <cc:eval id="update_page">
+                    <cc:expression>props['counter.loop'] = 0</cc:expression>
+                    <cc:expression>vars['upload.data'] = ''</cc:expression>
+                    <cc:expression>props['loop']=props['loop'] + 1</cc:expression>
+                </cc:eval>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:local-out id="CallStoreMessageInFileSubRoutine_splitxml" execute-when="props['split.output.file']==true &amp;&amp; props['store.data.file']==true" routes-response-to="reset_counter_xml" endpoint="vm://AcctTechStandardLogging/StoreMessageInFileSubRoutine">
+            <cc:set name="upload.filename" value="(props['loop']==1)? props['extract.filename']:props['counter'] + '_' + props['extract.filename']"/>
+            <cc:set name="document.deliver" value="props['deliver.documents']"/>
+            <cc:set name="document.delivery.services" value="props['document.delivery.services']"/>
+        </cc:local-out>
+        <cc:async-mediation id="convert_via_schema" routes-to="CallStoreMessageInFileSubRoutine_splitxml" execute-steps-when="props['aggregate.type'] == 'schema'">
+            <cc:steps>
+                <cc:textschema id="converttotext" output="variable" output-variable="upload.data" input="variable" input-variable="upload.data" style="xml2text" url="@{props['xslt.convertconsolidated.filename']}"/>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:async-mediation id="convert_consolidated" routes-to="convert_via_schema">
+            <cc:steps>
+                <cc:xslt id="convertconsoldata" output="variable" output-variable="upload.data" input="variable" input-variable="upload.data" url="@{props['xslt.convertconsolidated.filename']}"/>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:aggregator id="aggregate_xml_response_data" routes-to="convert_consolidated" force-batch-on-last-message="true" force-batch-when="(props['page.current'] == props['page.total'] || props['page.total'] == -1 || props['close.batch'] == 'yes' || (props['webservice.application'] == 'RAAS' &amp;&amp; util.isLastMessageInBatch())) &amp;&amp; props['allow.batch.close'] == 'yes'">
+            <cc:size-batch-strategy batch-size="5000000"/>
+            <cc:message-content-collater output="variable" output-variable="upload.data">
+        <cc:header-text>&lt;consolidated_data></cc:header-text>
+        <cc:footer-text>&lt;/consolidated_data></cc:footer-text>
+      </cc:message-content-collater>
+        </cc:aggregator>
+        <cc:local-in id="aggregatexmlmessage" routes-to="aggregate_xml_response_data"/>
+        <cc:async-mediation id="cp-msg-txt" routes-to="call_store_msg_return_msg">
+            <cc:steps>
+                <cc:copy id="Copy" input="variable" input-variable="upload.data"/>
+            </cc:steps>
+        </cc:async-mediation>
+	</cc:assembly>
+
+</beans>

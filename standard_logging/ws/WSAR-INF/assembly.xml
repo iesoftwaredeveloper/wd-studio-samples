@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+     xmlns="http://www.springframework.org/schema/beans"
+     xmlns:beans="http://www.springframework.org/schema/beans"
+     xmlns:atom="http://www.w3.org/2005/Atom"
+     xmlns:cc="http://www.capeclear.com/assembly/10"
+     xmlns:cloud="urn:com.workday/esb/cloud/10.0"
+     xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+     xmlns:pi="urn:com.workday/picof"
+     xmlns:wd="urn:com.workday/bsvc"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ 
+	<cc:assembly id="WorkdayAssembly" version="2017.35">
+        <cc:async-mediation id="return-msg">
+            <cc:steps>
+                <cc:copy id="cp-back-to-msg" input="variable" input-variable="input.msg"/>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:async-mediation id="store-file" routes-to="return-msg">
+            <cc:steps>
+                <cc:copy id="cp-msg" output="variable" output-variable="input.msg"/>
+                <cc:store id="store-file" output="variable" output-variable="upload.data" input="variable" input-variable="input.msg" title="@{props['store.filename']}"/>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:local-in id="store_msg_return_msg" routes-to="store-file" access="public" icon="local-in-store_msg_return_msg.png" tooltip="Sub Routine Used to Log and Store current Message to Workday and reset to existing (input) message.">
+            <cc:parameter default="'Logging_Output.txt'" name="store.filename" required="true"/>
+        </cc:local-in>
+        <cc:local-out id="SendErrorToWorkday_withFile" endpoint="vm://wcc/PutIntegrationMessage">
+            <cc:set name="is.event.wid" value="lp.isSet() ? lp.getIntegrationEventWID() : null"/>
+            <cc:set name="is.message.severity" value="'INFO'"/>
+            <cc:set name="is.message.summary" value="'Output File Stored'"/>
+            <cc:set name="is.document.variable.name" value="'upload.report'"/>
+            <cc:set name="is.document.deliverable" value="props['document.deliver']"/>
+            <cc:set name="is.document.delivery.services" value="props['document.delivery.services']"/>
+        </cc:local-out>
+        <cc:async-mediation id="storefile" routes-to="SendErrorToWorkday_withFile">
+            <cc:steps>
+                <cc:store id="Store" output="variable" output-variable="upload.report" input="variable" input-variable="output.data" createDocumentReference="true" title="@{props['output.filename']}"/>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:local-in id="store_msg_for_output_file" routes-to="storefile" access="public" icon="local-in-store_msg_for_output_file.png" tooltip="Sub Routine Used to Store 'output,data' variable to Workday and assign the correct delivery tags/services." use-global-error-handlers="false">
+            <cc:parameter default="'noOutputFilenameProvided.xml'" name="output.filename" required="true"/>
+            <cc:parameter default="'false'" name="document.deliver" required="false"/>
+            <cc:parameter default="''" name="document.delivery.services" required="false"/>
+        </cc:local-in>
+	</cc:assembly>
+
+</beans>

@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+     xmlns="http://www.springframework.org/schema/beans"
+     xmlns:beans="http://www.springframework.org/schema/beans"
+     xmlns:atom="http://www.w3.org/2005/Atom"
+     xmlns:cc="http://www.capeclear.com/assembly/10"
+     xmlns:cloud="urn:com.workday/esb/cloud/10.0"
+     xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+     xmlns:pi="urn:com.workday/picof"
+     xmlns:wd="urn:com.workday/bsvc"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ 
+	<cc:assembly id="WorkdayAssembly" version="2017.17">
+        <cc:aggregator id="aggregate_filedetails" force-batch-when="props['filetoprocess-totalcount'] == props['filetoprocess-current']">
+            <cc:size-batch-strategy/>
+            <cc:xml-message-content-collater output="variable" output-mimetype="text/xml" output-variable="filedetails.xml">
+        <cc:header-text>&lt;filedetails></cc:header-text>
+        <cc:footer-text>&lt;/filedetails></cc:footer-text>
+      </cc:xml-message-content-collater>
+        </cc:aggregator>
+        <cc:local-in id="copy_message_to_file_var" routes-to="aggregate_filedetails">
+            <cc:parameter name="filetoprocess-totalcount"/>
+            <cc:parameter name="filetoprocess-current"/>
+        </cc:local-in>
+        <cc:local-out id="call_delete_SFTP_files" execute-when="props['delete-sftp-files'] == 1" endpoint="vm://common_sftp_file_processing/delete_SFTP_files">
+            <cc:set name="sftp.filename" value="props['sftp.filename']"/>
+            <cc:set name="sftp.directory" value="props['sftp.directory']"/>
+            <cc:set name="sftp.username" value="intsys.getAttribute('sftp.username')"/>
+            <cc:set name="sftp.password" value="intsys.getAttribute('sftp.password')"/>
+            <cc:set name="sftp.endpoint" value="intsys.getAttribute('sftp.endpoint')"/>
+        </cc:local-out>
+        <cc:local-out id="CallSubRoutineProcessFile" execute-when="message.length != 0" routes-response-to="call_delete_SFTP_files" endpoint="vm://common_sftp_file_processing/SubRoutineProcessFile">
+            <cc:set name="processfile.subroutine" value="props['processfile.subroutine']"/>
+        </cc:local-out>
+        <cc:local-out id="call_get_SFTP_files_InternalUseOnly" routes-response-to="CallSubRoutineProcessFile" endpoint="vm://common_sftp_file_processing/get_SFTP_files_InternalUseOnly">
+            <cc:set name="sftp.username" value="intsys.getAttribute('sftp.username')"/>
+            <cc:set name="sftp.filename" value="props['sftp.filename']"/>
+            <cc:set name="sftp.password" value="intsys.getAttribute('sftp.password')"/>
+            <cc:set name="sftp.endpoint" value="intsys.getAttribute('sftp.endpoint')"/>
+            <cc:set name="sftp.directory" value="props['sftp.directory']"/>
+            <cc:set name="displayfilelist" value="true"/>
+        </cc:local-out>
+        <cc:local-in id="process_sftp_file" routes-to="call_get_SFTP_files_InternalUseOnly" icon="local-in-process_sftp_file0.png">
+            <cc:parameter name="sftp.filename"/>
+            <cc:parameter name="summary-transaction-created"/>
+        </cc:local-in>
+        <cc:local-out id="callsubroutinelogfilelist" execute-when="props['displayfilelist'] == true" endpoint="vm://wcc/PutIntegrationMessage">
+            <cc:set name="is.message.severity" value="'INFO'"/>
+            <cc:set name="is.message.summary" value="'Files found: ' + props['wd.ftp.files.list']"/>
+            <cc:set name="is.message.detail" value="'Criteria used -- directory: ' + props['sftp.directory'] + ' file pattern: ' + props['sftp.filepattern'] + ' file count: ' +  vars['filestoprocess'].xpath('//filecount') + ' actual files: ' +  vars['filestoprocess'].xpath('//actualfilelist')"/>
+        </cc:local-out>
+        <cc:async-mediation id="identifyfilestoprocess" routes-to="callsubroutinelogfilelist">
+            <cc:steps>
+                <cc:eval id="setfilelist">
+                    <cc:expression>props['file-list']=props['wd.ftp.files.list'].toString().replace(&quot;[&quot;,&quot;&quot;).replace(&quot;]&quot;,&quot;&quot;)</cc:expression>
+                    <cc:expression>props['file-pattern']=props['sftp.filepattern'].toString().replace(&quot;*&quot;,&quot;.&quot;)</cc:expression>
+                </cc:eval>
+                <cc:write id="writeblankmsg">
+                    <cc:message>
+                        <cc:text>&lt;blankxml/></cc:text>
+                    </cc:message>
+                </cc:write>
+                <cc:xslt id="findfilestoprocess" output="variable" output-mimetype="text/xml" output-variable="filestoprocess" url="lib/process_xsl/findfilestoprocess.xsl"/>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:sftp-out id="List-Files-From-SFTP-Out" routes-response-to="identifyfilestoprocess" endpoint="@{props['sftp.endpoint']}@{props['sftp.directory']}" method="list" password="@{props['sftp.password']}" username="@{props['sftp.username']}"/>
+        <cc:local-in id="GetFileListfromSFTP" routes-to="List-Files-From-SFTP-Out" access="private" icon="local-in-GetFileListfromSFTP.png">
+            <cc:parameter name="sftp.endpoint" type="string"/>
+            <cc:parameter name="sftp.username" type="string"/>
+            <cc:parameter name="sftp.password" type="string"/>
+            <cc:parameter name="sftp.filepattern" type="string"/>
+            <cc:parameter name="sftp.directory" required="true" type="string"/>
+            <cc:parameter default="true" name="displayfilelist" required="false"/>
+            <cc:out-parameter name="file-list"/>
+        </cc:local-in>
+        <cc:local-out id="CallSubRoutineLogMessage" endpoint="vm://wcc/PutIntegrationMessage">
+            <cc:set name="is.message.severity" value="'INFO'"/>
+            <cc:set name="is.message.summary" value="'Files deleted matching: ' + props['sftp.directory'] + '/' + props['sftp.filename']"/>
+        </cc:local-out>
+        <cc:sftp-out id="Delete-Files-From-SFTP-Out" routes-response-to="CallSubRoutineLogMessage" endpoint="@{props['sftp.endpoint']}@{props['sftp.directory']}" input-file-pattern="@{props['sftp.filename']}" method="mdelete" password="@{props['sftp.password']}" username="@{props['sftp.username']}"/>
+        <cc:local-in id="delete_SFTP_files" routes-to="Delete-Files-From-SFTP-Out" access="public">
+            <cc:parameter name="sftp.endpoint"/>
+            <cc:parameter name="sftp.directory"/>
+            <cc:parameter name="sftp.filename"/>
+            <cc:parameter name="sftp.username"/>
+            <cc:parameter name="sftp.password"/>
+        </cc:local-in>
+        <cc:sftp-out id="MGet-Files-From-SFTP-Out" execute-when="props['file-list'] != ''" endpoint="@{props['sftp.endpoint']}@{props['sftp.directory']}" input-file-pattern="@{props['sftp.filename']}" method="mget" output-file-pattern="${INFILE}" password="@{props['sftp.password']}" username="@{props['sftp.username']}"/>
+        <cc:local-out id="CallSubRoutineLogFilePattern" execute-when="props['displayfilelist'] == true" routes-response-to="MGet-Files-From-SFTP-Out" endpoint="vm://wcc/PutIntegrationMessage">
+            <cc:set name="is.message.severity" value="'INFO'"/>
+            <cc:set name="is.message.summary" value="'Processing File: ' + props['sftp.filename']"/>
+        </cc:local-out>
+        <cc:local-out id="CallGetFileListfromSFTP_mget" routes-response-to="CallSubRoutineLogFilePattern" endpoint="vm://common_sftp_file_processing/GetFileListfromSFTP">
+            <cc:set name="sftp.endpoint" value="props['sftp.endpoint']"/>
+            <cc:set name="sftp.username" value="props['sftp.username']"/>
+            <cc:set name="sftp.password" value="props['sftp.password']"/>
+            <cc:set name="sftp.filepattern" value="props['sftp.filename']"/>
+            <cc:set name="sftp.directory" value="props['sftp.directory']"/>
+            <cc:set name="displayfilelist" value="false"/>
+        </cc:local-out>
+        <cc:local-in id="MGetFilesFromSFTP_InternalUseOnly" routes-to="CallGetFileListfromSFTP_mget" access="public" icon="local-in-MGetFilesFromSFTP_InternalUseOnly.png">
+            <cc:parameter name="sftp.endpoint" type="string"/>
+            <cc:parameter name="sftp.username" type="string"/>
+            <cc:parameter name="sftp.password" type="string"/>
+            <cc:parameter name="sftp.filename" type="string"/>
+            <cc:parameter name="sftp.directory" required="true" type="string"/>
+            <cc:parameter default="true" name="displayfilelist" required="false"/>
+            <cc:out-parameter name="file-list"/>
+        </cc:local-in>
+        <cc:sftp-out id="Get-File-From-SFTP-Out" endpoint="@{props['sftp.endpoint']}@{props['sftp.directory']}" input-file-pattern="@{props['sftp.filename']}" method="get" password="@{props['sftp.password']}" username="@{props['sftp.username']}"/>
+        <cc:local-out id="CallSubRoutineLogFilename" execute-when="props['displayfilelist'] == true" routes-response-to="Get-File-From-SFTP-Out" endpoint="vm://wcc/PutIntegrationMessage">
+            <cc:set name="is.message.severity" value="'INFO'"/>
+            <cc:set name="is.message.summary" value="'Processing File: ' + props['sftp.filename']"/>
+        </cc:local-out>
+        <cc:local-in id="get_SFTP_files_InternalUseOnly" routes-to="CallSubRoutineLogFilename" access="public">
+            <cc:parameter name="sftp.endpoint" type="string"/>
+            <cc:parameter name="sftp.username" type="string"/>
+            <cc:parameter name="sftp.password" type="string"/>
+            <cc:parameter name="sftp.filename" type="string"/>
+            <cc:parameter name="sftp.directory" required="true" type="string"/>
+            <cc:parameter default="true" name="displayfilelist" required="false"/>
+        </cc:local-in>
+        <cc:local-out id="call_process_retrieval_file" execute-when="vars['wd.retrieve.variable'] != null" endpoint="vm://common_sftp_file_processing/process_retrieval_file">
+            <cc:set name="processfile.subroutine" value="props['processfile.subroutine']"/>
+            <cc:set name="sftp.filename" value=" vars['wd.retrieve.variable'].fileName"/>
+        </cc:local-out>
+        <cc:route id="route_each_document">
+            <cc:doc-iterator/>
+            <cc:sub-route name="ToProcess" routes-to="call_process_retrieval_file"/>
+        </cc:route>
+        <cc:async-mediation id="setup_process_counters" routes-to="route_each_document">
+            <cc:steps>
+                <cc:eval id="Setup-Counters">
+                    <cc:expression>props['counter'] = 0</cc:expression>
+                    <cc:expression>props['error-counter'] = 0</cc:expression>
+                    <cc:expression>props['imported-counter'] = 0</cc:expression>
+                    <cc:expression>props['skipped-counter'] = 0</cc:expression>
+                    <cc:expression>props['file-number'] = 0</cc:expression>
+                    <cc:expression>props['file-count'] = da.size()</cc:expression>
+                    <cc:expression>vars['tempfailedoutput.xml']='&lt;blankxml/>'</cc:expression>
+                </cc:eval>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:local-in id="process_retrieved_file" routes-to="setup_process_counters" access="public" icon="local-in-process_retrieved_file1.png"><cc:parameter name="processfile.subroutine" required="true"/></cc:local-in>
+        <cc:local-out id="put_integration_message_nofile" execute-when="vars['filestoprocess'].xpath('//filecount') == 0 &amp;&amp; props['missing.file.error'] == 1" endpoint="vm://wcc/PutIntegrationMessage">
+            <cc:set name="is.message.severity" value="'WARNING'"/>
+            <cc:set name="is.message.summary" value="'No Files Found to Process'"/>
+        </cc:local-out>
+        <cc:local-out id="call_process_sftp_file" endpoint="vm://common_sftp_file_processing/process_sftp_file">
+            <cc:set name="sftp.filename" value="parts[0].xpath(&quot;//filenametoprocess&quot;)"/>
+            <cc:set name="summary-transaction-created" value="false"/>
+        </cc:local-out>
+        <cc:splitter id="Unzip-Files-From-SFTP" no-split-message-error="false">
+            <cc:sub-route name="ProcessEachFile" routes-to="call_process_sftp_file"/>
+            <cc:xml-stream-splitter xpath="//filenametoprocess"/>
+        </cc:splitter>
+        <cc:async-mediation id="ProcessFile" routes-to="Unzip-Files-From-SFTP">
+            <cc:steps>
+                <cc:eval id="Setup-Counters">
+                    <cc:expression>props['counter'] = 0</cc:expression>
+                    <cc:expression>props['error-counter'] = 0</cc:expression>
+                    <cc:expression>props['imported-counter'] = 0</cc:expression>
+                    <cc:expression>props['skipped-counter'] = 0</cc:expression>
+                    <cc:expression>props['file-number'] = 0</cc:expression>
+                    <cc:expression>props['file-count'] = vars['filestoprocess'].xpath(&quot;count(//filenametoprocess)&quot;)</cc:expression>
+                    <cc:expression>vars['tempfailedoutput.xml'] = '&lt;blankxml/>'</cc:expression>
+                </cc:eval>
+                <cc:copy id="filestoprocess" input="variable" input-variable="filestoprocess"/>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:local-in id="process_filestoprocess_var" routes-to="ProcessFile"/>
+        <cc:local-out id="call_process_filestoprocess_var" execute-when="vars['filestoprocess'].xpath('//filecount') != 0" routes-response-to="put_integration_message_nofile" endpoint="vm://common_sftp_file_processing/process_filestoprocess_var"/>
+        <cc:local-out id="call_GetFileListfromSFTP" routes-response-to="call_process_filestoprocess_var" endpoint="vm://common_sftp_file_processing/GetFileListfromSFTP">
+            <cc:set name="sftp.username" value="props['sftp.username']"/>
+            <cc:set name="sftp.filepattern" value="props['sftp.filepattern']"/>
+            <cc:set name="sftp.password" value="props['sftp.password']"/>
+            <cc:set name="sftp.endpoint" value="props['sftp.endpoint']"/>
+            <cc:set name="sftp.directory" value="props['sftp.directory']"/>
+        </cc:local-out>
+        <cc:local-in id="get_and_process_SFTP_files" routes-to="call_GetFileListfromSFTP" access="public">
+            <cc:parameter name="sftp.endpoint" type="string"/>
+            <cc:parameter name="sftp.username" type="string"/>
+            <cc:parameter name="sftp.password" type="string"/>
+            <cc:parameter name="sftp.filepattern" type="string"/>
+            <cc:parameter name="sftp.directory" required="true" type="string"/>
+            <cc:parameter name="process.type" type="string"/>
+            <cc:parameter name="integration.type" type="string"/>
+            <cc:parameter name="delete-sftp-files" type="string"/>
+            <cc:parameter default="true" name="displayfilelist" required="false"/>
+            <cc:parameter default="''" name="processfile.subroutine" required="false"/>
+            <cc:parameter default="false" name="missing.file.error" required="true"/>
+        </cc:local-in>
+        <cc:local-out id="call_delete_SFTP_files_mget" execute-when="props['delete-sftp-files'] == 1" endpoint="vm://common_sftp_file_processing/delete_SFTP_files">
+            <cc:set name="sftp.filename" value="props['process.filename']"/>
+            <cc:set name="sftp.directory" value="props['sftp.directory']"/>
+            <cc:set name="sftp.username" value="intsys.getAttribute('sftp.username')"/>
+            <cc:set name="sftp.password" value="intsys.getAttribute('sftp.password')"/>
+            <cc:set name="sftp.endpoint" value="intsys.getAttribute('sftp.endpoint')"/>
+        </cc:local-out>
+        <cc:local-out id="put_integration_message_emptyfile" routes-response-to="call_delete_SFTP_files_mget" endpoint="vm://wcc/PutIntegrationMessage">
+            <cc:set name="is.message.severity" value="'WARNING'"/>
+            <cc:set name="is.message.summary" value="'Empty File Found to Process'"/>
+        </cc:local-out>
+        <cc:local-out id="call_process_file_mget" routes-response-to="call_delete_SFTP_files_mget" endpoint="vm://common_sftp_file_processing/process_file">
+            <cc:set name="processfile.subroutine" value="props['processfile.subroutine']"/>
+            <cc:set name="sftp.filename" value="props['process.filename']"/>
+        </cc:local-out>
+        <cc:route id="check_empty_doc">
+            <cc:mvel-strategy filter="false">
+                <cc:choose-route expression="message.length == 0" route="skip_file"/>
+                <cc:choose-route expression="message.length != 0" route="process_file"/>
+            </cc:mvel-strategy>
+            <cc:sub-route name="process_file" routes-to="call_process_file_mget"/>
+            <cc:sub-route name="skip_file" routes-to="put_integration_message_emptyfile"/>
+        </cc:route>
+        <cc:async-mediation id="set_filename" routes-to="check_empty_doc">
+            <cc:steps>
+                <cc:eval id="set_filename">
+                	<cc:expression>props['process.filename'] = message.getHeader('content-disposition').toString().substring(message.getHeader('content-disposition').toString().lastIndexOf(&quot;filename=&quot;)+9).replaceAll('&quot;','')</cc:expression>
+               	</cc:eval>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:splitter id="Splitter-FTP-files" no-split-message-error="false">
+            <cc:sub-route name="process-each-file" routes-to="set_filename"/>
+            <cc:unzip-splitter/>
+        </cc:splitter>
+        <cc:async-mediation id="setup_process_counters_mget" routes-to="Splitter-FTP-files">
+            <cc:steps>
+                <cc:copy id="set-content-type" output-mimetype="text/xml"/>
+                <cc:eval id="Setup-Counters">
+                    <cc:expression>props['counter'] = 0</cc:expression>
+                    <cc:expression>props['error-counter'] = 0</cc:expression>
+                    <cc:expression>props['imported-counter'] = 0</cc:expression>
+                    <cc:expression>props['skipped-counter'] = 0</cc:expression>
+                    <cc:expression>props['file-number'] = 0</cc:expression>
+                    <cc:expression>props['file-count'] = vars['filestoprocess'].xpath(&quot;count(//filenametoprocess)&quot;)</cc:expression>
+                    <cc:expression>vars['tempfailedoutput.xml']='&lt;blankxml/>'</cc:expression>
+                </cc:eval>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:local-out id="CallMGetFilesFromSFTP_InternalUseOnly" routes-response-to="setup_process_counters_mget" endpoint="vm://common_sftp_file_processing/MGetFilesFromSFTP_InternalUseOnly">
+            <cc:set name="sftp.endpoint" value="props['sftp.endpoint']"/>
+            <cc:set name="sftp.username" value="props['sftp.username']"/>
+            <cc:set name="sftp.password" value="props['sftp.password']"/>
+            <cc:set name="sftp.filename" value="props['sftp.filepattern']"/>
+            <cc:set name="sftp.directory" value="props['sftp.directory']"/>
+            <cc:set name="displayfilelist" value="false"/>
+        </cc:local-out>
+        <cc:local-in id="get_and_process_SFTP_files_multiple" routes-to="CallMGetFilesFromSFTP_InternalUseOnly" access="public">
+            <cc:parameter name="sftp.endpoint" type="string"/>
+            <cc:parameter name="sftp.username" type="string"/>
+            <cc:parameter name="sftp.password" type="string"/>
+            <cc:parameter name="sftp.filepattern" type="string"/>
+            <cc:parameter name="sftp.directory" required="true" type="string"/>
+            <cc:parameter name="process.type" type="string"/>
+            <cc:parameter name="integration.type" type="string"/>
+            <cc:parameter name="delete-sftp-files" type="string"/>
+            <cc:parameter default="true" name="displayfilelist" required="false"/>
+            <cc:parameter default="''" name="processfile.subroutine" required="false"/>
+            <cc:parameter default="false" name="missing.file.error" required="true"/>
+        </cc:local-in>
+        <cc:local-out id="call_process_file_subRoutine" store-message="none" endpoint="vm://@{props['processfile.subroutine']}">
+            <cc:set name="filetoprocess-totalcount" value="props['file-count']"/>
+            
+            
+            
+            
+            
+            
+        </cc:local-out>
+        <cc:local-out id="call_log_filename" execute-when="props['displayfilelist'] == true" routes-response-to="cp_to_msg" endpoint="vm://wcc/PutIntegrationMessage">
+            <cc:set name="is.message.severity" value="'INFO'"/>
+            <cc:set name="is.message.summary" value="'Processing File: ' + props['sftp.filename']"/>
+        </cc:local-out>
+        <cc:async-mediation id="cp_to_msg" routes-to="call_process_file_subRoutine">
+            <cc:steps>
+                <cc:eval id="reset-file-counters">
+                    <cc:expression>props['file-number']=props['file-number'] +1</cc:expression>
+                    <cc:expression>props['imported-counter-file'] = 0</cc:expression>
+                    <cc:expression>props['counter-file'] = 0</cc:expression>
+                    <cc:expression>props['failed-counter-file'] = 0</cc:expression>
+                    <cc:expression>props['skipped-counter-file'] = 0</cc:expression>
+                    <cc:expression>props['aggregation-complete-flag'] = false</cc:expression>
+                    <cc:expression>props['summary-transaction-created'] = false</cc:expression>
+                </cc:eval>
+                <cc:copy id="cp_var_to_msg" input="variable" input-variable="file.data"/>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:async-mediation id="set_file_data_var_retrieval" routes-to="call_log_filename">
+            <cc:steps>
+                <cc:copy id="copy_data_to_var" output="variable" output-mimetype="text/xml" output-variable="file.data" input="variable" input-variable="wd.retrieve.variable"/>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:local-in id="process_retrieval_file" routes-to="set_file_data_var_retrieval">
+            <cc:parameter name="processfile.subroutine" required="false"/>
+            <cc:parameter name="sftp.filename"/>
+        </cc:local-in>
+        <cc:async-mediation id="set_file_data_var_mget" routes-to="call_log_filename">
+            <cc:steps>
+                <cc:copy id="copy_data_to_var" output="variable" output-mimetype="text/xml" output-variable="file.data" input="message"/>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:local-in id="process_file" routes-to="set_file_data_var_mget">
+            <cc:parameter name="processfile.subroutine" required="false"/>
+            <cc:parameter name="sftp.filename"/>
+        </cc:local-in>
+        <cc:async-mediation id="set_file_data_var" routes-to="cp_to_msg">
+            <cc:steps>
+                <cc:copy id="CopyFileToText" output="variable" output-mimetype="text/xml" output-variable="file.data" input="message"/>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:local-in id="SubRoutineProcessFile" routes-to="set_file_data_var">
+            <cc:parameter name="processfile.subroutine" required="false"/>
+        </cc:local-in>
+	</cc:assembly>
+
+</beans>

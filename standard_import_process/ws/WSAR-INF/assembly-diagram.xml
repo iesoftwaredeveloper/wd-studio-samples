@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wdnm:Diagram xmlns:wdnm="http://workday.com/studio/editors/notation">
+  <element href="assembly.xml#WorkdayAssembly"/>
+  <visualProperties>
+    <element href="assembly.xml#put_workday_web_serivce_call"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#call_store_msg_return_msg_source"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#create_put_web_service_call"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#call_store_msg_return_msg_put"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#put-error-message-convert"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#make_workday_soap_call"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#get_workday_paged_web_service_call"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#create_get_web_service_call"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#call_store_msg_return_msg_get"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#get_paging_results_from_get"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#get_raas_web_service_call"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#make_workday_raas_call"/>
+  </visualProperties>
+  <visualProperties x="1308" y="524">
+    <element href="assembly.xml#call_get_response_endpoint"/>
+  </visualProperties>
+  <visualProperties x="426" y="496">
+    <element href="assembly.xml#put_raas_call_msg"/>
+  </visualProperties>
+  <visualProperties x="1107" y="420">
+    <element href="assembly.xml#group_rsp_data"/>
+  </visualProperties>
+  <visualProperties x="1252" y="435">
+    <element href="assembly.xml#group_rsp"/>
+  </visualProperties>
+  <visualProperties x="1535" y="172">
+    <element href="assembly.xml#call_store_msg_return_msg_rsp"/>
+  </visualProperties>
+  <visualProperties x="1251" y="392">
+    <element href="assembly.xml#call_store_msg_return_msg_rsp_conformed"/>
+  </visualProperties>
+  <visualProperties x="1108" y="442">
+    <element href="assembly.xml#determine_endpoint"/>
+  </visualProperties>
+  <visualProperties x="1308" y="442">
+    <element href="assembly.xml#call_group_rsp_data"/>
+  </visualProperties>
+  <visualProperties x="863" y="488">
+    <element href="assembly.xml#call_determine_endpoint"/>
+  </visualProperties>
+  <connections type="routesTo">
+    <source href="assembly.xml#put_workday_web_serivce_call"/>
+    <target href="assembly.xml#call_store_msg_return_msg_source"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_store_msg_return_msg_source"/>
+    <target href="assembly.xml#create_put_web_service_call"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#create_put_web_service_call"/>
+    <target href="assembly.xml#call_store_msg_return_msg_put"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#//@beans/@mixed.1/@mixed.7/@mixed.3"/>
+    <target href="assembly.xml#put-error-message-convert"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_store_msg_return_msg_put"/>
+    <target href="assembly.xml#make_workday_soap_call"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#get_workday_paged_web_service_call"/>
+    <target href="assembly.xml#create_get_web_service_call"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#create_get_web_service_call"/>
+    <target href="assembly.xml#call_store_msg_return_msg_get"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_store_msg_return_msg_get"/>
+    <target href="assembly.xml#get_paging_results_from_get"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#get_raas_web_service_call"/>
+    <target href="assembly.xml#put_raas_call_msg"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#put_raas_call_msg"/>
+    <target href="assembly.xml#make_workday_raas_call"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#group_rsp_data"/>
+    <target href="assembly.xml#call_store_msg_return_msg_rsp"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_store_msg_return_msg_rsp"/>
+    <target href="assembly.xml#group_rsp"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#group_rsp"/>
+    <target href="assembly.xml#call_store_msg_return_msg_rsp_conformed"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#determine_endpoint"/>
+    <target href="assembly.xml#call_group_rsp_data"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#make_workday_raas_call"/>
+    <target href="assembly.xml#call_determine_endpoint"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_group_rsp_data"/>
+    <target href="assembly.xml#call_get_response_endpoint"/>
+  </connections>
+  <swimlanes bgColor="8454016" name="End Point Processing" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#call_store_msg_return_msg_put"/>
+    <elements href="assembly.xml#put-error-message-convert"/>
+  </swimlanes>
+  <swimlanes x="18" y="-13" bgColor="12632256" name="Put Web Service Call" alignment="MIDDLE">
+    <elements href="assembly.xml#put_workday_web_serivce_call"/>
+    <elements href="assembly.xml#call_store_msg_return_msg_source"/>
+    <elements href="assembly.xml#create_put_web_service_call"/>
+    <elements href="#//@swimlanes.0"/>
+    <elements href="assembly.xml#make_workday_soap_call"/>
+  </swimlanes>
+  <swimlanes bgColor="8454016" name="Get Web Service Call" alignment="MIDDLE">
+    <elements href="assembly.xml#get_workday_paged_web_service_call"/>
+    <elements href="assembly.xml#create_get_web_service_call"/>
+    <elements href="assembly.xml#call_store_msg_return_msg_get"/>
+    <elements href="assembly.xml#get_paging_results_from_get"/>
+  </swimlanes>
+  <swimlanes bgColor="8454016" name="Call RaaS">
+    <elements href="assembly.xml#get_raas_web_service_call"/>
+    <elements href="assembly.xml#put_raas_call_msg"/>
+    <elements href="assembly.xml#make_workday_raas_call"/>
+    <elements href="assembly.xml#call_determine_endpoint"/>
+  </swimlanes>
+  <swimlanes x="18" y="213" bgColor="12632256" name="Get Workday Data" orientation="VERTICAL" elements="//@swimlanes.2 //@swimlanes.3" alignment="MIDDLE"/>
+  <swimlanes x="18" y="554" bgColor="8454016" name="Group Response Data" alignment="MIDDLE">
+    <elements href="assembly.xml#group_rsp_data"/>
+    <elements href="assembly.xml#call_store_msg_return_msg_rsp"/>
+    <elements href="assembly.xml#group_rsp"/>
+    <elements href="assembly.xml#call_store_msg_return_msg_rsp_conformed"/>
+  </swimlanes>
+  <swimlanes x="1133" y="387" bgColor="8454016" name="Process Response" alignment="MIDDLE">
+    <elements href="assembly.xml#determine_endpoint"/>
+    <elements href="assembly.xml#call_group_rsp_data"/>
+    <elements href="assembly.xml#call_get_response_endpoint"/>
+  </swimlanes>
+  <swimlanes x="18" y="553" bgColor="12632256" name="Response Data Processing" orientation="VERTICAL" elements="//@swimlanes.5 //@swimlanes.6" alignment="MIDDLE"/>
+</wdnm:Diagram>

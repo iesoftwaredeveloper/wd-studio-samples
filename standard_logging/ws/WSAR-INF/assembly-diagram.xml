@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wdnm:Diagram xmlns:wdnm="http://workday.com/studio/editors/notation">
+  <element href="assembly.xml#WorkdayAssembly"/>
+  <visualProperties>
+    <element href="assembly.xml#store_msg_return_msg"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#store-file"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#return-msg"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#store_msg_for_output_file"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#storefile"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#SendErrorToWorkday_withFile"/>
+  </visualProperties>
+  <connections type="routesTo">
+    <source href="assembly.xml#store_msg_return_msg"/>
+    <target href="assembly.xml#store-file"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#store-file"/>
+    <target href="assembly.xml#return-msg"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#store_msg_for_output_file"/>
+    <target href="assembly.xml#storefile"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#storefile"/>
+    <target href="assembly.xml#SendErrorToWorkday_withFile"/>
+  </connections>
+  <swimlanes x="25" y="28" bgColor="12632256" name="Store Logging Message" alignment="MIDDLE">
+    <elements href="assembly.xml#store_msg_return_msg"/>
+    <elements href="assembly.xml#store-file"/>
+    <elements href="assembly.xml#return-msg"/>
+  </swimlanes>
+  <swimlanes x="19" y="208" bgColor="12632256" name="Store Output Variable for Delivery" alignment="MIDDLE">
+    <elements href="assembly.xml#store_msg_for_output_file"/>
+    <elements href="assembly.xml#storefile"/>
+    <elements href="assembly.xml#SendErrorToWorkday_withFile"/>
+  </swimlanes>
+</wdnm:Diagram>
