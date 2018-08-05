@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wdnm:Diagram xmlns:wdnm="http://workday.com/studio/editors/notation">
+  <element href="assembly.xml#WorkdayAssembly"/>
+  <visualProperties>
+    <element href="assembly.xml#begin_migration_process"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#call_PutIntegrationMessage_process"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#get_set_properties"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#call_get_request_endpoint"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#split_and_process_response"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#split_response"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#call_process_xml_data"/>
+  </visualProperties>
+  <connections type="routesTo">
+    <source href="assembly.xml#begin_migration_process"/>
+    <target href="assembly.xml#call_PutIntegrationMessage_process"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_PutIntegrationMessage_process"/>
+    <target href="assembly.xml#get_set_properties"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#get_set_properties"/>
+    <target href="assembly.xml#call_get_request_endpoint"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#split_and_process_response"/>
+    <target href="assembly.xml#split_response"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#//@beans/@mixed.1/@splitter.0/@subRoute.0"/>
+    <target href="assembly.xml#call_process_xml_data"/>
+  </connections>
+  <swimlanes x="22" y="31" bgColor="12632256" name="Set Properties" alignment="MIDDLE">
+    <elements href="assembly.xml#begin_migration_process"/>
+    <elements href="assembly.xml#call_PutIntegrationMessage_process"/>
+    <elements href="assembly.xml#get_set_properties"/>
+    <elements href="assembly.xml#call_get_request_endpoint"/>
+  </swimlanes>
+  <swimlanes bgColor="8454016" name="Process Split Data" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#split_response"/>
+    <elements href="assembly.xml#call_process_xml_data"/>
+  </swimlanes>
+  <swimlanes x="22" y="201" bgColor="12632256" name="" alignment="MIDDLE">
+    <elements href="assembly.xml#split_and_process_response"/>
+    <elements href="#//@swimlanes.1"/>
+  </swimlanes>
+</wdnm:Diagram>

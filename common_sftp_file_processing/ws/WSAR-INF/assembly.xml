@@ -10,7 +10,7 @@
      xmlns:wd="urn:com.workday/bsvc"
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
  
-	<cc:assembly id="WorkdayAssembly" version="2017.17">
+	<cc:assembly id="WorkdayAssembly" version="2017.35">
         <cc:aggregator id="aggregate_filedetails" force-batch-when="props['filetoprocess-totalcount'] == props['filetoprocess-current']">
             <cc:size-batch-strategy/>
             <cc:xml-message-content-collater output="variable" output-mimetype="text/xml" output-variable="filedetails.xml">

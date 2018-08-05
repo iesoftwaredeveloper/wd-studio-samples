@@ -355,7 +355,7 @@
     <elements href="#//@swimlanes.12"/>
     <elements href="assembly.xml#call_delete_SFTP_files_mget"/>
   </swimlanes>
-  <swimlanes x="1620" y="547" name="get_and_process_SFTP_files_multiple" orientation="VERTICAL" elements="//@swimlanes.9 //@swimlanes.13" alignment="MIDDLE"/>
+  <swimlanes x="1620" y="547" bgColor="8355711" name="get_and_process_SFTP_files_multiple" orientation="VERTICAL" elements="//@swimlanes.9 //@swimlanes.13" alignment="MIDDLE"/>
   <swimlanes name="Process Each File from File List" alignment="MIDDLE">
     <elements href="assembly.xml#process_filestoprocess_var"/>
     <elements href="assembly.xml#ProcessFile"/>
@@ -411,5 +411,5 @@
     <elements href="assembly.xml#copy_message_to_file_var"/>
     <elements href="assembly.xml#aggregate_filedetails"/>
   </swimlanes>
-  <swimlanes x="1620" y="35" name="Private local-in transports for processing" orientation="VERTICAL" elements="//@swimlanes.23 //@swimlanes.24 //@swimlanes.25" alignment="MIDDLE"/>
+  <swimlanes x="1620" y="35" bgColor="8355711" name="Private local-in transports for processing" orientation="VERTICAL" elements="//@swimlanes.23 //@swimlanes.24 //@swimlanes.25" alignment="MIDDLE"/>
 </wdnm:Diagram>

@@ -30,6 +30,9 @@
                 <xsl:value-of select="' '"/>
                 <xsl:value-of select="wd:Address_Line_Data[@wd:Type = 'ADDRESS_LINE_2']"/>
             </wd:full_address_line>
+            <wd:clean_address_line_1>
+                <xsl:value-of select="replace(replace(replace(replace(replace(replace(replace(lower-case(normalize-space(wd:Address_Line_Data[@wd:Type = 'ADDRESS_LINE_1'])), '#\.',''),' rd',' road'),' ln',' lane'),' avenue',' ave'),' street',' st'), ' drive',' dr'),' ct',' court')"/>
+            </wd:clean_address_line_1>
             <xsl:apply-templates select="wd:Municipality"/>
             <xsl:apply-templates select="wd:Country_Region_Reference"/>
             <xsl:apply-templates select="wd:Postal_Code"/>

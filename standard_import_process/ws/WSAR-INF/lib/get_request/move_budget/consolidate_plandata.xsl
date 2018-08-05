@@ -112,6 +112,25 @@
         <xsl:if test="$debit_balance != 0">
             <ecmc:budget_record>
                 <xsl:attribute name="row-number" select="position()"/>
+                <xsl:attribute name="ecmc:record-group">
+                    <xsl:value-of select="je:Year/je:ID[@je:type != 'WID']"/>
+                    <xsl:value-of select="'-'"/>
+                    <xsl:value-of select="je:Period/je:ID[@je:type='Fiscal_Posting_Interval_ID']"/>
+                    <xsl:value-of select="'-'"/>
+                    <xsl:value-of select="$company-id"/>
+                    <xsl:value-of select="'-'"/>
+                    <xsl:value-of select="je:Ledger_Account/je:ID[@je:type = 'Ledger_Account_ID']"/>
+                    <xsl:value-of select="'-'"/>
+                    <xsl:value-of select="je:Cost_Center/je:ID[@je:type = 'Organization_Reference_ID']"/>
+                    <xsl:value-of select="'-'"/>
+                    <xsl:value-of select="je:Region/je:ID[@je:type = 'Organization_Reference_ID']"/>
+                    <xsl:value-of select="'-'"/>
+                    <xsl:value-of select="je:Project/je:ID[@je:type = 'Project_ID']"/>
+                    <xsl:value-of select="'-'"/>
+                    <xsl:value-of select="je:Revenue_Category/je:ID[@je:type = 'Revenue_Category_ID']"/>
+                    <xsl:value-of select="'-'"/>
+                    <xsl:value-of select="je:Spend_Category/je:ID[@je:type = 'Spend_Category_ID']"/>
+                </xsl:attribute>
                 <ecmc:company>
                     <xsl:attribute name="original_company" select="je:Company/je:ID[@je:type = 'Organization_Reference_ID']"/>
                     <xsl:attribute name="allocation_only" select="je:allocation_only/@je:Descriptor"/>

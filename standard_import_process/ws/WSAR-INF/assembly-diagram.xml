@@ -130,15 +130,9 @@
   </connections>
   <swimlanes bgColor="8454016" name="End Point Processing" orientation="VERTICAL" alignment="MIDDLE">
     <elements href="assembly.xml#call_store_msg_return_msg_put"/>
-    <elements href="assembly.xml#put-error-message-convert"/>
-  </swimlanes>
-  <swimlanes x="18" y="-13" bgColor="12632256" name="Put Web Service Call" alignment="MIDDLE">
-    <elements href="assembly.xml#put_workday_web_serivce_call"/>
-    <elements href="assembly.xml#call_store_msg_return_msg_source"/>
-    <elements href="assembly.xml#create_put_web_service_call"/>
-    <elements href="#//@swimlanes.0"/>
     <elements href="assembly.xml#make_workday_soap_call"/>
   </swimlanes>
+  <swimlanes x="18" y="-13" bgColor="12632256" name="Put Web Service Call" elements="//@swimlanes.8 //@swimlanes.9 //@swimlanes.0" alignment="MIDDLE"/>
   <swimlanes bgColor="8454016" name="Get Web Service Call" alignment="MIDDLE">
     <elements href="assembly.xml#get_workday_paged_web_service_call"/>
     <elements href="assembly.xml#create_get_web_service_call"/>
@@ -151,7 +145,7 @@
     <elements href="assembly.xml#make_workday_raas_call"/>
     <elements href="assembly.xml#call_determine_endpoint"/>
   </swimlanes>
-  <swimlanes x="18" y="213" bgColor="12632256" name="Get Workday Data" orientation="VERTICAL" elements="//@swimlanes.2 //@swimlanes.3" alignment="MIDDLE"/>
+  <swimlanes x="25" y="295" bgColor="12632256" name="Get Workday Data" orientation="VERTICAL" elements="//@swimlanes.2 //@swimlanes.3" alignment="MIDDLE"/>
   <swimlanes x="18" y="554" bgColor="8454016" name="Group Response Data" alignment="MIDDLE">
     <elements href="assembly.xml#group_rsp_data"/>
     <elements href="assembly.xml#call_store_msg_return_msg_rsp"/>
@@ -163,5 +157,13 @@
     <elements href="assembly.xml#call_group_rsp_data"/>
     <elements href="assembly.xml#call_get_response_endpoint"/>
   </swimlanes>
-  <swimlanes x="18" y="553" bgColor="12632256" name="Response Data Processing" orientation="VERTICAL" elements="//@swimlanes.5 //@swimlanes.6" alignment="MIDDLE"/>
+  <swimlanes x="25" y="618" bgColor="12632256" name="Response Data Processing" orientation="VERTICAL" elements="//@swimlanes.5 //@swimlanes.6" alignment="MIDDLE"/>
+  <swimlanes x="26" y="141" bgColor="8454016" name="Local In" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#put_workday_web_serivce_call"/>
+    <elements href="assembly.xml#call_store_msg_return_msg_source"/>
+  </swimlanes>
+  <swimlanes x="298" y="148" bgColor="8454016" name="Swimlane" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#create_put_web_service_call"/>
+    <elements href="assembly.xml#put-error-message-convert"/>
+  </swimlanes>
 </wdnm:Diagram>

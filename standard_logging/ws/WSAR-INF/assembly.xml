@@ -38,7 +38,7 @@
                 <cc:store id="Store" output="variable" output-variable="upload.report" input="variable" input-variable="output.data" createDocumentReference="true" title="@{props['output.filename']}"/>
             </cc:steps>
         </cc:async-mediation>
-        <cc:local-in id="store_msg_for_output_file" routes-to="storefile" access="public" icon="local-in-store_msg_for_output_file.png" tooltip="Sub Routine Used to Store 'output,data' variable to Workday and assign the correct delivery tags/services." use-global-error-handlers="false">
+        <cc:local-in id="store_msg_for_output_file" routes-to="storefile" access="public" icon="local-in-store_msg_for_output_file.png" tooltip="Sub Routine Used to Store 'output.data' variable to Workday and assign the correct delivery tags/services." use-global-error-handlers="false">
             <cc:parameter default="'noOutputFilenameProvided.xml'" name="output.filename" required="true"/>
             <cc:parameter default="'false'" name="document.deliver" required="false"/>
             <cc:parameter default="''" name="document.delivery.services" required="false"/>

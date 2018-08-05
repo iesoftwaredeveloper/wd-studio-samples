@@ -80,11 +80,11 @@
     <target href="assembly.xml#aggregate_zip_response_data"/>
   </connections>
   <connections type="routesTo">
-    <source href="assembly.xml#aggregate_text_response_data"/>
-    <target href="assembly.xml#cp-msg-txt"/>
+    <source href="assembly.xml#cp-msg-txt"/>
+    <target href="assembly.xml#call_store_msg_return_msg"/>
   </connections>
   <connections type="routesTo">
-    <source href="assembly.xml#cp-msg-txt"/>
+    <source href="assembly.xml#aggregate_text_response_data"/>
     <target href="assembly.xml#call_store_msg_return_msg"/>
   </connections>
   <swimlanes bgColor="8454016" name="aggregate xml data" alignment="MIDDLE">

@@ -36,15 +36,21 @@
             </cc:steps>
         </cc:async-mediation>
         <cc:local-out id="call_store_msg_return_msg" routes-response-to="reset_counter" endpoint="vm://standard_logging/store_msg_for_output_file">
-            
             <cc:set name="document.deliver" value="props['deliver.documents']"/>
             <cc:set name="document.delivery.services" value="props['document.delivery.services']"/>
-        <cc:set name="output.filename" value="props['output.filename']"/></cc:local-out>
-        <cc:aggregator id="aggregate_text_response_data" routes-to="cp-msg-txt" allow-external-control="false" force-batch-on-last-message="true" force-batch-when="(props['page.current'] == props['page.total'])">
+            <cc:set name="output.filename" value="props['output.filename']"/>
+        </cc:local-out>
+        <cc:aggregator id="aggregate_text_response_data" routes-to="call_store_msg_return_msg" allow-external-control="false" force-batch-on-last-message="true" force-batch-when="(props['page.current'] == props['page.total'])">
             <cc:size-batch-strategy batch-size="1500000"/>
-            <cc:message-content-collater output="variable" output-variable="upload.data"/>
+            <cc:message-content-collater output="variable" output-variable="output.data"/>
         </cc:aggregator>
-        <cc:local-in id="aggregatetextmessage" routes-to="aggregate_text_response_data" access="public"><cc:parameter name="page.current"/><cc:parameter name="page.total"/><cc:parameter default="'Output Filename Not Set.txt'" name="output.filename" required="true"/><cc:parameter default="false" name="document.deliver" required="true"/><cc:parameter name="document.delivery.services"/></cc:local-in>
+        <cc:local-in id="aggregatetextmessage" routes-to="aggregate_text_response_data" access="public">
+            <cc:parameter name="page.current"/>
+            <cc:parameter name="page.total"/>
+            <cc:parameter default="'Output Filename Not Set.txt'" name="output.filename" required="true"/>
+            <cc:parameter default="false" name="document.deliver" required="true"/>
+            <cc:parameter name="document.delivery.services"/>
+        </cc:local-in>
         <cc:async-mediation id="reset_counter_xml" execute-steps-when="props['webservice.application']=='RAAS' &amp;&amp; props['split.output.file']==true">
             <cc:steps>
                 <cc:eval id="update_page">

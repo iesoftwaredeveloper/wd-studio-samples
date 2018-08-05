@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+     xmlns="http://www.springframework.org/schema/beans"
+     xmlns:beans="http://www.springframework.org/schema/beans"
+     xmlns:atom="http://www.w3.org/2005/Atom"
+     xmlns:cc="http://www.capeclear.com/assembly/10"
+     xmlns:cloud="urn:com.workday/esb/cloud/10.0"
+     xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+     xmlns:pi="urn:com.workday/picof"
+     xmlns:wd="urn:com.workday/bsvc"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ 
+	<cc:assembly id="WorkdayAssembly" version="2017.35">
+        <cc:local-out id="call_get_request_endpoint" store-message="none" endpoint="vm://@{props['web.service.get.request.endpoint']}">
+            <cc:set name="web.service.get.request" value="props['web.service.get.request']"/>
+            <cc:set name="report.extra.path" value="props['report.extra.path'] + props['report.filter']"/>
+            <cc:set name="web.service.get.response.endpoint" value="props['web.service.get.response.endpoint']"/>
+            <cc:set name="web.service.request.log" value="props['web.service.request.log']"/>
+            <cc:set name="web.service.get.application" value="props['web.service.get.application']"/>
+            <cc:set name="web.service.version" value="props['web.service.version']"/>
+            <cc:set name="web.service.get.response.consolidate.filename" value="props['web.service.get.response.consolidate.filename']"/>
+            <cc:set name="web.service.get.consolidate.response.data" value="props['web.service.get.consolidate.response.data']"/>
+        </cc:local-out>
+        <cc:async-mediation id="get_set_properties" routes-to="call_get_request_endpoint">
+            <cc:steps>
+                <cc:xslt id="get-properties" output="variable" output-variable="config.properties" url="lib/processing/configuration_properties.xsl"/>
+                <cc:eval id="set-process-props">
+                    <cc:expression>props['web.service.get.application'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:application&quot;, &quot;fhc http://firehawk.github.com&quot;)</cc:expression>
+                    <cc:expression>props['web.service.put.application'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:application&quot;, &quot;fhc http://firehawk.github.com&quot;)</cc:expression>
+                    <cc:expression>props['web.service.get.request'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:request_filename&quot;, &quot;fhc http://firehawk.github.com&quot;)</cc:expression>
+                    <cc:expression>props['web.service.put.request'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:request_filename&quot;, &quot;fhc http://firehawk.github.com&quot;)</cc:expression>
+                    <cc:expression>props['web.service.filter.multi.instance.1'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:filter_attributes/fhc:multi_instance_filters/fhc:filter_attribute[1]&quot;, &quot;fhc http://firehawk.github.com&quot;)</cc:expression>
+                    <cc:expression>props['web.service.filter.multi.instance.2'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:filter_attributes/fhc:multi_instance_filters/fhc:filter_attribute[2]&quot;, &quot;fhc http://firehawk.github.com&quot;)</cc:expression>
+                    <cc:expression>props['web.service.filter.multi.instance.3'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:filter_attributes/fhc:multi_instance_filters/fhc:filter_attribute[3]&quot;, &quot;fhc http://firehawk.github.com&quot;)</cc:expression>
+                    <cc:expression>props['web.service.filter.single.instance.1'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:filter_attributes/fhc:single_instance_filters/fhc:filter_attribute[1]&quot;, &quot;fhc http://firehawk.github.com&quot;)</cc:expression>
+                    <cc:expression>props['web.service.filter.single.instance.2'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:filter_attributes/fhc:single_instance_filters/fhc:filter_attribute[2]&quot;, &quot;fhc http://firehawk.github.com&quot;)</cc:expression>
+                    <cc:expression>props['web.service.filter.single.instance.3'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:filter_attributes/fhc:single_instance_filters/fhc:filter_attribute[3]&quot;, &quot;fhc http://firehawk.github.com&quot;)</cc:expression>
+                    <cc:expression>props['web.service.update.multi.instance.1'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:update_attributes/fhc:multi_instance_updates/fhc:update_attribute[1]&quot;, &quot;fhc http://firehawk.github.com&quot;)</cc:expression>
+                    <cc:expression>props['web.service.update.multi.instance.2'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:update_attributes/fhc:multi_instance_updates/fhc:update_attribute[2]&quot;, &quot;fhc http://firehawk.github.com&quot;)</cc:expression>
+                    <cc:expression>props['web.service.update.multi.instance.3'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:update_attributes/fhc:multi_instance_updates/fhc:update_attribute[3]&quot;, &quot;fhc http://firehawk.github.com&quot;)</cc:expression>
+                    <cc:expression>props['web.service.update.single.instance.1'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:update_attributes/fhc:single_instance_updates/fhc:update_attribute[1]&quot;, &quot;fhc http://firehawk.github.com&quot;)</cc:expression>
+                    <cc:expression>props['web.service.update.single.instance.2'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:update_attributes/fhc:single_instance_updates/fhc:update_attribute[2]&quot;, &quot;fhc http://firehawk.github.com&quot;)</cc:expression>
+                    <cc:expression>props['web.service.update.single.instance.3'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:update_attributes/fhc:single_instance_updates/fhc:update_attribute[3]&quot;, &quot;fhc http://firehawk.github.com&quot;)</cc:expression>
+                    <cc:expression>props['web.service.get.request.endpoint'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:request_endpoint&quot;, &quot;fhc http://firehawk.github.com&quot;)</cc:expression>
+                    <cc:expression>props['web.service.get.response.endpoint'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:response_endpoint&quot;, &quot;fhc http://firehawk.github.com&quot;)</cc:expression>
+                    <cc:expression>props['web.service.get.consolidate.response.data'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:response_endpoint/@fhc:group_rsp_data&quot;, &quot;fhc http://firehawk.github.com&quot;)</cc:expression>
+                    <cc:expression>props['web.service.get.response.consolidate.filename'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:response_consolidate_filename&quot;, &quot;fhc http://firehawk.github.com&quot;)</cc:expression>
+                    <cc:expression>props['web.service.put.request.endpoint'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:request_endpoint&quot;, &quot;fhc http://firehawk.github.com&quot;)</cc:expression>
+                    <cc:expression>props['web.service.update.data.attribute'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:update_attributes/fhc:update_data_attribute&quot;, &quot;fhc http://firehawk.github.com&quot;)</cc:expression>
+                    <cc:expression>props['xml.split.namespace'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:split_namespace&quot;, &quot;fhc http://firehawk.github.com&quot;)</cc:expression>
+                    <cc:expression>props['xml.split.tag'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:split_tag&quot;, &quot;fhc http://firehawk.github.com&quot;)</cc:expression>
+                    <cc:expression>props['report.alias'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:report_alias&quot;, &quot;fhc http://firehawk.github.com&quot;)</cc:expression>
+                    <cc:expression>props['report.filter'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:filter_attributes/fhc:report_filter&quot;, &quot;fhc http://firehawk.github.com&quot;)</cc:expression>
+                    <cc:expression>props['web.service.get.request.type'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:filter_attributes/fhc:report_filter&quot;, &quot;fhc http://firehawk.github.com&quot;)</cc:expression>
+                </cc:eval>
+                <cc:eval id="set-attribute-values">
+                    <cc:expression>props['multi.instance.filter.1.wids'] = (props['web.service.filter.multi.instance.1'].length() == 0)? 'no': intsys.getAttributeReferenceDataList(props['web.service.filter.multi.instance.1'], 'WID').toString().replace(&quot;[&quot;,&quot;&quot;).replace(&quot;]&quot;,&quot;&quot;)</cc:expression>
+                    <cc:expression>props['multi.instance.filter.2.wids'] = (props['web.service.filter.multi.instance.2'].length() == 0)? 'no': intsys.getAttributeReferenceDataList(props['web.service.filter.multi.instance.2'], 'WID').toString().replace(&quot;[&quot;,&quot;&quot;).replace(&quot;]&quot;,&quot;&quot;)</cc:expression>
+                    <cc:expression>props['multi.instance.filter.3.wids'] = (props['web.service.filter.multi.instance.3'].length() == 0)? 'no': intsys.getAttributeReferenceDataList(props['web.service.filter.multi.instance.3'], 'WID').toString().replace(&quot;[&quot;,&quot;&quot;).replace(&quot;]&quot;,&quot;&quot;)</cc:expression>
+                    <cc:expression>props['single.instance.filter.1.wids'] = (props['web.service.filter.single.instance.1'].length() == 0)? 'no': intsys.getAttributeReferenceData(props['web.service.filter.single.instance.1'], 'WID')</cc:expression>
+                    <cc:expression>props['single.instance.filter.2.wids'] = (props['web.service.filter.single.instance.2'].length() == 0)? 'no': intsys.getAttributeReferenceData(props['web.service.filter.single.instance.2'], 'WID')</cc:expression>
+                    <cc:expression>props['single.instance.filter.3.wids'] = (props['web.service.filter.single.instance.3'].length() == 0)? 'no': intsys.getAttributeReferenceData(props['web.service.filter.single.instance.3'], 'WID')</cc:expression>
+                    <cc:expression>props['multi.instance.update.1.wids'] = (props['web.service.update.multi.instance.1'].length() == 0)? 'no': intsys.getAttributeReferenceDataList(props['web.service.update.multi.instance.1'], 'WID').toString().replace(&quot;[&quot;,&quot;&quot;).replace(&quot;]&quot;,&quot;&quot;)</cc:expression>
+                    <cc:expression>props['multi.instance.update.2.wids'] = (props['web.service.update.multi.instance.2'].length() == 0)? 'no': intsys.getAttributeReferenceDataList(props['web.service.update.multi.instance.2'], 'WID').toString().replace(&quot;[&quot;,&quot;&quot;).replace(&quot;]&quot;,&quot;&quot;)</cc:expression>
+                    <cc:expression>props['multi.instance.update.3.wids'] = (props['web.service.update.multi.instance.3'].length() == 0)? 'no': intsys.getAttributeReferenceDataList(props['web.service.update.multi.instance.3'], 'WID').toString().replace(&quot;[&quot;,&quot;&quot;).replace(&quot;]&quot;,&quot;&quot;)</cc:expression>
+                    <cc:expression>props['single.instance.update.1.wids'] = (props['web.service.update.single.instance.1'].length() == 0)? 'no': intsys.getAttributeReferenceData(props['web.service.update.single.instance.1'], 'WID')</cc:expression>
+                    <cc:expression>props['single.instance.update.2.wids'] = (props['web.service.update.single.instance.2'].length() == 0)? 'no': intsys.getAttributeReferenceData(props['web.service.update.single.instance.2'], 'WID')</cc:expression>
+                    <cc:expression>props['single.instance.update.3.wids'] = (props['web.service.update.single.instance.3'].length() == 0)? 'no': intsys.getAttributeReferenceData(props['web.service.update.single.instance.3'], 'WID')</cc:expression>
+                    <cc:expression>props['single.instance.update.1.name'] = (props['web.service.update.single.instance.1'].length() == 0)? 'no': intsys.getAttribute(props['web.service.update.single.instance.1'])</cc:expression>
+                    <cc:expression>props['single.instance.update.2.name'] = (props['web.service.update.single.instance.2'].length() == 0)? 'no': intsys.getAttribute(props['web.service.update.single.instance.2'])</cc:expression>
+                    <cc:expression>props['single.instance.update.3.name'] = (props['web.service.update.single.instance.3'].length() == 0)? 'no': intsys.getAttribute(props['web.service.update.single.instance.3'])</cc:expression>
+                    <cc:expression>props['update.data'] = intsys.getAttributeAsBoolean(props['web.service.update.data.attribute'], true)</cc:expression>
+                    <cc:expression>props['report.extra.path'] = (props['report.alias'].length() == 0)? 'no': intsys.reportService.getExtrapath(props['report.alias'])</cc:expression>
+                </cc:eval>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:local-out id="call_PutIntegrationMessage_process" routes-response-to="get_set_properties" endpoint="vm://wcc/PutIntegrationMessage">
+            <cc:set name="is.message.severity" value="'INFO'"/>
+            <cc:set name="is.message.summary" value="'Currently Executing: ' + props['running.process']"/>
+            <cc:set name="is.message.storage.enabled" value="false"/>
+        </cc:local-out>
+        <cc:local-in id="begin_migration_process" routes-to="call_PutIntegrationMessage_process" icon="local-in-begin_migration_process.png">
+            <cc:parameter name="running.process"/>
+            <cc:parameter name="update.hierarchies"/>
+        </cc:local-in>
+        <cc:local-out id="call_process_xml_data" store-message="none" endpoint="vm://@{props['web.service.put.request.endpoint']}">
+            <cc:set name="web.service.put.request" value="props['web.service.put.request']"/>
+            <cc:set name="update.data" value="props['update.data']"/>
+            <cc:set name="web.service.put.application" value="props['web.service.put.application']"/>
+            <cc:set name="web.service.version" value="props['web.service.version']"/>
+            <cc:set name="multi.instance.update.1.wids" value="props['multi.instance.update.1.wids']"/>
+            <cc:set name="multi.instance.update.2.wids" value="props['multi.instance.update.2.wids']"/>
+            <cc:set name="multi.instance.update.3.wids" value="props['multi.instance.update.3.wids']"/>
+            <cc:set name="single.instance.update.1.wids" value="props['single.instance.update.1.wids']"/>
+            <cc:set name="single.instance.update.2.wids" value="props['single.instance.update.2.wids']"/>
+            <cc:set name="single.instance.update.3.wids" value="props['single.instance.update.3.wids']"/>
+            <cc:set name="single.instance.update.1.name" value="props['single.instance.update.1.name']"/>
+            <cc:set name="single.instance.update.2.name" value="props['single.instance.update.2.name']"/>
+            <cc:set name="single.instance.update.3.name" value="props['single.instance.update.3.name']"/>
+            <cc:set name="web.service.auto.complete" value="props['web.service.auto.complete']"/>
+            <cc:set name="web.service.add.only" value="props['web.service.add.only']"/>
+            <cc:set name="web.service.submit" value="props['web.service.submit']"/>
+        </cc:local-out>
+        <cc:splitter id="split_response" no-split-message-error="false">
+            <cc:sub-route name="process_xml" routes-to="call_process_xml_data"/>
+            <cc:xml-stream-splitter namespaces="@{props['xml.split.namespace']}" xpath="//@{props['xml.split.tag']}"/>
+        </cc:splitter>
+        <cc:local-in id="split_and_process_response" routes-to="split_response" icon="local-in-split_and_process_response.png"/>
+	</cc:assembly>
+
+</beans>
