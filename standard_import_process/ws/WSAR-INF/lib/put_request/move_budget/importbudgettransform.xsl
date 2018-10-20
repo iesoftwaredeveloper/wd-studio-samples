@@ -16,14 +16,21 @@
     <xsl:param name="plan.structure.wid"/>
 
     <xsl:template match="/">
-        <xsl:apply-templates select="//ecmc:budget_load" mode="budget"/>
+        <full_file>
+            <xsl:for-each-group select="//ecmc:budget_load" group-by="@ecmc:budget_name">
+                <xsl:apply-templates select="current-group()[1]" mode="budget">
+                    <xsl:with-param name="budget_name" select="current-grouping-key()"/>
+                </xsl:apply-templates>
+            </xsl:for-each-group>
+        </full_file>
     </xsl:template>
 
     <xsl:template match="ecmc:budget_load" mode="budget">
-        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+        <xsl:param name="budget_name"/>
+        <env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
             xmlns:bsvc="urn:com.workday/bsvc">
-            <soapenv:Header/>
-            <soapenv:Body>
+            <env:Header/>
+            <env:Body>
                 <bsvc:Import_Budget_High_Volume_Request>
                     <xsl:attribute name="bsvc:version">
                         <xsl:value-of select="$web.service.version"/>
@@ -49,11 +56,11 @@
                         </bsvc:Budget_Structure_Reference>
                         <bsvc:Budget_Name_Reference>
                             <bsvc:ID bsvc:type="Custom_Budget_ID">
-                                <xsl:value-of select="@ecmc:budget_name"/>
+                                <xsl:value-of select="$budget_name"/>
                             </bsvc:ID>
                         </bsvc:Budget_Name_Reference>
                         <bsvc:Budget_Memo></bsvc:Budget_Memo>
-                        <xsl:for-each-group select=".//ecmc:budget_record" group-by="@ecmc:record-group">
+                        <xsl:for-each-group select="//ecmc:budget_record[@ecmc:budget_name=$budget_name]" group-by="@ecmc:record-group">
                             <xsl:apply-templates select="current-group()[1]">
                                 <xsl:with-param name="line.order" select="position()"/>
                                 <xsl:with-param name="credit.amount" select="sum(current-group()//ecmc:credit_amount)"/>
@@ -62,8 +69,8 @@
                         </xsl:for-each-group>
                     </bsvc:Budget_Data>
                 </bsvc:Import_Budget_High_Volume_Request>
-            </soapenv:Body>
-        </soapenv:Envelope>
+            </env:Body>
+        </env:Envelope>
     </xsl:template>
 
     <xsl:template match="ecmc:budget_record">
@@ -186,6 +193,7 @@
                     </bsvc:ID>
                 </bsvc:Accounting_Worktag_Reference>
             </xsl:if>
+            <xsl:apply-templates select="bsvc:Accounting_Worktag_Reference"/>
         </bsvc:Budget_Lines_Data>
     </xsl:template>
 
@@ -236,6 +244,12 @@
                 </bsvc:Budget_Debit_Amount>
             </xsl:otherwise>
         </xsl:choose>
+    </xsl:template>
+
+    <xsl:template match="@* | node()">
+        <xsl:copy copy-namespaces="no">
+            <xsl:apply-templates select="@* | node()"/>
+        </xsl:copy>
     </xsl:template>
 
 </xsl:stylesheet>

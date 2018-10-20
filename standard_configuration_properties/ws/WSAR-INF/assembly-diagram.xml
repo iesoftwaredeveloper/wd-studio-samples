@@ -22,10 +22,12 @@
   <visualProperties>
     <element href="assembly.xml#call_process_xml_data"/>
   </visualProperties>
-  <connections type="routesTo">
-    <source href="assembly.xml#begin_migration_process"/>
-    <target href="assembly.xml#call_PutIntegrationMessage_process"/>
-  </connections>
+  <visualProperties x="675" y="297">
+    <element href="assembly.xml#set-ws-props"/>
+  </visualProperties>
+  <visualProperties x="774" y="308">
+    <element href="assembly.xml#call_process_retrieved_file"/>
+  </visualProperties>
   <connections type="routesResponseTo">
     <source href="assembly.xml#call_PutIntegrationMessage_process"/>
     <target href="assembly.xml#get_set_properties"/>
@@ -42,18 +44,35 @@
     <source href="assembly.xml#//@beans/@mixed.1/@splitter.0/@subRoute.0"/>
     <target href="assembly.xml#call_process_xml_data"/>
   </connections>
-  <swimlanes x="22" y="31" bgColor="12632256" name="Set Properties" alignment="MIDDLE">
-    <elements href="assembly.xml#begin_migration_process"/>
-    <elements href="assembly.xml#call_PutIntegrationMessage_process"/>
-    <elements href="assembly.xml#get_set_properties"/>
-    <elements href="assembly.xml#call_get_request_endpoint"/>
-  </swimlanes>
+  <connections type="routesTo">
+    <source href="assembly.xml#begin_migration_process"/>
+    <target href="assembly.xml#set-ws-props"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#set-ws-props"/>
+    <target href="assembly.xml#call_process_retrieved_file"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_process_retrieved_file"/>
+    <target href="assembly.xml#call_PutIntegrationMessage_process"/>
+  </connections>
+  <swimlanes x="22" y="31" bgColor="12632256" name="Set Properties" orientation="VERTICAL" elements="//@swimlanes.3 //@swimlanes.4" alignment="MIDDLE"/>
   <swimlanes bgColor="8454016" name="Process Split Data" orientation="VERTICAL" alignment="MIDDLE">
     <elements href="assembly.xml#split_response"/>
     <elements href="assembly.xml#call_process_xml_data"/>
   </swimlanes>
-  <swimlanes x="22" y="201" bgColor="12632256" name="" alignment="MIDDLE">
+  <swimlanes x="956" y="31" bgColor="12632256" name="Split and Process" alignment="MIDDLE">
     <elements href="assembly.xml#split_and_process_response"/>
     <elements href="#//@swimlanes.1"/>
+  </swimlanes>
+  <swimlanes x="158" y="258" name="Setup and Log Running Process" alignment="MIDDLE">
+    <elements href="assembly.xml#begin_migration_process"/>
+    <elements href="assembly.xml#set-ws-props"/>
+    <elements href="assembly.xml#call_process_retrieved_file"/>
+    <elements href="assembly.xml#call_PutIntegrationMessage_process"/>
+  </swimlanes>
+  <swimlanes x="864" y="179" name="Set Properties and Continue" alignment="MIDDLE">
+    <elements href="assembly.xml#get_set_properties"/>
+    <elements href="assembly.xml#call_get_request_endpoint"/>
   </swimlanes>
 </wdnm:Diagram>

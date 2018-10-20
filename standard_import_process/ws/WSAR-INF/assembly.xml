@@ -11,13 +11,13 @@
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
  
 	<cc:assembly id="WorkdayAssembly" version="2017.35">
-        <cc:workday-out-soap id="make_workday_soap_call" execute-when="props['update.data'] == 1 &amp;&amp; parts[0].xpath(&quot;count(//env:Body)&quot;, &quot;env http://schemas.xmlsoap.org/soap/envelope/&quot;) != 0 " application="@{props['web.service.put.application']}" version="@{props['web.service.version']}"/>
+        <cc:workday-out-soap id="make_workday_soap_call" application="@{props['web.service.put.application']}" version="@{props['web.service.version']}"/>
         <cc:local-out id="put-error-message-convert" endpoint="vm://wcc/PutIntegrationMessage">
             <cc:set name="is.message.severity" value="'WARNING'"/>
             <cc:set name="is.message.summary" value="context.errorMessage"/>
             <cc:set name="is.message.storage.enabled" value="false"/>
         </cc:local-out>
-        <cc:local-out id="call_store_msg_return_msg_put" execute-when="props['web.service.request.log'] == true" routes-response-to="make_workday_soap_call" endpoint="vm://standard_logging/store_msg_return_msg">
+        <cc:local-out id="call_store_msg_return_msg_put" execute-when="props['web.service.request.log'] == true" routes-response-to="call_split_ws_call" endpoint="vm://standard_logging/store_msg_return_msg">
             <cc:set name="store.filename" value="'webservice_put_request.xml'"/>
         </cc:local-out>
         <cc:async-mediation id="create_put_web_service_call" routes-to="call_store_msg_return_msg_put" handle-downstream-errors="true">
@@ -94,21 +94,27 @@
             <cc:set name="is.message.summary" value="'Executing RaaS with Endpoint: ' + props['report.extra.path']"/>
             <cc:set name="is.message.storage.enabled" value="false"/>
         </cc:local-out>
-        <cc:local-in id="group_rsp_data" routes-to="call_store_msg_return_msg_rsp"/>
+        <cc:local-in id="group_rsp_data" routes-to="group_rsp"/>
         <cc:async-mediation id="group_rsp" routes-to="call_store_msg_return_msg_rsp_conformed">
             <cc:steps>
                 <cc:xslt id="consolidate_response" url="@{props['web.service.get.response.consolidate.filename']}"/>
             </cc:steps>
         </cc:async-mediation>
-        <cc:local-out id="call_store_msg_return_msg_rsp" execute-when="props['web.service.response.log'] == true" routes-response-to="group_rsp" endpoint="vm://standard_logging/store_msg_return_msg">
+        <cc:local-out id="call_store_msg_return_msg_rsp" execute-when="props['web.service.response.log'] == true" routes-response-to="call_group_rsp_data" endpoint="vm://standard_logging/store_msg_return_msg">
             <cc:set name="store.filename" value="'webservice_get_response_full.xml'"/>
         </cc:local-out>
         <cc:local-out id="call_store_msg_return_msg_rsp_conformed" execute-when="props['web.service.response.log'] == true" endpoint="vm://standard_logging/store_msg_return_msg">
             <cc:set name="store.filename" value="'webservice_get_response_full_transformed.xml'"/>
         </cc:local-out>
-        <cc:local-in id="determine_endpoint" routes-to="call_group_rsp_data"/>
+        <cc:local-in id="determine_endpoint" routes-to="call_store_msg_return_msg_rsp"/>
         <cc:local-out id="call_group_rsp_data" execute-when="props['web.service.get.consolidate.response.data'] == 'true'" routes-response-to="call_get_response_endpoint" endpoint="vm://standard_import_process/group_rsp_data"/>
         <cc:local-out id="call_determine_endpoint" endpoint="vm://standard_import_process/determine_endpoint"/>
+        <cc:splitter id="split_ws_put" no-split-message-error="false">
+            <cc:sub-route name="make_ws_soap_call" routes-to="make_workday_soap_call"/>
+            <cc:xml-stream-splitter namespaces="env http://schemas.xmlsoap.org/soap/envelope/" xpath="//env:Envelope"/>
+        </cc:splitter>
+        <cc:local-in id="split_ws_call" routes-to="split_ws_put" icon="local-in-split_and_process_response.png"/>
+        <cc:local-out id="call_split_ws_call" endpoint="vm://standard_import_process/split_ws_call"/>
     </cc:assembly>
 
 </beans>

@@ -64,6 +64,15 @@
   <visualProperties x="863" y="488">
     <element href="assembly.xml#call_determine_endpoint"/>
   </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#split_ws_call"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#split_ws_put"/>
+  </visualProperties>
+  <visualProperties x="723" y="182">
+    <element href="assembly.xml#call_split_ws_call"/>
+  </visualProperties>
   <connections type="routesTo">
     <source href="assembly.xml#put_workday_web_serivce_call"/>
     <target href="assembly.xml#call_store_msg_return_msg_source"/>
@@ -79,10 +88,6 @@
   <connections type="routesTo">
     <source href="assembly.xml#//@beans/@mixed.1/@mixed.7/@mixed.3"/>
     <target href="assembly.xml#put-error-message-convert"/>
-  </connections>
-  <connections type="routesResponseTo">
-    <source href="assembly.xml#call_store_msg_return_msg_put"/>
-    <target href="assembly.xml#make_workday_soap_call"/>
   </connections>
   <connections type="routesTo">
     <source href="assembly.xml#get_workday_paged_web_service_call"/>
@@ -105,20 +110,8 @@
     <target href="assembly.xml#make_workday_raas_call"/>
   </connections>
   <connections type="routesTo">
-    <source href="assembly.xml#group_rsp_data"/>
-    <target href="assembly.xml#call_store_msg_return_msg_rsp"/>
-  </connections>
-  <connections type="routesResponseTo">
-    <source href="assembly.xml#call_store_msg_return_msg_rsp"/>
-    <target href="assembly.xml#group_rsp"/>
-  </connections>
-  <connections type="routesTo">
     <source href="assembly.xml#group_rsp"/>
     <target href="assembly.xml#call_store_msg_return_msg_rsp_conformed"/>
-  </connections>
-  <connections type="routesTo">
-    <source href="assembly.xml#determine_endpoint"/>
-    <target href="assembly.xml#call_group_rsp_data"/>
   </connections>
   <connections type="routesResponseTo">
     <source href="assembly.xml#make_workday_raas_call"/>
@@ -128,9 +121,33 @@
     <source href="assembly.xml#call_group_rsp_data"/>
     <target href="assembly.xml#call_get_response_endpoint"/>
   </connections>
-  <swimlanes bgColor="8454016" name="End Point Processing" orientation="VERTICAL" alignment="MIDDLE">
+  <connections type="routesTo">
+    <source href="assembly.xml#split_ws_call"/>
+    <target href="assembly.xml#split_ws_put"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#//@beans/@mixed.1/@splitter.0/@subRoute.0"/>
+    <target href="assembly.xml#make_workday_soap_call"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_store_msg_return_msg_put"/>
+    <target href="assembly.xml#call_split_ws_call"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#determine_endpoint"/>
+    <target href="assembly.xml#call_store_msg_return_msg_rsp"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#group_rsp_data"/>
+    <target href="assembly.xml#group_rsp"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_store_msg_return_msg_rsp"/>
+    <target href="assembly.xml#call_group_rsp_data"/>
+  </connections>
+  <swimlanes bgColor="8454016" name="End Point Processing" alignment="MIDDLE">
     <elements href="assembly.xml#call_store_msg_return_msg_put"/>
-    <elements href="assembly.xml#make_workday_soap_call"/>
+    <elements href="assembly.xml#call_split_ws_call"/>
   </swimlanes>
   <swimlanes x="18" y="-13" bgColor="12632256" name="Put Web Service Call" elements="//@swimlanes.8 //@swimlanes.9 //@swimlanes.0" alignment="MIDDLE"/>
   <swimlanes bgColor="8454016" name="Get Web Service Call" alignment="MIDDLE">
@@ -145,25 +162,33 @@
     <elements href="assembly.xml#make_workday_raas_call"/>
     <elements href="assembly.xml#call_determine_endpoint"/>
   </swimlanes>
-  <swimlanes x="25" y="295" bgColor="12632256" name="Get Workday Data" orientation="VERTICAL" elements="//@swimlanes.2 //@swimlanes.3" alignment="MIDDLE"/>
+  <swimlanes x="18" y="329" bgColor="12632256" name="Get Workday Data" orientation="VERTICAL" elements="//@swimlanes.2 //@swimlanes.3" alignment="MIDDLE"/>
   <swimlanes x="18" y="554" bgColor="8454016" name="Group Response Data" alignment="MIDDLE">
     <elements href="assembly.xml#group_rsp_data"/>
-    <elements href="assembly.xml#call_store_msg_return_msg_rsp"/>
     <elements href="assembly.xml#group_rsp"/>
     <elements href="assembly.xml#call_store_msg_return_msg_rsp_conformed"/>
   </swimlanes>
   <swimlanes x="1133" y="387" bgColor="8454016" name="Process Response" alignment="MIDDLE">
     <elements href="assembly.xml#determine_endpoint"/>
+    <elements href="assembly.xml#call_store_msg_return_msg_rsp"/>
     <elements href="assembly.xml#call_group_rsp_data"/>
     <elements href="assembly.xml#call_get_response_endpoint"/>
   </swimlanes>
-  <swimlanes x="25" y="618" bgColor="12632256" name="Response Data Processing" orientation="VERTICAL" elements="//@swimlanes.5 //@swimlanes.6" alignment="MIDDLE"/>
-  <swimlanes x="26" y="141" bgColor="8454016" name="Local In" orientation="VERTICAL" alignment="MIDDLE">
+  <swimlanes x="1097" y="335" bgColor="12632256" name="Response Data Processing" orientation="VERTICAL" elements="//@swimlanes.5 //@swimlanes.6" alignment="MIDDLE"/>
+  <swimlanes x="26" y="141" bgColor="8454016" name="Local In" alignment="MIDDLE">
     <elements href="assembly.xml#put_workday_web_serivce_call"/>
     <elements href="assembly.xml#call_store_msg_return_msg_source"/>
   </swimlanes>
   <swimlanes x="298" y="148" bgColor="8454016" name="Swimlane" orientation="VERTICAL" alignment="MIDDLE">
     <elements href="assembly.xml#create_put_web_service_call"/>
     <elements href="assembly.xml#put-error-message-convert"/>
+  </swimlanes>
+  <swimlanes bgColor="8454016" name="Process Split Data" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#split_ws_put"/>
+    <elements href="assembly.xml#make_workday_soap_call"/>
+  </swimlanes>
+  <swimlanes x="1375" y="-7" bgColor="12632256" name="Split and Process" alignment="MIDDLE">
+    <elements href="assembly.xml#split_ws_call"/>
+    <elements href="#//@swimlanes.10"/>
   </swimlanes>
 </wdnm:Diagram>

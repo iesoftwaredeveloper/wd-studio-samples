@@ -11,7 +11,6 @@
     <value class="java.lang.Boolean" key="ICcFacetInstallDataModelProperties.COPY_WSDL_FILES_ON_DEPLOY">true</value>
     <value class="java.lang.Boolean" key="ICcFacetInstallDataModelProperties.MODULE_SERVICE_NAME_CUSTOM">false</value>
     <list key="IWsCloudAssemblyFacetInstallDataModelProperties.MEMBER_OF_CLOUD_COLLECTIONS">
-        <value class="java.lang.String">Accounting_Technology</value>
         <value class="java.lang.String">adp_wage_garnishments</value>
         <value class="java.lang.String">Internal_Audit_Processes</value>
         <value class="java.lang.String">standard_data_extracts</value>

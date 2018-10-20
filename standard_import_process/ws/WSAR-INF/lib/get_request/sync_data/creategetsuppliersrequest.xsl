@@ -23,7 +23,11 @@
 
     <xsl:template match="/">
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:bsvc="urn:com.workday/bsvc">
-            <soapenv:Header/>
+            <soapenv:Header>
+                <bsvc:Workday_Common_Header>
+                    <bsvc:Include_Reference_Descriptors_In_Response>1</bsvc:Include_Reference_Descriptors_In_Response>
+                </bsvc:Workday_Common_Header>
+            </soapenv:Header>
             <soapenv:Body>
                 <bsvc:Get_Suppliers_Request>
                     <xsl:attribute name="bsvc:version" select="$webservice.version"/>
@@ -109,7 +113,7 @@
                     </xsl:choose>
                     <xsl:variable name="recordcount">
                         <xsl:choose>
-                            <xsl:when test="$request.type='supplier_list'
+                            <xsl:when test="$web.service.get.request.type ='supplier_list'
                                 and count($supplier.data//supplierid) &lt; 1000">
                                 <xsl:value-of select="count($supplier.data//supplierid)"/>
                             </xsl:when>

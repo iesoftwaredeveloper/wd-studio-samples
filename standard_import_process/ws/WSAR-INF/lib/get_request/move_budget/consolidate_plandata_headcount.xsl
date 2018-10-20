@@ -113,8 +113,12 @@
                 <xsl:attribute name="ecmc:budget_name">
                     <xsl:value-of select="current-grouping-key()"/>
                 </xsl:attribute>
+                <xsl:attribute name="ecmc:record_type">
+                    <xsl:value-of select="'source_data'"/>
+                </xsl:attribute>
                 <xsl:apply-templates select="current-group()" mode="new_line"/>
             </ecmc:budget_load>
+            <xsl:apply-templates select="current-group()" mode="stats_line"/>
         </xsl:for-each-group>
     </xsl:template>
 
@@ -129,64 +133,117 @@
             <xsl:value-of select="fhc:getCompanyValue(je:Company/je:ID[@je:type = 'Organization_Reference_ID'],fhc:forceValue(je:allocation_only/@je:Descriptor))"/>
         </xsl:variable>
         <xsl:apply-templates select="." mode="details">
-            <xsl:with-param name="spend_category_id" select="'SC_161'"/>
-            <xsl:with-param name="workforce_cost" select="je:Cost_of_Workforce_Amount"/>
+            <xsl:with-param name="spend_category_id">
+                <xsl:choose>
+                    <xsl:when test="string-length(je:Contingent_Worker_Type) != 0">
+                        <xsl:value-of select="'SC_156'"/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="'SC_161'"/>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:with-param>
+            <xsl:with-param name="workforce_cost" select="je:Cost_of_Workforce_Amount * je:Monthly_Percent/@je:Descriptor"/>
             <xsl:with-param name="posting_month" select="$month_value"/>
+            <xsl:with-param name="company" select="$mapped_company"/>
         </xsl:apply-templates>
-        <xsl:for-each select="$hc.allocation.data//sd:company_statistics[@company_id = $mapped_company]/sd:monthly_detail[@month = $month_value]">
-            <xsl:apply-templates select="$current-report-entry" mode="details">
-                <xsl:with-param name="spend_category_id" select="./sd:spend_category"/>
-                <xsl:with-param name="workforce_cost">
-                    <xsl:choose>
-                        <xsl:when test="./sd:type = 'amount_per_hc'">
-                            <xsl:value-of select="$planned_hc * ./sd:value"/>
-                        </xsl:when>
-                        <xsl:otherwise>
-                            <xsl:value-of select="$cost_of_workforce * ./sd:value"/>
-                         </xsl:otherwise>
-                    </xsl:choose>
-                </xsl:with-param>
-                <xsl:with-param name="posting_month" select="$month_value"/>
-            </xsl:apply-templates>
-        </xsl:for-each>
+    </xsl:template>
+
+    <xsl:template match="je:Report_Entry" mode="stats_line">
+        <xsl:variable name="current-report-entry">
+            <xsl:copy-of select="."/>
+        </xsl:variable>
+        <xsl:variable name="month_value" select="je:Period/je:ID[@je:type='Fiscal_Posting_Interval_ID']"/>
+        <xsl:variable name="planned_hc" select="je:Planned_Headcount"/>
+        <xsl:variable name="cost_of_workforce" select="je:Cost_of_Workforce_Amount"/>
+        <xsl:variable name="monthly_percent" select="je:Monthly_Percent/@je:Descriptor"/>
+        <xsl:variable name="mapped_company">
+            <xsl:value-of select="fhc:getCompanyValue(je:Company/je:ID[@je:type = 'Organization_Reference_ID'],fhc:forceValue(je:allocation_only/@je:Descriptor))"/>
+        </xsl:variable>
+        <xsl:if test="string-length(je:Contingent_Worker_Type) = 0 and je:Job_Profile/@je:Descriptor != 'Adjunct'">
+            <xsl:for-each select="$hc.allocation.data//sd:company_statistics[@company_id = $mapped_company]/sd:monthly_detail[@month = $month_value]">
+                <xsl:variable name="company_id" select="@company_lkp"/>
+                <ecmc:budget_load>
+                    <xsl:attribute name="ecmc:budget_name">
+                        <xsl:value-of select="ecmc:ApplyReverseMap('Target Plan From [Company-Process Type] Lookup',concat($company_id,'-',$process.type),$process.type,'Custom_Budget_ID')"/>
+                    </xsl:attribute>
+                    <xsl:attribute name="ecmc:record_type">
+                        <xsl:value-of select="'statistics'"/>
+                    </xsl:attribute>
+                    <xsl:apply-templates select="$current-report-entry" mode="details">
+                        <xsl:with-param name="spend_category_id" select="./sd:spend_category"/>
+                        <xsl:with-param name="workforce_cost">
+                            <xsl:choose>
+                                <xsl:when test="./sd:type = 'amount_per_hc'">
+                                    <xsl:value-of select="$planned_hc * ./sd:value"/>
+                                </xsl:when>
+                                <xsl:otherwise>
+                                    <xsl:value-of select="$cost_of_workforce * $monthly_percent * ./sd:value"/>
+                                </xsl:otherwise>
+                            </xsl:choose>
+                        </xsl:with-param>
+                        <xsl:with-param name="posting_month" select="$month_value"/>
+                        <xsl:with-param name="company" select="$company_id"/>
+                        <xsl:with-param name="override_costcenter" select="./sd:cost_center"/>
+                    </xsl:apply-templates>
+                </ecmc:budget_load>
+            </xsl:for-each>
+        </xsl:if>
     </xsl:template>
 
     <xsl:template match="je:Report_Entry" mode="details">
         <xsl:param name="spend_category_id"/>
         <xsl:param name="workforce_cost"/>
         <xsl:param name="posting_month"/>
+        <xsl:param name="company"/>
+        <xsl:param name="override_costcenter" select="''"/>
         <xsl:variable name="debit_balance">
             <xsl:value-of select="xs:decimal($workforce_cost)"/>
         </xsl:variable>
         <xsl:variable name="credit_balance">
             <xsl:value-of select="0 - xs:decimal($workforce_cost)"/>
         </xsl:variable>
+        <xsl:variable name="cost_center_value">
+            <xsl:choose>
+                <xsl:when test="string-length($override_costcenter) != 0">
+                    <xsl:value-of select="$override_costcenter"/>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:value-of select="je:Cost_Center/je:ID[@je:type = 'Organization_Reference_ID']"/>
+                </xsl:otherwise>
+            </xsl:choose>
+        </xsl:variable>
         <xsl:if test="$debit_balance != 0">
             <ecmc:budget_record>
+                <xsl:attribute name="ecmc:budget_name">
+                    <xsl:value-of select="ecmc:ApplyReverseMap('Target Plan From [Company-Process Type] Lookup',concat($company,'-',$process.type),$process.type,'Custom_Budget_ID')"/>
+                </xsl:attribute>
                 <xsl:attribute name="row-number" select="position()"/>
                 <xsl:attribute name="ecmc:record-group">
                     <xsl:value-of select="je:Year/je:ID[@je:type != 'WID']"/>
                     <xsl:value-of select="'-'"/>
                     <xsl:value-of select="je:Period/je:ID[@je:type='Fiscal_Posting_Interval_ID']"/>
                     <xsl:value-of select="'-'"/>
-                    <xsl:value-of select="$company-id"/>
+                    <xsl:value-of select="$company"/>
                     <xsl:value-of select="'-'"/>
                     <xsl:value-of select="je:Ledger_Account/je:ID[@je:type = 'Ledger_Account_ID']"/>
                     <xsl:value-of select="'-'"/>
-                    <xsl:value-of select="je:Cost_Center/je:ID[@je:type = 'Organization_Reference_ID']"/>
+                    <xsl:value-of select="$cost_center_value"/>
                     <xsl:value-of select="'-'"/>
                     <xsl:value-of select="je:Region/je:ID[@je:type = 'Organization_Reference_ID']"/>
                     <xsl:value-of select="'-'"/>
-                    <xsl:value-of select="je:Project/je:ID[@je:type = 'Project_ID']"/>
+                    <xsl:value-of select="je:Project_Hierarchy/je:ID[@je:type = 'Project_ID']"/>
                     <xsl:value-of select="'-'"/>
                     <xsl:value-of select="je:Revenue_Category/je:ID[@je:type = 'Revenue_Category_ID']"/>
                     <xsl:value-of select="'-'"/>
-                    <xsl:value-of select="je:Spend_Category/je:ID[@je:type = 'Spend_Category_ID']"/>
+                    <xsl:value-of select="$spend_category_id"/>
+                    <xsl:value-of select="'-'"/>
+                    <xsl:value-of select="je:Initiatives/je:ID[@je:type = 'Organization_Reference_ID']"/>
                 </xsl:attribute>
                 <ecmc:company>
                     <xsl:attribute name="original_company" select="je:Company/je:ID[@je:type = 'Organization_Reference_ID']"/>
                     <xsl:attribute name="allocation_only" select="je:allocation_only/@je:Descriptor"/>
-                    <xsl:value-of select="fhc:getCompanyValue(je:Company/je:ID[@je:type = 'Organization_Reference_ID'],fhc:forceValue(je:allocation_only/@je:Descriptor))"/>
+                    <xsl:value-of select="$company"/>
                 </ecmc:company>
                 <ecmc:year>
                     <xsl:value-of select="je:Year/je:ID[@je:type != 'WID']"/>
@@ -220,9 +277,9 @@
                     <xsl:otherwise>
                     </xsl:otherwise>
                 </xsl:choose>
-                <xsl:if test="string-length(je:Cost_Center) != 0">
+                <xsl:if test="string-length($cost_center_value) != 0">
                     <ecmc:cost_center>
-                        <xsl:value-of select="je:Cost_Center/je:ID[@je:type = 'Organization_Reference_ID']"/>
+                        <xsl:value-of select="$cost_center_value"/>
                     </ecmc:cost_center>
                 </xsl:if>
                 <xsl:if test="string-length(je:Region) != 0">
@@ -239,12 +296,17 @@
                         </xsl:otherwise>
                     </xsl:choose>
                 </xsl:if>
-                <xsl:if test="string-length(je:Project) != 0">
-                    <bsvc:Worktags_Reference>
-                        <bsvc:ID bsvc:type="Project_ID">
-                            <xsl:value-of select="je:Project/je:ID[@je:type = 'Project_ID']"/>
+                <xsl:if test="string-length(je:project_hierarchy) != 0">
+                    <ecmc:project_hierarchy>
+                        <xsl:value-of select="je:project_hierarchy/je:ID[@je:type = 'Project_ID']"/>
+                    </ecmc:project_hierarchy>
+                </xsl:if>
+                <xsl:if test="string-length(je:Initiatives) != 0">
+                    <bsvc:Accounting_Worktag_Reference>
+                        <bsvc:ID bsvc:type="Organization_Reference_ID">
+                            <xsl:value-of select="je:Initiatives/je:ID[@je:type = 'Organization_Reference_ID']"/>
                         </bsvc:ID>
-                    </bsvc:Worktags_Reference>
+                    </bsvc:Accounting_Worktag_Reference>
                 </xsl:if>
                 <xsl:if test="string-length(je:Revenue_Category) != 0">
                     <ecmc:revenue_category>
@@ -264,6 +326,7 @@
         <ecmc:ledger_account_lkp spend_category="SC_189">50260</ecmc:ledger_account_lkp>
         <ecmc:ledger_account_lkp spend_category="SC_202">50260</ecmc:ledger_account_lkp>
         <ecmc:ledger_account_lkp spend_category="SC_201">50260</ecmc:ledger_account_lkp>
+        <ecmc:ledger_account_lkp spend_category="SC_200">50260</ecmc:ledger_account_lkp>
         <ecmc:ledger_account_lkp spend_category="SC_197">50270</ecmc:ledger_account_lkp>
         <ecmc:ledger_account_lkp spend_category="SC_193">50270</ecmc:ledger_account_lkp>
         <ecmc:ledger_account_lkp spend_category="SC_198">50270</ecmc:ledger_account_lkp>
@@ -279,6 +342,7 @@
         <ecmc:ledger_account_lkp spend_category="SC_210">50420</ecmc:ledger_account_lkp>
         <ecmc:ledger_account_lkp spend_category="SC_161">50000</ecmc:ledger_account_lkp>
         <ecmc:ledger_account_lkp spend_category="SC_187">50170</ecmc:ledger_account_lkp>
+        <ecmc:ledger_account_lkp spend_category="SC_156">50160</ecmc:ledger_account_lkp>
     </ecmc:data_map_lookups>
 
 </xsl:stylesheet>

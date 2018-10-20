@@ -4,7 +4,7 @@
     exclude-result-prefixes="xs"
     version="2.0">
     <xsl:output method="xml" version="1.0" indent="yes" omit-xml-declaration="yes"/>
-    
+
     <xsl:template match="node() | @*">
         <xsl:copy>
             <xsl:apply-templates select="node() | @*"/>

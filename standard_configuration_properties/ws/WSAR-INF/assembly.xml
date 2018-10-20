@@ -51,7 +51,7 @@
                     <cc:expression>props['xml.split.tag'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:split_tag&quot;, &quot;fhc http://firehawk.github.com&quot;)</cc:expression>
                     <cc:expression>props['report.alias'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:report_alias&quot;, &quot;fhc http://firehawk.github.com&quot;)</cc:expression>
                     <cc:expression>props['report.filter'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:filter_attributes/fhc:report_filter&quot;, &quot;fhc http://firehawk.github.com&quot;)</cc:expression>
-                    <cc:expression>props['web.service.get.request.type'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:filter_attributes/fhc:report_filter&quot;, &quot;fhc http://firehawk.github.com&quot;)</cc:expression>
+                    <cc:expression>props['web.service.get.request.type'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:request_type&quot;, &quot;fhc http://firehawk.github.com&quot;)</cc:expression>
                 </cc:eval>
                 <cc:eval id="set-attribute-values">
                     <cc:expression>props['multi.instance.filter.1.wids'] = (props['web.service.filter.multi.instance.1'].length() == 0)? 'no': intsys.getAttributeReferenceDataList(props['web.service.filter.multi.instance.1'], 'WID').toString().replace(&quot;[&quot;,&quot;&quot;).replace(&quot;]&quot;,&quot;&quot;)</cc:expression>
@@ -79,9 +79,9 @@
             <cc:set name="is.message.summary" value="'Currently Executing: ' + props['running.process']"/>
             <cc:set name="is.message.storage.enabled" value="false"/>
         </cc:local-out>
-        <cc:local-in id="begin_migration_process" routes-to="call_PutIntegrationMessage_process" icon="local-in-begin_migration_process.png">
-            <cc:parameter name="running.process"/>
-            <cc:parameter name="update.hierarchies"/>
+        <cc:local-in id="begin_migration_process" routes-to="set-ws-props" access="public" icon="local-in-begin_migration_process.png">
+            <cc:parameter name="running.process" required="true"/><cc:parameter default="'false'" name="process.retrieved.file" required="false"/>
+            
         </cc:local-in>
         <cc:local-out id="call_process_xml_data" store-message="none" endpoint="vm://@{props['web.service.put.request.endpoint']}">
             <cc:set name="web.service.put.request" value="props['web.service.put.request']"/>
@@ -105,7 +105,27 @@
             <cc:sub-route name="process_xml" routes-to="call_process_xml_data"/>
             <cc:xml-stream-splitter namespaces="@{props['xml.split.namespace']}" xpath="//@{props['xml.split.tag']}"/>
         </cc:splitter>
-        <cc:local-in id="split_and_process_response" routes-to="split_response" icon="local-in-split_and_process_response.png"/>
+        <cc:local-in id="split_and_process_response" routes-to="split_response" access="public" icon="local-in-split_and_process_response.png"/>
+        <cc:async-mediation id="set-ws-props" routes-to="call_process_retrieved_file">
+            <cc:steps>
+                <cc:eval id="set-props">
+                    <cc:expression>props['web.service.version'] = intsys.getAttribute('Web Service Version')</cc:expression>
+                    <cc:expression>props['web.service.count'] = intsys.getAttribute('Web Service Page Count')</cc:expression>
+                    <cc:expression>props['web.service.add.only'] = intsys.getAttribute('Web Service Add Only')</cc:expression>
+                    <cc:expression>props['web.service.include.reference'] = intsys.getAttribute('Web Service Include Reference')</cc:expression>
+                    <cc:expression>props['web.service.auto.complete'] = intsys.getAttribute('Web Service Auto Complete')</cc:expression>
+                    <cc:expression>props['web.service.include.descriptors'] = intsys.getAttribute('Web Service Include Descriptors')</cc:expression>
+                    <cc:expression>props['web.service.request.log'] = intsys.getAttribute('Log Web Service Request XML')</cc:expression>
+                    <cc:expression>props['web.service.response.log'] = intsys.getAttribute('Log Web Service Response XML')</cc:expression>
+                    <cc:expression>props['web.service.submit'] = intsys.getAttribute('Web Service Submit')</cc:expression>
+                    <cc:expression>props['web.service.effective.date'] = intsys.getAttribute('Web Service Effective Date')</cc:expression>
+                    <cc:expression>props['web.service.lock.transaction'] = intsys.getAttribute('Web Service Lock Transaction')</cc:expression>
+                    <cc:expression>props['default.business.process.comment'] = intsys.getAttribute('Default Business Process Comment')</cc:expression>
+                </cc:eval></cc:steps>
+        </cc:async-mediation>
+        <cc:local-out id="call_process_retrieved_file" execute-when="props['process.retrieved.file'] == 'true'" routes-response-to="call_PutIntegrationMessage_process" endpoint="vm://common_sftp_file_processing/process_retrieved_file">
+            <cc:set name="processfile.subroutine" value="'mass_sync_data/store-retrieved_as_lkp'"/>
+        </cc:local-out>
 	</cc:assembly>
 
 </beans>

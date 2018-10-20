@@ -8,7 +8,7 @@
     xmlns:je="urn:com.workday.report/PLAN_Extract_for_Allocation_Conversion"
     xmlns:is="java:com.workday.esb.intsys.xpath.ParsedIntegrationSystemFunctions" 
     xmlns:tv="java:com.workday.esb.intsys.TypedValue"
-    exclude-result-prefixes="xs je xsl"
+    exclude-result-prefixes="xs je xsl tv is"
     version="2.0">
 
     <xsl:output indent="yes" method="xml"/>
@@ -111,6 +111,9 @@
         </xsl:variable>
         <xsl:if test="$debit_balance != 0">
             <ecmc:budget_record>
+                <xsl:attribute name="ecmc:budget_name">
+                    <xsl:value-of select="ecmc:ApplyReverseMap('Target Plan From [Company-Process Type] Lookup',concat($company-id,'-',$process.type),$process.type,'Custom_Budget_ID')"/>
+                </xsl:attribute>
                 <xsl:attribute name="row-number" select="position()"/>
                 <xsl:attribute name="ecmc:record-group">
                     <xsl:value-of select="je:Year/je:ID[@je:type != 'WID']"/>
@@ -127,9 +130,13 @@
                     <xsl:value-of select="'-'"/>
                     <xsl:value-of select="je:Project/je:ID[@je:type = 'Project_ID']"/>
                     <xsl:value-of select="'-'"/>
+                    <!-- <xsl:value-of select="je:Entry_Type/je:ID[@je:type = 'Project_ID']"/>
+                    <xsl:value-of select="'-'"/> -->
                     <xsl:value-of select="je:Revenue_Category/je:ID[@je:type = 'Revenue_Category_ID']"/>
                     <xsl:value-of select="'-'"/>
                     <xsl:value-of select="je:Spend_Category/je:ID[@je:type = 'Spend_Category_ID']"/>
+                    <xsl:value-of select="'-'"/>
+                    <xsl:value-of select="je:Initiatives/je:ID[@je:type = 'Organization_Reference_ID']"/>
                 </xsl:attribute>
                 <ecmc:company>
                     <xsl:attribute name="original_company" select="je:Company/je:ID[@je:type = 'Organization_Reference_ID']"/>
@@ -195,6 +202,13 @@
                         </bsvc:ID>
                     </bsvc:Worktags_Reference>
                 </xsl:if>
+                <xsl:if test="string-length(je:Initiatives) != 0">
+                    <bsvc:Worktags_Reference>
+                        <bsvc:ID bsvc:type="Organization_Reference_ID">
+                            <xsl:value-of select="je:Initiatives/je:ID[@je:type = 'Organization_Reference_ID']"/>
+                        </bsvc:ID>
+                    </bsvc:Worktags_Reference>
+                </xsl:if>
                 <xsl:if test="string-length(je:Revenue_Category) != 0">
                     <ecmc:revenue_category>
                         <xsl:value-of select="je:Revenue_Category/je:ID[@je:type = 'Revenue_Category_ID']"/>
@@ -207,6 +221,12 @@
                 </xsl:if>
             </ecmc:budget_record>
         </xsl:if>
+    </xsl:template>
+
+    <xsl:template match="@* | node()">
+        <xsl:copy copy-namespaces="no">
+            <xsl:apply-templates select="@* | node()"/>
+        </xsl:copy>
     </xsl:template>
 
 </xsl:stylesheet>
