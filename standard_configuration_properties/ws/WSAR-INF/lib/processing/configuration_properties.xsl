@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="2.0"
-    xmlns:fhc="http://firehawk.github.com"
+    xmlns:fhc="https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
-    <xsl:param name="running.process"/>
+    <xsl:param name="running.process" select="'Organizations'"/>
     <xsl:param name="web.service.start.date"/>
     <xsl:param name="web.service.end.date"/>
     <xsl:param name="lp.source.filter.wid"/>
 
     <xsl:template match="/">
-        <fhc:running_process>
+        <!--<fhc:running_process>-->
             <xsl:apply-templates select="document('')//fhc:process[@fhc:process_name = $running.process]"/>
-        </fhc:running_process>
+        <!--</fhc:running_process>-->
     </xsl:template>
 
     <fhc:processes>

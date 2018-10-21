@@ -11,12 +11,7 @@
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
  
 	<cc:assembly id="WorkdayAssembly" version="2017.35">
-        <cc:workday-out-soap id="make_workday_soap_call" application="@{props['web.service.put.application']}" version="@{props['web.service.version']}"/>
-        <cc:local-out id="put-error-message-convert" endpoint="vm://wcc/PutIntegrationMessage">
-            <cc:set name="is.message.severity" value="'WARNING'"/>
-            <cc:set name="is.message.summary" value="context.errorMessage"/>
-            <cc:set name="is.message.storage.enabled" value="false"/>
-        </cc:local-out>
+        <cc:workday-out-soap id="make_workday_soap_call" routes-response-to="call_create_transaction_log_record" application="@{props['web.service.put.application']}" version="@{props['web.service.version']}"/>
         <cc:local-out id="call_store_msg_return_msg_put" execute-when="props['web.service.request.log'] == true" routes-response-to="call_split_ws_call" endpoint="vm://standard_logging/store_msg_return_msg">
             <cc:set name="store.filename" value="'webservice_put_request.xml'"/>
         </cc:local-out>
@@ -24,7 +19,7 @@
             <cc:steps>
                 <cc:xslt id="create_ws_request" url="@{props['web.service.put.request']}"/>
             </cc:steps>
-            <cc:send-error id="SendError" routes-to="put-error-message-convert"/>
+            <cc:send-error id="SendError" routes-to="call_process_Err_Msg"/>
         </cc:async-mediation>
         <cc:local-out id="call_store_msg_return_msg_source" execute-when="props['web.service.response.log'] == true" routes-response-to="create_put_web_service_call" endpoint="vm://standard_logging/store_msg_return_msg">
             <cc:set name="store.filename" value="'webservice_get_response.xml'"/>
@@ -115,6 +110,19 @@
         </cc:splitter>
         <cc:local-in id="split_ws_call" routes-to="split_ws_put" icon="local-in-split_and_process_response.png"/>
         <cc:local-out id="call_split_ws_call" endpoint="vm://standard_import_process/split_ws_call"/>
+        <cc:local-out id="call_create_transaction_log_record" endpoint="vm://standard_logging/create_transaction_log_record"><cc:set name="record.counter" value="props['record.counter']"/><cc:set name="file.number" value="props['file.number']"/><cc:set name="file.record.counter" value="props['file.record.counter']"/><cc:set name="file.name" value="'no filename provided'"/><cc:set name="source.transaction.id"/><cc:set name="workday.transaction.id"/><cc:set name="record.status" value="'imported'"/><cc:set name="error.reason"/><cc:set name="error.message.detail"/></cc:local-out>
+        <cc:local-out id="call_process_Err_Msg" routes-response-to="call_create_transaction_log_record_err" endpoint="vm://standard_logging/process_Err_Msg"><cc:set name="failed-on-import" value="'true'"/><cc:set name="include-file" value="false"/><cc:set name="severity" value="'WARNING'"/><cc:set name="errormessage.detail.expanded" value="context.errorMessage"/></cc:local-out>
+        <cc:local-out id="call_create_transaction_log_record_err" endpoint="vm://standard_logging/create_transaction_log_record">
+            <cc:set name="record.counter" value="props['record.counter']"/>
+            <cc:set name="file.number" value="props['file.number']"/>
+            <cc:set name="file.record.counter" value="props['file.record.counter']"/>
+            <cc:set name="file.name" value="'no filename provided'"/>
+            <cc:set name="source.transaction.id"/>
+            <cc:set name="workday.transaction.id"/>
+            <cc:set name="record.status" value="'failed'"/>
+            <cc:set name="error.reason"/>
+            <cc:set name="error.message.detail"/>
+        </cc:local-out>
     </cc:assembly>
 
 </beans>

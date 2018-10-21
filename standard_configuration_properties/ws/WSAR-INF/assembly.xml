@@ -72,6 +72,14 @@
                     <cc:expression>props['update.data'] = intsys.getAttributeAsBoolean(props['web.service.update.data.attribute'], true)</cc:expression>
                     <cc:expression>props['report.extra.path'] = (props['report.alias'].length() == 0)? 'no': intsys.reportService.getExtrapath(props['report.alias'])</cc:expression>
                 </cc:eval>
+                <cc:eval id="setup-counters">
+                    <cc:expression>props['record.counter'] = 0</cc:expression>
+                    <cc:expression>props['record.counter.failed'] = 0</cc:expression>
+                    <cc:expression>props['record.counter.imported'] = 0</cc:expression>
+                    <cc:expression>props['record.counter.skipped'] = 0</cc:expression>
+                    <cc:expression>props['file.number.total'] = -1</cc:expression>
+                    <cc:expression>vars['tempfailedoutput.xml']='&lt;blankxml/>'</cc:expression>
+                </cc:eval>
             </cc:steps>
         </cc:async-mediation>
         <cc:local-out id="call_PutIntegrationMessage_process" routes-response-to="get_set_properties" endpoint="vm://wcc/PutIntegrationMessage">
@@ -80,10 +88,10 @@
             <cc:set name="is.message.storage.enabled" value="false"/>
         </cc:local-out>
         <cc:local-in id="begin_migration_process" routes-to="set-ws-props" access="public" icon="local-in-begin_migration_process.png">
-            <cc:parameter name="running.process" required="true"/><cc:parameter default="'false'" name="process.retrieved.file" required="false"/>
-            
+            <cc:parameter name="running.process" required="true"/>
+            <cc:parameter default="'false'" name="process.retrieved.file" required="false"/>
         </cc:local-in>
-        <cc:local-out id="call_process_xml_data" store-message="none" endpoint="vm://@{props['web.service.put.request.endpoint']}">
+        <cc:local-out id="call_process_xml_data" store-message="none" routes-response-to="call_aggregateprocessingdetails" endpoint="vm://@{props['web.service.put.request.endpoint']}">
             <cc:set name="web.service.put.request" value="props['web.service.put.request']"/>
             <cc:set name="update.data" value="props['update.data']"/>
             <cc:set name="web.service.put.application" value="props['web.service.put.application']"/>
@@ -102,10 +110,10 @@
             <cc:set name="web.service.submit" value="props['web.service.submit']"/>
         </cc:local-out>
         <cc:splitter id="split_response" no-split-message-error="false">
-            <cc:sub-route name="process_xml" routes-to="call_process_xml_data"/>
+            <cc:sub-route name="process_xml" routes-to="record-counters"/>
             <cc:xml-stream-splitter namespaces="@{props['xml.split.namespace']}" xpath="//@{props['xml.split.tag']}"/>
         </cc:splitter>
-        <cc:local-in id="split_and_process_response" routes-to="split_response" access="public" icon="local-in-split_and_process_response.png"/>
+        <cc:local-in id="split_and_process_response" routes-to="file-counters" access="public" icon="local-in-split_and_process_response.png"/>
         <cc:async-mediation id="set-ws-props" routes-to="call_process_retrieved_file">
             <cc:steps>
                 <cc:eval id="set-props">
@@ -121,11 +129,42 @@
                     <cc:expression>props['web.service.effective.date'] = intsys.getAttribute('Web Service Effective Date')</cc:expression>
                     <cc:expression>props['web.service.lock.transaction'] = intsys.getAttribute('Web Service Lock Transaction')</cc:expression>
                     <cc:expression>props['default.business.process.comment'] = intsys.getAttribute('Default Business Process Comment')</cc:expression>
-                </cc:eval></cc:steps>
+                </cc:eval>
+            </cc:steps>
         </cc:async-mediation>
         <cc:local-out id="call_process_retrieved_file" execute-when="props['process.retrieved.file'] == 'true'" routes-response-to="call_PutIntegrationMessage_process" endpoint="vm://common_sftp_file_processing/process_retrieved_file">
             <cc:set name="processfile.subroutine" value="'mass_sync_data/store-retrieved_as_lkp'"/>
         </cc:local-out>
+        <cc:local-out id="call_aggregateprocessingdetails" endpoint="vm://standard_logging/aggregateprocessingdetails">
+            <cc:set name="summarylog.filename" value="'Summary_Log_Information'"/>
+            <cc:set name="summarylog.file.extension" value="'html'"/>
+            <cc:set name="record.count.total" value="-1"/>
+            <cc:set name="file.record.counter" value="-99"/>
+            <cc:set name="file.number.total" value="-1"/>
+            <cc:set name="file.number.current" value="-1"/>
+        </cc:local-out>
+        <cc:async-mediation id="file-counters" routes-to="split_response">
+            <cc:steps>
+                <cc:eval id="reset-file-counters">
+                    <cc:expression>props['file.number.current'] = ((props['file.number.current'] == null)? 0:props['file.number.current']) +1</cc:expression>
+                    <cc:expression>props['file.record.counter'] = 0</cc:expression>
+                    <cc:expression>props['file.record.counter.imported'] = 0</cc:expression>
+                    <cc:expression>props['file.record.counter.failed'] = 0</cc:expression>
+                    <cc:expression>props['file.record.counter.skipped'] = 0</cc:expression>
+                    <cc:expression>props['aggregation-complete-flag'] = false</cc:expression>
+                    <cc:expression>props['summary-transaction-created'] = false</cc:expression>
+                </cc:eval>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:async-mediation id="record-counters" routes-to="call_process_xml_data">
+            <cc:steps>
+                <cc:eval id="incr-counters">
+                    <cc:expression>props['file.number.current'] = ((props['file.number.current'] == null)? 0:props['file.number.current']) +1</cc:expression>
+                    <cc:expression>props['record.counter'] = ((props['record.counter'] == null)? 0:props['record.counter']) +1</cc:expression>
+                    <cc:expression>props['file.record.counter'] = ((props['file.record.counter'] == null)? 0:props['file.record.counter']) +1</cc:expression>
+                </cc:eval>
+            </cc:steps>
+        </cc:async-mediation>
 	</cc:assembly>
 
 </beans>

@@ -28,6 +28,15 @@
   <visualProperties x="774" y="308">
     <element href="assembly.xml#call_process_retrieved_file"/>
   </visualProperties>
+  <visualProperties x="1393" y="283">
+    <element href="assembly.xml#call_aggregateprocessingdetails"/>
+  </visualProperties>
+  <visualProperties x="1064" y="449">
+    <element href="assembly.xml#file-counters"/>
+  </visualProperties>
+  <visualProperties x="1287" y="372">
+    <element href="assembly.xml#record-counters"/>
+  </visualProperties>
   <connections type="routesResponseTo">
     <source href="assembly.xml#call_PutIntegrationMessage_process"/>
     <target href="assembly.xml#get_set_properties"/>
@@ -35,14 +44,6 @@
   <connections type="routesTo">
     <source href="assembly.xml#get_set_properties"/>
     <target href="assembly.xml#call_get_request_endpoint"/>
-  </connections>
-  <connections type="routesTo">
-    <source href="assembly.xml#split_and_process_response"/>
-    <target href="assembly.xml#split_response"/>
-  </connections>
-  <connections type="routesTo">
-    <source href="assembly.xml#//@beans/@mixed.1/@splitter.0/@subRoute.0"/>
-    <target href="assembly.xml#call_process_xml_data"/>
   </connections>
   <connections type="routesTo">
     <source href="assembly.xml#begin_migration_process"/>
@@ -56,14 +57,37 @@
     <source href="assembly.xml#call_process_retrieved_file"/>
     <target href="assembly.xml#call_PutIntegrationMessage_process"/>
   </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_process_xml_data"/>
+    <target href="assembly.xml#call_aggregateprocessingdetails"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#split_and_process_response"/>
+    <target href="assembly.xml#file-counters"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#file-counters"/>
+    <target href="assembly.xml#split_response"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#//@beans/@mixed.1/@splitter.0/@subRoute.0"/>
+    <target href="assembly.xml#record-counters"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#record-counters"/>
+    <target href="assembly.xml#call_process_xml_data"/>
+  </connections>
   <swimlanes x="22" y="31" bgColor="12632256" name="Set Properties" orientation="VERTICAL" elements="//@swimlanes.3 //@swimlanes.4" alignment="MIDDLE"/>
   <swimlanes bgColor="8454016" name="Process Split Data" orientation="VERTICAL" alignment="MIDDLE">
     <elements href="assembly.xml#split_response"/>
-    <elements href="assembly.xml#call_process_xml_data"/>
+    <elements href="assembly.xml#record-counters"/>
   </swimlanes>
   <swimlanes x="956" y="31" bgColor="12632256" name="Split and Process" alignment="MIDDLE">
     <elements href="assembly.xml#split_and_process_response"/>
+    <elements href="assembly.xml#file-counters"/>
     <elements href="#//@swimlanes.1"/>
+    <elements href="assembly.xml#call_process_xml_data"/>
+    <elements href="assembly.xml#call_aggregateprocessingdetails"/>
   </swimlanes>
   <swimlanes x="158" y="258" name="Setup and Log Running Process" alignment="MIDDLE">
     <elements href="assembly.xml#begin_migration_process"/>

@@ -14,10 +14,166 @@
     <element href="assembly.xml#store_msg_for_output_file"/>
   </visualProperties>
   <visualProperties>
-    <element href="assembly.xml#storefile"/>
+    <element href="assembly.xml#store-file-output"/>
   </visualProperties>
   <visualProperties>
-    <element href="assembly.xml#SendErrorToWorkday_withFile"/>
+    <element href="assembly.xml#send_file_to_wd"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#aggregatefailedtransaction"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#aggr_failed_info"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#agg-failed-record"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#cp-msg_to_failed-var"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#aggregateprocessingdetails"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#CopyInputParameterPD"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#agg-process-record"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#SaveProcessingReport"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#aggregateerrorrecorddetails"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#copyerrorrecordtovar"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#aggregate-errorrecords"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#RenderProcessingStatistics"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#start_progress_bar"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#emptyvarforrender"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#AggregatorRenderRecords"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#setpercentcomplete"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#update_progress_bar"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#zip_and_store_output"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#ZipFilesForTransfer"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#call_store_consol_file"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#store_consol_file"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#save-consol-output"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#send_to_wd_zip"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#create_transaction_log_record"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#write_transaction_log"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#increment_skipped_count"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#incr_skip_cnt"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#process_Err_Msg"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#incr_error_cnt"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#send_err_msg"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#LogFileConversionError"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#setneededpropertiesandvariables"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#CallLogConversionError"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#checkerrorrecord"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#processlineoutput"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#call_store_msg_return_msg_err"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#resetmessagetosource"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#subroutineparseandstorelogs"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#parseandstorefailures"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#call_split_var_processing_failure"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#store_summary_log"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#call_split_var_processing_summary"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#split_var_processing"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#copytranstomsg"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#Splitter-single-log-file"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#setfilename"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#copyxmltagtomessage"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#call_zip_and_store_output"/>
+  </visualProperties>
+  <visualProperties x="1767" y="237">
+    <element href="assembly.xml#parse_failures"/>
+  </visualProperties>
+  <visualProperties x="1750" y="430">
+    <element href="assembly.xml#parse_summary"/>
+  </visualProperties>
+  <visualProperties x="2188" y="84">
+    <element href="assembly.xml#call_parse_failures"/>
+  </visualProperties>
+  <visualProperties x="2255" y="81">
+    <element href="assembly.xml#call_parse_summary"/>
   </visualProperties>
   <connections type="routesTo">
     <source href="assembly.xml#store_msg_return_msg"/>
@@ -29,11 +185,159 @@
   </connections>
   <connections type="routesTo">
     <source href="assembly.xml#store_msg_for_output_file"/>
-    <target href="assembly.xml#storefile"/>
+    <target href="assembly.xml#store-file-output"/>
   </connections>
   <connections type="routesTo">
-    <source href="assembly.xml#storefile"/>
-    <target href="assembly.xml#SendErrorToWorkday_withFile"/>
+    <source href="assembly.xml#store-file-output"/>
+    <target href="assembly.xml#send_file_to_wd"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#aggregatefailedtransaction"/>
+    <target href="assembly.xml#aggr_failed_info"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#aggr_failed_info"/>
+    <target href="assembly.xml#agg-failed-record"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#agg-failed-record"/>
+    <target href="assembly.xml#cp-msg_to_failed-var"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#aggregateprocessingdetails"/>
+    <target href="assembly.xml#CopyInputParameterPD"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#CopyInputParameterPD"/>
+    <target href="assembly.xml#agg-process-record"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#agg-process-record"/>
+    <target href="assembly.xml#SaveProcessingReport"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#aggregateerrorrecorddetails"/>
+    <target href="assembly.xml#copyerrorrecordtovar"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#copyerrorrecordtovar"/>
+    <target href="assembly.xml#aggregate-errorrecords"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#RenderProcessingStatistics"/>
+    <target href="assembly.xml#start_progress_bar"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#start_progress_bar"/>
+    <target href="assembly.xml#emptyvarforrender"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#emptyvarforrender"/>
+    <target href="assembly.xml#AggregatorRenderRecords"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#AggregatorRenderRecords"/>
+    <target href="assembly.xml#setpercentcomplete"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#setpercentcomplete"/>
+    <target href="assembly.xml#update_progress_bar"/>
+  </connections>
+  <connections type="routesTo" sourceAnchorX="0.9607843137254902" sourceAnchorY="0.5135135135135135" targetAnchorX="0.02666666666666667">
+    <source href="assembly.xml#zip_and_store_output"/>
+    <target href="assembly.xml#ZipFilesForTransfer"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#ZipFilesForTransfer"/>
+    <target href="assembly.xml#call_store_consol_file"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#store_consol_file"/>
+    <target href="assembly.xml#save-consol-output"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#save-consol-output"/>
+    <target href="assembly.xml#send_to_wd_zip"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#create_transaction_log_record"/>
+    <target href="assembly.xml#write_transaction_log"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#increment_skipped_count"/>
+    <target href="assembly.xml#incr_skip_cnt"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#incr_error_cnt"/>
+    <target href="assembly.xml#send_err_msg"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#LogFileConversionError"/>
+    <target href="assembly.xml#setneededpropertiesandvariables"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#setneededpropertiesandvariables"/>
+    <target href="assembly.xml#CallLogConversionError"/>
+  </connections>
+  <connections type="routesTo" sourceAnchorX="1.0" targetAnchorX="0.0" targetAnchorY="0.49473684210526314">
+    <source href="assembly.xml#checkerrorrecord"/>
+    <target href="assembly.xml#processlineoutput"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#processlineoutput"/>
+    <target href="assembly.xml#call_store_msg_return_msg_err"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_store_msg_return_msg_err"/>
+    <target href="assembly.xml#resetmessagetosource"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#parseandstorefailures"/>
+    <target href="assembly.xml#call_split_var_processing_failure"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#store_summary_log"/>
+    <target href="assembly.xml#call_split_var_processing_summary"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#split_var_processing"/>
+    <target href="assembly.xml#copytranstomsg"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#copytranstomsg"/>
+    <target href="assembly.xml#Splitter-single-log-file"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#//@beans/@mixed.1/@splitter.0/@subRoute.0"/>
+    <target href="assembly.xml#setfilename"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#setfilename"/>
+    <target href="assembly.xml#copyxmltagtomessage"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#copyxmltagtomessage"/>
+    <target href="assembly.xml#call_zip_and_store_output"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#process_Err_Msg"/>
+    <target href="assembly.xml#incr_error_cnt"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#parse_failures"/>
+    <target href="assembly.xml#parseandstorefailures"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_parse_failures"/>
+    <target href="assembly.xml#call_parse_summary"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#subroutineparseandstorelogs"/>
+    <target href="assembly.xml#call_parse_failures"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#parse_summary"/>
+    <target href="assembly.xml#store_summary_log"/>
   </connections>
   <swimlanes x="25" y="28" bgColor="12632256" name="Store Logging Message" alignment="MIDDLE">
     <elements href="assembly.xml#store_msg_return_msg"/>
@@ -42,7 +346,98 @@
   </swimlanes>
   <swimlanes x="19" y="208" bgColor="12632256" name="Store Output Variable for Delivery" alignment="MIDDLE">
     <elements href="assembly.xml#store_msg_for_output_file"/>
-    <elements href="assembly.xml#storefile"/>
-    <elements href="assembly.xml#SendErrorToWorkday_withFile"/>
+    <elements href="assembly.xml#store-file-output"/>
+    <elements href="assembly.xml#send_file_to_wd"/>
   </swimlanes>
+  <swimlanes bgColor="12632256" name="Aggregate Failed Transactions" alignment="MIDDLE">
+    <elements href="assembly.xml#aggregatefailedtransaction"/>
+    <elements href="assembly.xml#aggr_failed_info"/>
+    <elements href="assembly.xml#agg-failed-record"/>
+    <elements href="assembly.xml#cp-msg_to_failed-var"/>
+  </swimlanes>
+  <swimlanes bgColor="12632256" name="Aggregate Processing Details" alignment="MIDDLE">
+    <elements href="assembly.xml#aggregateprocessingdetails"/>
+    <elements href="assembly.xml#CopyInputParameterPD"/>
+    <elements href="assembly.xml#agg-process-record"/>
+    <elements href="assembly.xml#SaveProcessingReport"/>
+  </swimlanes>
+  <swimlanes bgColor="12632256" name="Aggregate Error Records" alignment="MIDDLE">
+    <elements href="assembly.xml#aggregateerrorrecorddetails"/>
+    <elements href="assembly.xml#copyerrorrecordtovar"/>
+    <elements href="assembly.xml#aggregate-errorrecords"/>
+  </swimlanes>
+  <swimlanes x="392" y="1643" name="Render Processing Statistics" alignment="MIDDLE">
+    <elements href="assembly.xml#RenderProcessingStatistics"/>
+    <elements href="assembly.xml#start_progress_bar"/>
+    <elements href="assembly.xml#emptyvarforrender"/>
+    <elements href="assembly.xml#AggregatorRenderRecords"/>
+    <elements href="assembly.xml#setpercentcomplete"/>
+    <elements href="assembly.xml#update_progress_bar"/>
+  </swimlanes>
+  <swimlanes x="515" y="801" bgColor="4108284" name="Aggregate Failed Information and Processing Details" orientation="VERTICAL" elements="//@swimlanes.2 //@swimlanes.3 //@swimlanes.4" alignment="MIDDLE"/>
+  <swimlanes bgColor="12632256" name="Zip and Store" alignment="MIDDLE">
+    <elements href="assembly.xml#zip_and_store_output"/>
+    <elements href="assembly.xml#ZipFilesForTransfer"/>
+    <elements href="assembly.xml#call_store_consol_file"/>
+  </swimlanes>
+  <swimlanes bgColor="12632256" name="Store Failure Report" alignment="MIDDLE">
+    <elements href="assembly.xml#store_consol_file"/>
+    <elements href="assembly.xml#save-consol-output"/>
+    <elements href="assembly.xml#send_to_wd_zip"/>
+  </swimlanes>
+  <swimlanes x="-4" y="12" bgColor="4108284" name="Store Data in Workday" orientation="VERTICAL" elements="//@swimlanes.0 //@swimlanes.1 //@swimlanes.7 //@swimlanes.8" alignment="MIDDLE"/>
+  <swimlanes bgColor="8454016" name="Create Transaction Log Record" alignment="MIDDLE">
+    <elements href="assembly.xml#create_transaction_log_record"/>
+    <elements href="assembly.xml#write_transaction_log"/>
+  </swimlanes>
+  <swimlanes bgColor="8454016" name="Increment Skipped Count" alignment="MIDDLE">
+    <elements href="assembly.xml#increment_skipped_count"/>
+    <elements href="assembly.xml#incr_skip_cnt"/>
+  </swimlanes>
+  <swimlanes bgColor="12632256" name="Summary and Skip Transactions" elements="//@swimlanes.10 //@swimlanes.11" alignment="MIDDLE"/>
+  <swimlanes bgColor="12632256" name="Process Error Message" alignment="MIDDLE">
+    <elements href="assembly.xml#process_Err_Msg"/>
+    <elements href="assembly.xml#incr_error_cnt"/>
+    <elements href="assembly.xml#send_err_msg"/>
+  </swimlanes>
+  <swimlanes bgColor="12632256" name="Log Conversion Error" alignment="MIDDLE">
+    <elements href="assembly.xml#LogFileConversionError"/>
+    <elements href="assembly.xml#setneededpropertiesandvariables"/>
+    <elements href="assembly.xml#CallLogConversionError"/>
+  </swimlanes>
+  <swimlanes bgColor="12632256" name="Check Error Record" alignment="MIDDLE">
+    <elements href="assembly.xml#checkerrorrecord"/>
+    <elements href="assembly.xml#processlineoutput"/>
+    <elements href="assembly.xml#call_store_msg_return_msg_err"/>
+    <elements href="assembly.xml#resetmessagetosource"/>
+  </swimlanes>
+  <swimlanes x="601" y="12" bgColor="4108284" name="Processing Transaction Information" orientation="VERTICAL" elements="//@swimlanes.12 //@swimlanes.13 //@swimlanes.14 //@swimlanes.15" alignment="MIDDLE"/>
+  <swimlanes bgColor="12632256" name="Start Parse and Store Logs" alignment="MIDDLE">
+    <elements href="assembly.xml#subroutineparseandstorelogs"/>
+    <elements href="assembly.xml#call_parse_failures"/>
+    <elements href="assembly.xml#call_parse_summary"/>
+  </swimlanes>
+  <swimlanes bgColor="12632256" name="Process Failure Transactions" alignment="MIDDLE">
+    <elements href="assembly.xml#parse_failures"/>
+    <elements href="assembly.xml#parseandstorefailures"/>
+    <elements href="assembly.xml#call_split_var_processing_failure"/>
+  </swimlanes>
+  <swimlanes bgColor="12632256" name="Process Summary Transactions" alignment="MIDDLE">
+    <elements href="assembly.xml#parse_summary"/>
+    <elements href="assembly.xml#store_summary_log"/>
+    <elements href="assembly.xml#call_split_var_processing_summary"/>
+  </swimlanes>
+  <swimlanes bgColor="12632256" name="Process Log File" alignment="MIDDLE">
+    <elements href="assembly.xml#split_var_processing"/>
+    <elements href="assembly.xml#copytranstomsg"/>
+    <elements href="assembly.xml#Splitter-single-log-file"/>
+    <elements href="#//@swimlanes.21"/>
+  </swimlanes>
+  <swimlanes bgColor="12632256" name="Extract Data to Zip and Store" alignment="MIDDLE">
+    <elements href="assembly.xml#setfilename"/>
+    <elements href="assembly.xml#copyxmltagtomessage"/>
+    <elements href="assembly.xml#call_zip_and_store_output"/>
+  </swimlanes>
+  <swimlanes x="1540" y="-3" bgColor="4108284" name="Parse and Store Log Files" orientation="VERTICAL" elements="//@swimlanes.17 //@swimlanes.23 //@swimlanes.20" alignment="MIDDLE"/>
+  <swimlanes x="1641" y="108" bgColor="12632256" name="Process Log Transactions" elements="//@swimlanes.18 //@swimlanes.19"/>
 </wdnm:Diagram>

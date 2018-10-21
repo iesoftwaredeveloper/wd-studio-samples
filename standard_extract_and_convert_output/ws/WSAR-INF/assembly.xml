@@ -88,6 +88,6 @@
                 <cc:copy id="Copy" input="variable" input-variable="upload.data"/>
             </cc:steps>
         </cc:async-mediation>
-	</cc:assembly>
+    </cc:assembly>
 
 </beans>
