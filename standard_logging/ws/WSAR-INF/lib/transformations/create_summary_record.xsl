@@ -22,7 +22,7 @@
             <xsl:attribute name="tl:transaction_grouping" select="$transaction.grouping"/>
             <xsl:attribute name="tl:transaction_record_number" select="$record.counter"/>
             <tl:file_data>
-                <xsl:if test="string-length(format-number($file.number, '####')) != 0">
+                <xsl:if test="string-length(xs:string($file.number)) != 0">
                     <tl:instance_number>
                         <xsl:value-of select="$file.number"/>
                     </tl:instance_number>

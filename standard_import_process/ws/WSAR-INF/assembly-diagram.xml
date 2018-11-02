@@ -79,6 +79,9 @@
   <visualProperties x="1295" y="196">
     <element href="assembly.xml#call_create_transaction_log_record_err"/>
   </visualProperties>
+  <visualProperties x="1624" y="187">
+    <element href="assembly.xml#AsyncMediation"/>
+  </visualProperties>
   <connections type="routesTo">
     <source href="assembly.xml#put_workday_web_serivce_call"/>
     <target href="assembly.xml#call_store_msg_return_msg_source"/>
@@ -127,10 +130,6 @@
     <source href="assembly.xml#split_ws_call"/>
     <target href="assembly.xml#split_ws_put"/>
   </connections>
-  <connections type="routesTo">
-    <source href="assembly.xml#//@beans/@mixed.1/@splitter.0/@subRoute.0"/>
-    <target href="assembly.xml#make_workday_soap_call"/>
-  </connections>
   <connections type="routesResponseTo">
     <source href="assembly.xml#call_store_msg_return_msg_put"/>
     <target href="assembly.xml#call_split_ws_call"/>
@@ -158,6 +157,14 @@
   <connections type="routesResponseTo">
     <source href="assembly.xml#call_process_Err_Msg"/>
     <target href="assembly.xml#call_create_transaction_log_record_err"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#//@beans/@mixed.1/@splitter.0/@subRoute.0"/>
+    <target href="assembly.xml#AsyncMediation"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#AsyncMediation"/>
+    <target href="assembly.xml#make_workday_soap_call"/>
   </connections>
   <swimlanes bgColor="8454016" name="Put Call Processing" alignment="MIDDLE">
     <elements href="assembly.xml#call_store_msg_return_msg_put"/>
@@ -195,10 +202,11 @@
     <elements href="assembly.xml#create_put_web_service_call"/>
   </swimlanes>
   <swimlanes bgColor="8454016" name="Process Split Data" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#AsyncMediation"/>
     <elements href="assembly.xml#make_workday_soap_call"/>
     <elements href="assembly.xml#call_create_transaction_log_record"/>
   </swimlanes>
-  <swimlanes x="1293" y="-6" bgColor="12632256" name="Split and Process" alignment="MIDDLE">
+  <swimlanes x="1427" y="6" bgColor="12632256" name="Split and Process" alignment="MIDDLE">
     <elements href="assembly.xml#split_ws_call"/>
     <elements href="assembly.xml#split_ws_put"/>
     <elements href="#//@swimlanes.9"/>
@@ -208,4 +216,7 @@
     <elements href="assembly.xml#call_process_Err_Msg"/>
     <elements href="assembly.xml#call_create_transaction_log_record_err"/>
   </swimlanes>
+  <swimlanes x="-51" y="8" name="Standard Import Process" orientation="VERTICAL" elements="//@swimlanes.14 //@swimlanes.15"/>
+  <swimlanes x="420" y="732" name="Put and Split Data" elements="//@swimlanes.1 //@swimlanes.10" alignment="MIDDLE"/>
+  <swimlanes x="506" y="766" name="Get and Process Data" elements="//@swimlanes.4 //@swimlanes.7" alignment="MIDDLE"/>
 </wdnm:Diagram>

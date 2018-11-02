@@ -9,9 +9,9 @@
     <xsl:param name="lp.source.filter.wid"/>
 
     <xsl:template match="/">
-        <!--<fhc:running_process>-->
+        <!-- <fhc:running_process> -->
             <xsl:apply-templates select="document('')//fhc:process[@fhc:process_name = $running.process]"/>
-        <!--</fhc:running_process>-->
+        <!-- </fhc:running_process> -->
     </xsl:template>
 
     <fhc:processes>
@@ -887,6 +887,7 @@
                     <fhc:application>Resource_Management</fhc:application>
                     <fhc:request_filename>lib/put_request/sync_data/createupdatesupplierdatarequest.xsl</fhc:request_filename>
                     <fhc:request_endpoint>standard_import_process/put_workday_web_serivce_call</fhc:request_endpoint>
+                    <fhc:workday_transaction_id_tag fhc:transaction_id_namespace="wd urn:com.workday/bsvc">//wd:Supplier_ID</fhc:workday_transaction_id_tag>
                     <fhc:update_attributes>
                         <fhc:update_data_attribute>Update Supplier Data</fhc:update_data_attribute>
                         <fhc:multi_instance_updates>

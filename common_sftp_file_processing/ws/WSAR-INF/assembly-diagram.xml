@@ -332,7 +332,7 @@
     <elements href="assembly.xml#call_log_filename"/>
   </swimlanes>
   <swimlanes bgColor="8454016" name="Reset Properties" orientation="VERTICAL" elements="//@swimlanes.4 //@swimlanes.5" alignment="MIDDLE"/>
-  <swimlanes x="22" y="1105" bgColor="8355711" name="File Processing" elements="//@swimlanes.3 //@swimlanes.6" alignment="MIDDLE"/>
+  <swimlanes x="18" y="598" bgColor="8355711" name="File Processing" elements="//@swimlanes.3 //@swimlanes.6" alignment="MIDDLE"/>
   <swimlanes name="Set counters and Split Files" alignment="MIDDLE">
     <elements href="assembly.xml#setup_process_counters_mget"/>
     <elements href="assembly.xml#Splitter-FTP-files"/>
@@ -355,7 +355,7 @@
     <elements href="#//@swimlanes.12"/>
     <elements href="assembly.xml#call_delete_SFTP_files_mget"/>
   </swimlanes>
-  <swimlanes x="1620" y="547" bgColor="8355711" name="get_and_process_SFTP_files_multiple" orientation="VERTICAL" elements="//@swimlanes.9 //@swimlanes.13" alignment="MIDDLE"/>
+  <swimlanes x="1762" y="1017" bgColor="8355711" name="get_and_process_SFTP_files_multiple" orientation="VERTICAL" elements="//@swimlanes.9 //@swimlanes.13" alignment="MIDDLE"/>
   <swimlanes name="Process Each File from File List" alignment="MIDDLE">
     <elements href="assembly.xml#process_filestoprocess_var"/>
     <elements href="assembly.xml#ProcessFile"/>
@@ -411,5 +411,7 @@
     <elements href="assembly.xml#copy_message_to_file_var"/>
     <elements href="assembly.xml#aggregate_filedetails"/>
   </swimlanes>
-  <swimlanes x="1620" y="35" bgColor="8355711" name="Private local-in transports for processing" orientation="VERTICAL" elements="//@swimlanes.23 //@swimlanes.24 //@swimlanes.25" alignment="MIDDLE"/>
+  <swimlanes x="1243" y="28" bgColor="8355711" name="Private local-in transports for processing" orientation="VERTICAL" elements="//@swimlanes.23 //@swimlanes.24 //@swimlanes.25" alignment="MIDDLE"/>
+  <swimlanes x="18" y="53" name="Common sFTP File Processing" orientation="VERTICAL" elements="//@swimlanes.26 //@swimlanes.22 //@swimlanes.28" alignment="MIDDLE"/>
+  <swimlanes x="149" y="1146" name="Swimlane" elements="//@swimlanes.7 //@swimlanes.14"/>
 </wdnm:Diagram>

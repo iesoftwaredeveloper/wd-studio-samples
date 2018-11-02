@@ -61,7 +61,7 @@
         <cc:async-mediation id="setfilename" routes-to="copyxmltagtomessage">
             <cc:steps>
                 <cc:eval id="extractfilename">
-                    <cc:expression>props['storefilename'] = parts[0].xpath(&quot;//filename&quot;)</cc:expression>
+                    <cc:expression>props['storefilename'] = parts[0].xpath(&quot;//tl:summary_log_information/@tl:filename&quot;, &quot;tl https://github.com/firehawk-consulting/firehawk/schemas/transaction_log.xsd&quot;)</cc:expression>
                     <cc:expression>props['currentfilenumber'] = props['currentfilenumber'] + 1</cc:expression>
                     <cc:expression>props['file-currentnumber'] = props['file-currentnumber'] + 1</cc:expression>
                 </cc:eval>
@@ -75,7 +75,7 @@
         </cc:async-mediation>
         <cc:splitter id="Splitter-single-log-file" no-split-message-error="false">
             <cc:sub-route name="SubRoute" routes-to="setfilename"/>
-            <cc:xml-stream-splitter xpath="//@{props['xmlsplit_tag']}"/>
+            <cc:xml-stream-splitter namespaces="tl https://github.com/firehawk-consulting/firehawk/schemas/transaction_log.xsd" xpath="//@{props['xmlsplit_tag']}"/>
         </cc:splitter>
         <cc:async-mediation id="copytranstomsg" routes-to="Splitter-single-log-file">
             <cc:steps>
@@ -94,13 +94,16 @@
             <cc:parameter default="''" name="xmltagtocopy" type="string"/>
         </cc:local-in>
         <cc:local-out id="call_split_var_processing_summary" endpoint="vm://standard_logging/split_var_processing">
-            <cc:set name="xmlsplit_tag" value="props['logfilexmlsplit']"/>
+            <cc:set name="xmlsplit_tag" value="'tl:summary_log_information'"/>
             <cc:set name="summarylogfilename" value="props['process_type'] + '_summarylogs_' + vars['datetime'].text + '.zip'"/>
             <cc:set name="xmltagtocopy" value="'summarylogdetails'"/>
         </cc:local-out>
         <cc:async-mediation id="store_summary_log" routes-to="call_split_var_processing_summary">
             <cc:steps>
                 <cc:copy id="cp_to_xmltosplit" output="variable" output-variable="xmltosplit" input="variable" input-variable="processingsummary.log"/>
+                <cc:eval id="set-datetime">
+                    <cc:expression>vars['datetime']=new java.text.SimpleDateFormat(&quot;yyyyMMdd_HHmmss&quot;).format(new java.util.Date(System.currentTimeMillis()))</cc:expression>
+                </cc:eval>
             </cc:steps>
         </cc:async-mediation>
         <cc:local-out id="call_split_var_processing_failure" endpoint="vm://standard_logging/split_var_processing">
@@ -111,6 +114,9 @@
         <cc:async-mediation id="parseandstorefailures" routes-to="call_split_var_processing_failure">
             <cc:steps>
                 <cc:xslt id="indent_variable" output="variable" output-variable="xmltosplit" input="variable" input-variable="tempfailedoutput.xml" url="lib/transformations/remove_sensitive_error_data.xsl"/>
+                <cc:eval id="set-datetime">
+                    <cc:expression>vars['datetime']=new java.text.SimpleDateFormat(&quot;yyyyMMdd_HHmmss&quot;).format(new java.util.Date(System.currentTimeMillis()))</cc:expression>
+                </cc:eval>
             </cc:steps>
         </cc:async-mediation>
         <cc:local-in id="subroutineparseandstorelogs" routes-to="call_parse_failures" access="public" icon="local-in-subroutineparseandstorelogs.png">
@@ -175,7 +181,7 @@
             <cc:set name="is.event.wid" value="lp.isSet() ? lp.getIntegrationEventWID() : null"/>
             <cc:set name="is.message.severity" value="props['severity']"/>
             <cc:set name="is.message.summary" value="'Error loading record: ' + props['record.counter'] + '. See Details for Error Reason.'"/>
-            <cc:set name="is.message.detail" value="'Error Reason:  ' + props['errormessage.detail']  + props['errormessage.detail.expanded']"/>
+            <cc:set name="is.message.detail" value="'Error Reason:  ' + props['error.message.detail'] + &quot;\n&quot; + props['error.message.detail.expanded']"/>
         </cc:local-out>
         <cc:async-mediation id="incr_error_cnt" routes-to="send_err_msg">
             <cc:steps>
@@ -192,8 +198,8 @@
         <cc:local-in id="process_Err_Msg" routes-to="incr_error_cnt" access="public">
             <cc:parameter name="failed-on-import" type="boolean"/>
             <cc:parameter default="false" name="include-file" type="boolean"/>
-            <cc:parameter default="''" name="errormessage.detail.expanded" required="false" type="string"/>
-            <cc:parameter default="'WARNING'" name="severity" required="false"/>
+            <cc:parameter default="''" name="error.message.detail.expanded" required="false" type="string"/>
+            <cc:parameter default="'WARNING'" name="severity" required="false"/><cc:parameter default="''" name="error.message.detail"/>
         </cc:local-in>
         <cc:async-mediation id="incr_skip_cnt" continue-after-error="rewind" handle-downstream-errors="false">
             <cc:steps>
@@ -206,12 +212,12 @@
         <cc:local-in id="increment_skipped_count" routes-to="incr_skip_cnt" access="public" icon="local-in-increment_skipped_count.png"/>
         <cc:async-mediation id="write_transaction_log">
             <cc:steps>
-                <cc:write id="write_transaction_record" output="variable" output-variable="processingdetails.xml">
+                <cc:write id="write_blank" output="message" output-mimetype="text/xml">
                     <cc:message>
-                        <cc:text>&lt;blankxml/></cc:text>
-                        <cc:xslt reuse-strategy="templates" url="lib/transformations/create_summary_record.xsl"/>
+                        <cc:text>&lt;blank/></cc:text>
                     </cc:message>
                 </cc:write>
+                <cc:xslt id="create_transaction_record" output="variable" output-variable="processingdetails.xml" url="lib/transformations/create_summary_record.xsl"/>
             </cc:steps>
         </cc:async-mediation>
         <cc:local-in id="create_transaction_log_record" routes-to="write_transaction_log" access="public">
@@ -336,12 +342,12 @@
         </cc:local-in>
         <cc:async-mediation id="SaveProcessingReport">
             <cc:steps>
-                <cc:xslt id="create_output_html" output="variable" output-mimetype="text/xml" output-variable="processingsummary.log" input="variable" input-variable="fullprocessingdata.log" url="lib/transformations/create_processing_html_output.xsl"/>
+                <cc:xslt id="create_output_html" output="variable" output-mimetype="text/xml" output-variable="processingsummary.log" input="message" url="lib/transformations/create_processing_html_output.xsl"/>
             </cc:steps>
         </cc:async-mediation>
         <cc:aggregator id="agg-process-record" routes-to="SaveProcessingReport" allow-external-control="false" force-batch-on-last-message="false" force-batch-when="(props['file.number.total'] == props['file.number.current'] &amp;&amp; (props['record.count.total'] == props['file.record.counter'] || (props['record.count.total'] == -1 &amp;&amp; util.isLastMessageInBatch()))) || props['force-close'] == 'yes'">
             <cc:size-batch-strategy batch-size="-1"/>
-            <cc:xml-message-content-collater output="variable" output-mimetype="text/plain" output-variable="fullprocessingdata.log">
+            <cc:xml-message-content-collater output="message" output-mimetype="text/plain">
         <cc:header-text>&lt;Process_Details></cc:header-text>
         <cc:footer-text>&lt;/Process_Details></cc:footer-text>
       </cc:xml-message-content-collater>
@@ -358,7 +364,7 @@
         </cc:async-mediation>
         <cc:local-in id="aggregateprocessingdetails" routes-to="CopyInputParameterPD" access="public">
             <cc:parameter name="summarylog.filename" required="true"/>
-            <cc:parameter default="'txt'" name="summarylog.file.extension"/>
+            <cc:parameter default="'html'" name="summary.log.file.extension"/>
             <cc:parameter default="-1" name="record.count.total" required="false"/>
             <cc:parameter default="-99" name="file.record.counter" required="false"/>
             <cc:parameter default="-1" name="file.number.total" required="false"/>
@@ -410,6 +416,6 @@
         <cc:local-in id="parse_summary" routes-to="store_summary_log"/>
         <cc:local-out id="call_parse_failures" execute-when="props['record-failedcount'] != 0" routes-response-to="call_parse_summary" endpoint="vm://standard_logging/parse_failures"/>
         <cc:local-out id="call_parse_summary" execute-when="props['log-summarydata']==true &amp;&amp; vars['processingsummary.log'] != null" endpoint="vm://standard_logging/parse_summary"/>
-	</cc:assembly>
+    </cc:assembly>
 
 </beans>

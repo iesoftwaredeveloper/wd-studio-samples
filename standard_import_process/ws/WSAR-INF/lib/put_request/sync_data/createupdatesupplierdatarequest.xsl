@@ -93,7 +93,8 @@
                     <xsl:with-param name="alternatenameusage" select="alternatenameusagenew"/>
                 </xsl:call-template>
             </xsl:for-each>-->
-            <xsl:if test="count($supplier_updatedata//supplierdetaildata[lower-case(ecmc:supplier_updateremittance) = 'y']) = 1">
+            <xsl:if test="count($supplier_updatedata//supplierdetaildata[lower-case(ecmc:supplier_updateremittance) = 'y']) = 1
+                and count(.//wd:Integration_System_Reference) = 0">
                 <xsl:call-template name="integrationsystem">
                     <xsl:with-param name="inputvalue" select="$single.instance.update.1.wids"/>
                 </xsl:call-template>

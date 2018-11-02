@@ -37,6 +37,9 @@
   <visualProperties x="1287" y="372">
     <element href="assembly.xml#record-counters"/>
   </visualProperties>
+  <visualProperties x="864" y="383">
+    <element href="assembly.xml#call_subroutineparseandstorelogs"/>
+  </visualProperties>
   <connections type="routesResponseTo">
     <source href="assembly.xml#call_PutIntegrationMessage_process"/>
     <target href="assembly.xml#get_set_properties"/>
@@ -77,12 +80,16 @@
     <source href="assembly.xml#record-counters"/>
     <target href="assembly.xml#call_process_xml_data"/>
   </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_get_request_endpoint"/>
+    <target href="assembly.xml#call_subroutineparseandstorelogs"/>
+  </connections>
   <swimlanes x="22" y="31" bgColor="12632256" name="Set Properties" orientation="VERTICAL" elements="//@swimlanes.3 //@swimlanes.4" alignment="MIDDLE"/>
   <swimlanes bgColor="8454016" name="Process Split Data" orientation="VERTICAL" alignment="MIDDLE">
     <elements href="assembly.xml#split_response"/>
     <elements href="assembly.xml#record-counters"/>
   </swimlanes>
-  <swimlanes x="956" y="31" bgColor="12632256" name="Split and Process" alignment="MIDDLE">
+  <swimlanes x="-15" y="441" bgColor="12632256" name="Split and Process" alignment="MIDDLE">
     <elements href="assembly.xml#split_and_process_response"/>
     <elements href="assembly.xml#file-counters"/>
     <elements href="#//@swimlanes.1"/>
@@ -98,5 +105,7 @@
   <swimlanes x="864" y="179" name="Set Properties and Continue" alignment="MIDDLE">
     <elements href="assembly.xml#get_set_properties"/>
     <elements href="assembly.xml#call_get_request_endpoint"/>
+    <elements href="assembly.xml#call_subroutineparseandstorelogs"/>
   </swimlanes>
+  <swimlanes x="17" y="8" name="Standard Configuration Properties" orientation="VERTICAL" elements="//@swimlanes.0 //@swimlanes.2" alignment="MIDDLE"/>
 </wdnm:Diagram>

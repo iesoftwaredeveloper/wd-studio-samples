@@ -261,14 +261,8 @@
         </cc:local-in>
         <cc:local-out id="call_process_file_subRoutine" store-message="none" endpoint="vm://@{props['processfile.subroutine']}">
             <cc:set name="filetoprocess-totalcount" value="props['file-count']"/>
-            
-            
-            
-            
-            
-            
         </cc:local-out>
-        <cc:local-out id="call_log_filename" execute-when="props['displayfilelist'] == true" routes-response-to="cp_to_msg" endpoint="vm://wcc/PutIntegrationMessage">
+        <cc:local-out id="call_log_filename" routes-response-to="cp_to_msg" endpoint="vm://wcc/PutIntegrationMessage">
             <cc:set name="is.message.severity" value="'INFO'"/>
             <cc:set name="is.message.summary" value="'Processing File: ' + props['sftp.filename']"/>
         </cc:local-out>
