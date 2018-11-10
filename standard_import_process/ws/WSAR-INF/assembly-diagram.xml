@@ -80,7 +80,7 @@
     <element href="assembly.xml#call_create_transaction_log_record_err"/>
   </visualProperties>
   <visualProperties x="1624" y="187">
-    <element href="assembly.xml#AsyncMediation"/>
+    <element href="assembly.xml#set-wd-id"/>
   </visualProperties>
   <connections type="routesTo">
     <source href="assembly.xml#put_workday_web_serivce_call"/>
@@ -150,27 +150,23 @@
     <source href="assembly.xml#make_workday_soap_call"/>
     <target href="assembly.xml#call_create_transaction_log_record"/>
   </connections>
-  <connections type="routesTo">
-    <source href="assembly.xml#//@beans/@mixed.1/@mixed.5/@mixed.3"/>
-    <target href="assembly.xml#call_process_Err_Msg"/>
-  </connections>
   <connections type="routesResponseTo">
     <source href="assembly.xml#call_process_Err_Msg"/>
     <target href="assembly.xml#call_create_transaction_log_record_err"/>
   </connections>
   <connections type="routesTo">
     <source href="assembly.xml#//@beans/@mixed.1/@splitter.0/@subRoute.0"/>
-    <target href="assembly.xml#AsyncMediation"/>
+    <target href="assembly.xml#set-wd-id"/>
   </connections>
   <connections type="routesTo">
-    <source href="assembly.xml#AsyncMediation"/>
+    <source href="assembly.xml#set-wd-id"/>
     <target href="assembly.xml#make_workday_soap_call"/>
   </connections>
-  <swimlanes bgColor="8454016" name="Put Call Processing" alignment="MIDDLE">
-    <elements href="assembly.xml#call_store_msg_return_msg_put"/>
-    <elements href="assembly.xml#call_split_ws_call"/>
-  </swimlanes>
-  <swimlanes x="18" y="-13" bgColor="4108284" name="Put Web Service Call" elements="//@swimlanes.8 //@swimlanes.11" alignment="MIDDLE"/>
+  <connections type="routesTo">
+    <source href="assembly.xml#//@beans/@mixed.1/@mixed.53/@mixed.3"/>
+    <target href="assembly.xml#call_process_Err_Msg"/>
+  </connections>
+  <swimlanes x="18" y="-13" bgColor="4108284" name="Put Web Service Call" orientation="VERTICAL" elements="//@swimlanes.7 //@swimlanes.9" alignment="MIDDLE"/>
   <swimlanes bgColor="8454016" name="Get Web Service Call" alignment="MIDDLE">
     <elements href="assembly.xml#get_workday_paged_web_service_call"/>
     <elements href="assembly.xml#create_get_web_service_call"/>
@@ -183,7 +179,7 @@
     <elements href="assembly.xml#make_workday_raas_call"/>
     <elements href="assembly.xml#call_determine_endpoint"/>
   </swimlanes>
-  <swimlanes x="18" y="329" bgColor="12632256" name="Get Workday Data" orientation="VERTICAL" elements="//@swimlanes.2 //@swimlanes.3" alignment="MIDDLE"/>
+  <swimlanes x="18" y="329" bgColor="12632256" name="Get Workday Data" orientation="VERTICAL" elements="//@swimlanes.1 //@swimlanes.2" alignment="MIDDLE"/>
   <swimlanes x="18" y="554" bgColor="8454016" name="Group Response Data" alignment="MIDDLE">
     <elements href="assembly.xml#group_rsp_data"/>
     <elements href="assembly.xml#group_rsp"/>
@@ -195,28 +191,32 @@
     <elements href="assembly.xml#call_group_rsp_data"/>
     <elements href="assembly.xml#call_get_response_endpoint"/>
   </swimlanes>
-  <swimlanes x="1097" y="335" bgColor="12632256" name="Response Data Processing" orientation="VERTICAL" elements="//@swimlanes.5 //@swimlanes.6" alignment="MIDDLE"/>
+  <swimlanes x="1097" y="335" bgColor="12632256" name="Response Data Processing" orientation="VERTICAL" elements="//@swimlanes.4 //@swimlanes.5" alignment="MIDDLE"/>
   <swimlanes x="26" y="141" bgColor="12632256" name="Local In" alignment="MIDDLE">
     <elements href="assembly.xml#put_workday_web_serivce_call"/>
     <elements href="assembly.xml#call_store_msg_return_msg_source"/>
-    <elements href="assembly.xml#create_put_web_service_call"/>
   </swimlanes>
-  <swimlanes bgColor="8454016" name="Process Split Data" orientation="VERTICAL" alignment="MIDDLE">
-    <elements href="assembly.xml#AsyncMediation"/>
-    <elements href="assembly.xml#make_workday_soap_call"/>
-    <elements href="assembly.xml#call_create_transaction_log_record"/>
-  </swimlanes>
-  <swimlanes x="1427" y="6" bgColor="12632256" name="Split and Process" alignment="MIDDLE">
+  <swimlanes x="1427" y="6" bgColor="4108284" name="Split and Process" alignment="MIDDLE">
     <elements href="assembly.xml#split_ws_call"/>
     <elements href="assembly.xml#split_ws_put"/>
-    <elements href="#//@swimlanes.9"/>
+    <elements href="assembly.xml#set-wd-id"/>
+    <elements href="#//@swimlanes.14"/>
   </swimlanes>
-  <swimlanes x="851" y="248" bgColor="12632256" name="End Processing" orientation="VERTICAL" elements="//@swimlanes.0 //@swimlanes.12" alignment="MIDDLE"/>
+  <swimlanes x="851" y="248" bgColor="12632256" name="Process Put Call" alignment="MIDDLE">
+    <elements href="assembly.xml#create_put_web_service_call"/>
+    <elements href="assembly.xml#call_store_msg_return_msg_put"/>
+    <elements href="assembly.xml#call_split_ws_call"/>
+  </swimlanes>
   <swimlanes x="867" y="192" bgColor="8454016" name="Error Processing" alignment="MIDDLE">
     <elements href="assembly.xml#call_process_Err_Msg"/>
     <elements href="assembly.xml#call_create_transaction_log_record_err"/>
   </swimlanes>
-  <swimlanes x="-51" y="8" name="Standard Import Process" orientation="VERTICAL" elements="//@swimlanes.14 //@swimlanes.15"/>
-  <swimlanes x="420" y="732" name="Put and Split Data" elements="//@swimlanes.1 //@swimlanes.10" alignment="MIDDLE"/>
-  <swimlanes x="506" y="766" name="Get and Process Data" elements="//@swimlanes.4 //@swimlanes.7" alignment="MIDDLE"/>
+  <swimlanes x="-51" y="8" name="Standard Import Process" orientation="VERTICAL" elements="//@swimlanes.12 //@swimlanes.13"/>
+  <swimlanes x="420" y="732" name="Put and Split Data" elements="//@swimlanes.0 //@swimlanes.8" alignment="MIDDLE"/>
+  <swimlanes x="506" y="766" bgColor="4108284" name="Get and Process Data" elements="//@swimlanes.3 //@swimlanes.6" alignment="MIDDLE"/>
+  <swimlanes x="1815" y="274" bgColor="12632256" name="End Processing" orientation="VERTICAL" elements="//@swimlanes.15 //@swimlanes.10" alignment="MIDDLE"/>
+  <swimlanes x="1878" y="295" bgColor="8454016" name="Make Web Service Call" alignment="MIDDLE">
+    <elements href="assembly.xml#make_workday_soap_call"/>
+    <elements href="assembly.xml#call_create_transaction_log_record"/>
+  </swimlanes>
 </wdnm:Diagram>

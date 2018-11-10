@@ -10,7 +10,7 @@
      xmlns:wd="urn:com.workday/bsvc"
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
  
-	<cc:assembly id="WorkdayAssembly" version="2017.35">
+    <cc:assembly id="WorkdayAssembly" version="2017.35">
         <cc:local-out id="call_get_request_endpoint" store-message="none" routes-response-to="call_subroutineparseandstorelogs" endpoint="vm://@{props['web.service.get.request.endpoint']}">
             <cc:set name="web.service.get.request" value="props['web.service.get.request']"/>
             <cc:set name="report.extra.path" value="props['report.extra.path'] + props['report.filter']"/>
@@ -93,7 +93,7 @@
             <cc:parameter name="running.process" required="true"/>
             <cc:parameter default="'false'" name="process.retrieved.file" required="false"/>
         </cc:local-in>
-        <cc:local-out id="call_process_xml_data" store-message="none" routes-response-to="call_aggregateprocessingdetails" endpoint="vm://@{props['web.service.put.request.endpoint']}">
+        <cc:local-out id="call_process_xml_data" store-message="none" routes-response-to="PutIntegrationMessage" endpoint="vm://@{props['web.service.put.request.endpoint']}">
             <cc:set name="web.service.put.request" value="props['web.service.put.request']"/>
             <cc:set name="update.data" value="props['update.data']"/>
             <cc:set name="web.service.put.application" value="props['web.service.put.application']"/>
@@ -115,7 +115,11 @@
             <cc:sub-route name="process_xml" routes-to="record-counters"/>
             <cc:xml-stream-splitter namespaces="@{props['xml.split.namespace']}" xpath="//@{props['xml.split.tag']}"/>
         </cc:splitter>
-        <cc:local-in id="split_and_process_response" routes-to="file-counters" access="public" icon="local-in-split_and_process_response.png"/>
+        <cc:local-in id="split_and_process_response" routes-to="file-counters" access="public" icon="local-in-split_and_process_response.png">
+            <cc:parameter default="-1" name="page.current" required="true"/>
+            <cc:parameter default="-1" name="page.total" required="true"/>
+            <cc:parameter default="-1" name="record.count.total" required="true"/>
+        </cc:local-in>
         <cc:async-mediation id="set-ws-props" routes-to="call_process_retrieved_file">
             <cc:steps>
                 <cc:eval id="set-props">
@@ -131,19 +135,20 @@
                     <cc:expression>props['web.service.effective.date'] = intsys.getAttribute('Web Service Effective Date')</cc:expression>
                     <cc:expression>props['web.service.lock.transaction'] = intsys.getAttribute('Web Service Lock Transaction')</cc:expression>
                     <cc:expression>props['default.business.process.comment'] = intsys.getAttribute('Default Business Process Comment')</cc:expression>
+                    <cc:expression>props['web.service.summary.log'] = intsys.getAttribute('Log Summary Import Results')</cc:expression>
                 </cc:eval>
             </cc:steps>
         </cc:async-mediation>
         <cc:local-out id="call_process_retrieved_file" execute-when="props['process.retrieved.file'] == 'true'" routes-response-to="call_PutIntegrationMessage_process" endpoint="vm://common_sftp_file_processing/process_retrieved_file">
             <cc:set name="processfile.subroutine" value="'mass_sync_data/store-retrieved_as_lkp'"/>
         </cc:local-out>
-        <cc:local-out id="call_aggregateprocessingdetails" endpoint="vm://standard_logging/aggregateprocessingdetails">
+        <cc:local-out id="call_aggregateprocessingdetails" execute-when="props['web.service.summary.log'] == true" endpoint="vm://standard_logging/aggregateprocessingdetails">
             <cc:set name="summarylog.filename" value="'Summary_Log_Information'"/>
             <cc:set name="summarylog.file.extension" value="'html'"/>
-            <cc:set name="record.count.total" value="-1"/>
-            <cc:set name="file.record.counter" value="-99"/>
-            <cc:set name="file.number.total" value="-1"/>
-            <cc:set name="file.number.current" value="-1"/>
+            <cc:set name="record.count.total" value="props['record.count.total']"/>
+            <cc:set name="record.counter" value="props['record.counter'] "/>
+            <cc:set name="file.number.total" value="props['page.total']"/>
+            <cc:set name="file.number.current" value="props['page.current']"/>
         </cc:local-out>
         <cc:async-mediation id="file-counters" routes-to="split_response">
             <cc:steps>
@@ -161,9 +166,8 @@
         <cc:async-mediation id="record-counters" routes-to="call_process_xml_data">
             <cc:steps>
                 <cc:eval id="incr-counters">
-                    <cc:expression>props['file.number.current'] = ((props['file.number.current'] == null)? 0:props['file.number.current']) +1</cc:expression>
-                    <cc:expression>props['record.counter'] = ((props['record.counter'] == null)? 0:props['record.counter']) +1</cc:expression>
-                    <cc:expression>props['file.record.counter'] = ((props['file.record.counter'] == null)? 0:props['file.record.counter']) +1</cc:expression>
+                    <cc:expression>props['record.counter'] = ((props['record.counter'] == null)? 0:props['record.counter']) + 1</cc:expression>
+                    <cc:expression>props['file.record.counter'] = ((props['file.record.counter'] == null)? 0:props['file.record.counter']) + 1</cc:expression>
                 </cc:eval>
             </cc:steps>
         </cc:async-mediation>
@@ -174,6 +178,8 @@
             <cc:set name="record-failedcount" value="props['record.counter.failed']"/>
             <cc:set name="log-summarydata" value="true"/>
         </cc:local-out>
-	</cc:assembly>
+        <cc:local-out id="RenderProcessingStatistics" routes-response-to="call_aggregateprocessingdetails" endpoint="vm://standard_logging/RenderProcessingStatistics"><cc:set name="currentfile-name" value="'no filename passed'"/><cc:set name="record-totalcount" value="props['record.count.total']"/><cc:set name="record-filecount" value="props['record.counter']"/></cc:local-out>
+        <cc:local-out id="PutIntegrationMessage" routes-response-to="call_aggregateprocessingdetails" endpoint="vm://wcc/PutIntegrationMessage"><cc:set name="is.message.severity" value="'INFO'"/><cc:set name="is.message.summary" value="'Record ' + props['record.counter'] + ' of ' + props['record.count.total'] + ' for Page ' + props['page.current'] + ' of ' + props['page.total']"/><cc:set name="is.message.storage.enabled" value="false"/></cc:local-out>
+    </cc:assembly>
 
 </beans>

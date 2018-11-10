@@ -60,12 +60,7 @@
                 </cc:eval>
             </cc:steps>
         </cc:async-mediation>
-        <cc:local-out id="CallStoreMessageInFileSubRoutine_splitxml" execute-when="props['split.output.file']==true &amp;&amp; props['store.data.file']==true" routes-response-to="reset_counter_xml" endpoint="vm://AcctTechStandardLogging/StoreMessageInFileSubRoutine">
-            <cc:set name="upload.filename" value="(props['loop']==1)? props['extract.filename']:props['counter'] + '_' + props['extract.filename']"/>
-            <cc:set name="document.deliver" value="props['deliver.documents']"/>
-            <cc:set name="document.delivery.services" value="props['document.delivery.services']"/>
-        </cc:local-out>
-        <cc:async-mediation id="convert_via_schema" routes-to="CallStoreMessageInFileSubRoutine_splitxml" execute-steps-when="props['aggregate.type'] == 'schema'">
+        <cc:async-mediation id="convert_via_schema" routes-to="call_store_msg_return_msg_splitxml" execute-steps-when="props['aggregate.type'] == 'schema'">
             <cc:steps>
                 <cc:textschema id="converttotext" output="variable" output-variable="upload.data" input="variable" input-variable="upload.data" style="xml2text" url="@{props['xslt.convertconsolidated.filename']}"/>
             </cc:steps>
@@ -83,11 +78,11 @@
       </cc:message-content-collater>
         </cc:aggregator>
         <cc:local-in id="aggregatexmlmessage" routes-to="aggregate_xml_response_data"/>
-        <cc:async-mediation id="cp-msg-txt" routes-to="call_store_msg_return_msg">
-            <cc:steps>
-                <cc:copy id="Copy" input="variable" input-variable="upload.data"/>
-            </cc:steps>
-        </cc:async-mediation>
+        <cc:local-out id="call_store_msg_return_msg_splitxml" execute-when="props['split.output.file']==true &amp;&amp; props['store.data.file']==true" routes-response-to="reset_counter_xml" endpoint="vm://standard_logging/store_msg_for_output_file">
+            <cc:set name="document.deliver" value="props['deliver.documents']"/>
+            <cc:set name="document.delivery.services" value="props['document.delivery.services']"/>
+            <cc:set name="output.filename" value="(props['loop']==1)? props['extract.filename']:props['counter'] + '_' + props['extract.filename']"/>
+        </cc:local-out>
 	</cc:assembly>
 
 </beans>

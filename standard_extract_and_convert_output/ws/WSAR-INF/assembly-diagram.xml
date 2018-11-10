@@ -14,9 +14,6 @@
     <element href="assembly.xml#convert_via_schema"/>
   </visualProperties>
   <visualProperties>
-    <element href="assembly.xml#CallStoreMessageInFileSubRoutine_splitxml"/>
-  </visualProperties>
-  <visualProperties>
     <element href="assembly.xml#reset_counter_xml"/>
   </visualProperties>
   <visualProperties>
@@ -40,8 +37,8 @@
   <visualProperties>
     <element href="assembly.xml#aggregate_zip_response_data"/>
   </visualProperties>
-  <visualProperties x="421" y="569">
-    <element href="assembly.xml#cp-msg-txt"/>
+  <visualProperties x="919" y="41">
+    <element href="assembly.xml#call_store_msg_return_msg_splitxml"/>
   </visualProperties>
   <connections type="routesTo">
     <source href="assembly.xml#aggregatexmlmessage"/>
@@ -54,14 +51,6 @@
   <connections type="routesTo">
     <source href="assembly.xml#convert_consolidated"/>
     <target href="assembly.xml#convert_via_schema"/>
-  </connections>
-  <connections type="routesTo">
-    <source href="assembly.xml#convert_via_schema"/>
-    <target href="assembly.xml#CallStoreMessageInFileSubRoutine_splitxml"/>
-  </connections>
-  <connections type="routesResponseTo">
-    <source href="assembly.xml#CallStoreMessageInFileSubRoutine_splitxml"/>
-    <target href="assembly.xml#reset_counter_xml"/>
   </connections>
   <connections type="routesTo">
     <source href="assembly.xml#aggregatetextmessage"/>
@@ -80,12 +69,16 @@
     <target href="assembly.xml#aggregate_zip_response_data"/>
   </connections>
   <connections type="routesTo">
-    <source href="assembly.xml#cp-msg-txt"/>
+    <source href="assembly.xml#aggregate_text_response_data"/>
     <target href="assembly.xml#call_store_msg_return_msg"/>
   </connections>
   <connections type="routesTo">
-    <source href="assembly.xml#aggregate_text_response_data"/>
-    <target href="assembly.xml#call_store_msg_return_msg"/>
+    <source href="assembly.xml#convert_via_schema"/>
+    <target href="assembly.xml#call_store_msg_return_msg_splitxml"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_store_msg_return_msg_splitxml"/>
+    <target href="assembly.xml#reset_counter_xml"/>
   </connections>
   <swimlanes bgColor="8454016" name="aggregate xml data" alignment="MIDDLE">
     <elements href="assembly.xml#aggregatexmlmessage"/>
@@ -94,13 +87,12 @@
   </swimlanes>
   <swimlanes bgColor="8454016" name="convert to text output" alignment="MIDDLE">
     <elements href="assembly.xml#convert_via_schema"/>
-    <elements href="assembly.xml#CallStoreMessageInFileSubRoutine_splitxml"/>
+    <elements href="assembly.xml#call_store_msg_return_msg_splitxml"/>
     <elements href="assembly.xml#reset_counter_xml"/>
   </swimlanes>
   <swimlanes bgColor="8454016" name="aggregate text data" alignment="MIDDLE">
     <elements href="assembly.xml#aggregatetextmessage"/>
     <elements href="assembly.xml#aggregate_text_response_data"/>
-    <elements href="assembly.xml#cp-msg-txt"/>
     <elements href="assembly.xml#call_store_msg_return_msg"/>
     <elements href="assembly.xml#reset_counter"/>
   </swimlanes>
@@ -109,5 +101,7 @@
     <elements href="assembly.xml#encode_file"/>
     <elements href="assembly.xml#aggregate_zip_response_data"/>
   </swimlanes>
-  <swimlanes x="28" y="11" bgColor="12632256" name="aggregate results" orientation="VERTICAL" elements="//@swimlanes.0 //@swimlanes.1 //@swimlanes.2 //@swimlanes.3" alignment="MIDDLE"/>
+  <swimlanes x="14" y="542" bgColor="12632256" name="Aggregate XML" orientation="VERTICAL" elements="//@swimlanes.0 //@swimlanes.1" alignment="MIDDLE"/>
+  <swimlanes x="726" y="11" bgColor="12632256" name="Aggregate Data" orientation="VERTICAL" elements="//@swimlanes.2 //@swimlanes.3" alignment="MIDDLE"/>
+  <swimlanes x="21" y="69" bgColor="4108284" name="Standard Extract and Convert" elements="//@swimlanes.4 //@swimlanes.5" alignment="MIDDLE"/>
 </wdnm:Diagram>

@@ -276,7 +276,7 @@
             <cc:parameter name="file.number.total"/>
             <cc:parameter name="file.number.current"/>
         </cc:local-in>
-        <cc:local-out id="update_progress_bar" execute-when="props['percent-complete'] > 0 &amp;&amp; props['percent-complete'] &lt; 100 &amp;&amp; props['file-recordcount'] != props['record-totalcount']" endpoint="vm://wcc/PutIntegrationEvent">
+        <cc:local-out id="update_progress_bar" execute-when="props['percent-complete'] > 0 &amp;&amp; props['percent-complete'] &lt; 100 &amp;&amp; props['file-recordcount'] != props['record-totalcount']" routes-response-to="AsyncMediation0" endpoint="vm://wcc/PutIntegrationEvent">
             <cc:set name="is.event.wid" value="lp.isSet() ? lp.getIntegrationEventWID() : null"/>
             <cc:set name="is.system.wid" value="lp.isSet() ? lp.getIntegrationSystemRefWID() : null"/>
             <cc:set name="is.response.msg" value="props['record-filecount'] + ' records processed of ' + props['record-totalcount'] + ' for file: ' + props['currentfile-name']"/>
@@ -311,7 +311,7 @@
             <cc:set name="is.response.msg" value="props['record-filecount'] + ' records processed of ' + props['record-totalcount'] + ' for file: ' + props['currentfile-name']"/>
             <cc:set name="is.percent.complete" value="10"/>
         </cc:local-out>
-        <cc:local-in id="RenderProcessingStatistics" routes-to="start_progress_bar" access="public" icon="local-in-RenderProcessingStatistics.png" use-global-error-handlers="false">
+        <cc:local-in id="RenderProcessingStatistics" routes-to="AsyncMediation" access="public" icon="local-in-RenderProcessingStatistics.png" use-global-error-handlers="false">
             <cc:parameter default="'no filename passed'" name="currentfile-name" required="false"/>
             <cc:parameter default="-1" name="record-totalcount" required="false"/>
             <cc:parameter default="-99" name="record-filecount" required="false"/>
@@ -340,12 +340,12 @@
             <cc:parameter default="-1" name="file-currentnumber" required="false"/>
             <cc:out-parameter name="aggregation-complete-flag"/>
         </cc:local-in>
-        <cc:async-mediation id="SaveProcessingReport">
+        <cc:async-mediation id="save_processing_rpt">
             <cc:steps>
                 <cc:xslt id="create_output_html" output="variable" output-mimetype="text/xml" output-variable="processingsummary.log" input="message" url="lib/transformations/create_processing_html_output.xsl"/>
             </cc:steps>
         </cc:async-mediation>
-        <cc:aggregator id="agg-process-record" routes-to="SaveProcessingReport" allow-external-control="false" force-batch-on-last-message="false" force-batch-when="(props['file.number.total'] == props['file.number.current'] &amp;&amp; (props['record.count.total'] == props['file.record.counter'] || (props['record.count.total'] == -1 &amp;&amp; util.isLastMessageInBatch()))) || props['force-close'] == 'yes'">
+        <cc:aggregator id="agg-process-record" routes-to="save_processing_rpt" allow-external-control="false" force-batch-on-last-message="false" force-batch-when="(props['file.number.total'] == props['file.number.current'] &amp;&amp; (props['record.count.total'] == props['record.counter'] || (props['record.count.total'] == -1 &amp;&amp; util.isLastMessageInBatch()))) || props['force-close'] == 'yes'">
             <cc:size-batch-strategy batch-size="-1"/>
             <cc:xml-message-content-collater output="message" output-mimetype="text/plain">
         <cc:header-text>&lt;Process_Details></cc:header-text>
@@ -366,7 +366,7 @@
             <cc:parameter name="summarylog.filename" required="true"/>
             <cc:parameter default="'html'" name="summary.log.file.extension"/>
             <cc:parameter default="-1" name="record.count.total" required="false"/>
-            <cc:parameter default="-99" name="file.record.counter" required="false"/>
+            <cc:parameter default="-99" name="record.counter" required="false"/>
             <cc:parameter default="-1" name="file.number.total" required="false"/>
             <cc:parameter default="-1" name="file.number.current" required="false"/>
             <cc:parameter default="'no'" name="force-close" required="false" type="string"/>
@@ -416,6 +416,16 @@
         <cc:local-in id="parse_summary" routes-to="store_summary_log"/>
         <cc:local-out id="call_parse_failures" execute-when="props['record-failedcount'] != 0" routes-response-to="call_parse_summary" endpoint="vm://standard_logging/parse_failures"/>
         <cc:local-out id="call_parse_summary" execute-when="props['log-summarydata']==true &amp;&amp; vars['processingsummary.log'] != null" endpoint="vm://standard_logging/parse_summary"/>
+        <cc:async-mediation id="AsyncMediation" routes-to="start_progress_bar">
+            <cc:steps>
+                <cc:copy id="Copy" output="variable" output-variable="backup.var"/>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:async-mediation id="AsyncMediation0">
+            <cc:steps>
+                <cc:copy id="Copy" input="variable" input-variable="backup.var"/>
+            </cc:steps>
+        </cc:async-mediation>
     </cc:assembly>
 
 </beans>
