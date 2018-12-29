@@ -31,7 +31,7 @@
                     </xsl:attribute>
                     <xsl:attribute name="wd:Add_Only">
                         <xsl:choose>
-                            <xsl:when test="string-length($add.only) = 0">
+                            <xsl:when test="string-length($web.service.add.only) = 0">
                                 <xsl:value-of select="'1'"/>
                             </xsl:when>
                             <xsl:otherwise>

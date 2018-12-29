@@ -102,10 +102,11 @@
                                 <br/>
                                 <br/>
                                 <xsl:for-each-group select="current-group()" group-by="tl:record_stats/tl:status">
+                                    <xsl:sort select="tl:record_stats/tl:status"/>
                                     <table style="width:100%">
                                         <caption>
-                                            <xsl:value-of select="current-grouping-key()"/>
-                                            <xsl:value-of select="' Records'"/>
+                                            <xsl:value-of select="upper-case(current-grouping-key())"/>
+                                            <xsl:value-of select="upper-case(' Records')"/>
                                         </caption>
                                         <xsl:call-template name="header-record"/>
                                         <xsl:apply-templates select="current-group()"/>
@@ -141,12 +142,12 @@
                 <xsl:value-of select="tl:record_stats/tl:source_id"/>
             </td>
             <td>
-                <xsl:choose>
+                <!-- <xsl:choose>
                     <xsl:when test="tl:record_stats/tl:status = 'failed'"/>
-                    <xsl:otherwise>
+                    <xsl:otherwise> -->
                         <xsl:value-of select="tl:record_stats/tl:workday_id"/>
-                    </xsl:otherwise>
-                </xsl:choose>
+                    <!-- </xsl:otherwise>
+                </xsl:choose> -->
             </td>
             <td>
                 <xsl:value-of select="tl:record_stats/tl:status"/>

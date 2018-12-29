@@ -11,7 +11,7 @@
         <nodecount>
             <xsl:choose>
                 <xsl:when test="string-length($xmlmatch_value) = 0">
-                    <xsl:value-of select="count(//node()[name(.)=$xmlsplit_tag])"/>    
+                    <xsl:value-of select="count(//node()[name(.)=$xmlsplit_tag])"/>
                 </xsl:when>
                 <xsl:otherwise>
                     <xsl:value-of select="count(//node()[name(.)=$xmlsplit_tag and . = $xmlmatch_value])"/>

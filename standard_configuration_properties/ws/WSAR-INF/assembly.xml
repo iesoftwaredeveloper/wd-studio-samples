@@ -9,9 +9,9 @@
      xmlns:pi="urn:com.workday/picof"
      xmlns:wd="urn:com.workday/bsvc"
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
- 
+
     <cc:assembly id="WorkdayAssembly" version="2017.35">
-        <cc:local-out id="call_get_request_endpoint" store-message="none" routes-response-to="call_subroutineparseandstorelogs" endpoint="vm://@{props['web.service.get.request.endpoint']}">
+        <cc:local-out id="call_get_request_endpoint" store-message="none" routes-response-to="call_parse_and_store_logging_info" endpoint="vm://@{props['web.service.get.request.endpoint']}">
             <cc:set name="web.service.get.request" value="props['web.service.get.request']"/>
             <cc:set name="report.extra.path" value="props['report.extra.path'] + props['report.filter']"/>
             <cc:set name="web.service.get.response.endpoint" value="props['web.service.get.response.endpoint']"/>
@@ -20,6 +20,8 @@
             <cc:set name="web.service.version" value="props['web.service.version']"/>
             <cc:set name="web.service.get.response.consolidate.filename" value="props['web.service.get.response.consolidate.filename']"/>
             <cc:set name="web.service.get.consolidate.response.data" value="props['web.service.get.consolidate.response.data']"/>
+            <cc:set name="retrieval.labels" value="props['retrieval.file.labels']"/>
+            <cc:set name="convert.ToXML" value="props['web.service.convert.to.xml']"/>
         </cc:local-out>
         <cc:async-mediation id="get_set_properties" routes-to="call_get_request_endpoint">
             <cc:steps>
@@ -31,7 +33,7 @@
                     <cc:expression>props['file.number.total'] = -1</cc:expression>
                     <cc:expression>vars['tempfailedoutput.xml']='&lt;blankxml/>'</cc:expression>
                 </cc:eval>
-                <cc:xslt id="get-properties" output="variable" output-variable="config.properties" url="lib/processing/configuration_properties.xsl"/>
+                <cc:xslt id="get-properties" output="variable" output-variable="config.properties" url="@{props['properties.file.name']}"/>
                 <cc:eval id="set-process-props">
                     <cc:expression>props['web.service.get.application'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:application&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.put.application'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:application&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
@@ -60,6 +62,8 @@
                     <cc:expression>props['report.alias'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:report_alias&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['report.filter'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:filter_attributes/fhc:report_filter&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.get.request.type'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:request_type&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
+                    <cc:expression>props['retrieval.file.labels'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:filter_attributes/fhc:file_label&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
+                    <cc:expression>props['web.service.convert.to.xml'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:request_type/@fhc:convert_to_xml&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.put.workday.id.tag'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:workday_transaction_id_tag&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.put.workday.id.namespace'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:workday_transaction_id_tag/@fhc:transaction_id_namespace&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                 </cc:eval>
@@ -84,7 +88,7 @@
                 </cc:eval>
             </cc:steps>
         </cc:async-mediation>
-        <cc:local-out id="call_PutIntegrationMessage_process" routes-response-to="get_set_properties" endpoint="vm://wcc/PutIntegrationMessage">
+        <cc:local-out id="put_running_proc_msg" routes-response-to="get_set_properties" endpoint="vm://wcc/PutIntegrationMessage">
             <cc:set name="is.message.severity" value="'INFO'"/>
             <cc:set name="is.message.summary" value="'Currently Executing: ' + props['running.process']"/>
             <cc:set name="is.message.storage.enabled" value="false"/>
@@ -92,8 +96,9 @@
         <cc:local-in id="begin_migration_process" routes-to="set-ws-props" access="public" icon="local-in-begin_migration_process.png">
             <cc:parameter name="running.process" required="true"/>
             <cc:parameter default="'false'" name="process.retrieved.file" required="false"/>
+            <cc:parameter default="'lib/processing/configuration_properties.xsl'" name="properties.file.name" required="true"/>
         </cc:local-in>
-        <cc:local-out id="call_process_xml_data" store-message="none" routes-response-to="PutIntegrationMessage" endpoint="vm://@{props['web.service.put.request.endpoint']}">
+        <cc:local-out id="call_process_xml_data" store-message="none" routes-response-to="put_log_processing_stats" endpoint="vm://@{props['web.service.put.request.endpoint']}">
             <cc:set name="web.service.put.request" value="props['web.service.put.request']"/>
             <cc:set name="update.data" value="props['update.data']"/>
             <cc:set name="web.service.put.application" value="props['web.service.put.application']"/>
@@ -139,16 +144,17 @@
                 </cc:eval>
             </cc:steps>
         </cc:async-mediation>
-        <cc:local-out id="call_process_retrieved_file" execute-when="props['process.retrieved.file'] == 'true'" routes-response-to="call_PutIntegrationMessage_process" endpoint="vm://common_sftp_file_processing/process_retrieved_file">
+        <cc:local-out id="call_process_retrieved_file" execute-when="props['process.retrieved.file'] == 'true'" routes-response-to="put_running_proc_msg" endpoint="vm://common_sftp_file_processing/process_retrieved_file">
             <cc:set name="processfile.subroutine" value="'mass_sync_data/store-retrieved_as_lkp'"/>
         </cc:local-out>
-        <cc:local-out id="call_aggregateprocessingdetails" execute-when="props['web.service.summary.log'] == true" endpoint="vm://standard_logging/aggregateprocessingdetails">
+        <cc:local-out id="call_aggregateprocessingdetails" execute-when="props['web.service.summary.log'] == true" endpoint="vm://standard_logging/aggregate_processing_details">
             <cc:set name="summarylog.filename" value="'Summary_Log_Information'"/>
             <cc:set name="summarylog.file.extension" value="'html'"/>
             <cc:set name="record.count.total" value="props['record.count.total']"/>
             <cc:set name="record.counter" value="props['record.counter'] "/>
             <cc:set name="file.number.total" value="props['page.total']"/>
             <cc:set name="file.number.current" value="props['page.current']"/>
+            <cc:set name="summary.log.file.extension" value="'html'"/>
         </cc:local-out>
         <cc:async-mediation id="file-counters" routes-to="split_response">
             <cc:steps>
@@ -171,15 +177,18 @@
                 </cc:eval>
             </cc:steps>
         </cc:async-mediation>
-        <cc:local-out id="call_subroutineparseandstorelogs" endpoint="vm://standard_logging/subroutineparseandstorelogs">
+        <cc:local-out id="call_parse_and_store_logging_info" endpoint="vm://standard_logging/parse_and_store_logging_info">
             <cc:set name="failurexmlsplit" value="'failed_records'"/>
             <cc:set name="logfilexmlsplit" value="'summaryloginfo'"/>
-            <cc:set name="process_type" value="props['running.process']"/>
-            <cc:set name="record-failedcount" value="props['record.counter.failed']"/>
-            <cc:set name="log-summarydata" value="true"/>
+            <cc:set name="process.type" value="props['running.process']"/>
+            <cc:set name="record.counter.failed" value="props['record.counter.failed']"/>
+            <cc:set name="log.summarydata" value="props['web.service.summary.log']"/>
         </cc:local-out>
-        <cc:local-out id="RenderProcessingStatistics" routes-response-to="call_aggregateprocessingdetails" endpoint="vm://standard_logging/RenderProcessingStatistics"><cc:set name="currentfile-name" value="'no filename passed'"/><cc:set name="record-totalcount" value="props['record.count.total']"/><cc:set name="record-filecount" value="props['record.counter']"/></cc:local-out>
-        <cc:local-out id="PutIntegrationMessage" routes-response-to="call_aggregateprocessingdetails" endpoint="vm://wcc/PutIntegrationMessage"><cc:set name="is.message.severity" value="'INFO'"/><cc:set name="is.message.summary" value="'Record ' + props['record.counter'] + ' of ' + props['record.count.total'] + ' for Page ' + props['page.current'] + ' of ' + props['page.total']"/><cc:set name="is.message.storage.enabled" value="false"/></cc:local-out>
+        <cc:local-out id="put_log_processing_stats" routes-response-to="call_aggregateprocessingdetails" endpoint="vm://wcc/PutIntegrationMessage">
+            <cc:set name="is.message.severity" value="'INFO'"/>
+            <cc:set name="is.message.summary" value="'Record ' + props['record.counter'] + ' of ' + props['record.count.total'] + ' for Page ' + props['page.current'] + ' of ' + props['page.total']"/>
+            <cc:set name="is.message.storage.enabled" value="false"/>
+        </cc:local-out>
     </cc:assembly>
 
 </beans>

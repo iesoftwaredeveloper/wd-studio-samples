@@ -15,7 +15,7 @@
     <xsl:template match="@*|node()">
         <xsl:copy copy-namespaces="no">
             <xsl:apply-templates select="@*|node()"/>
-        </xsl:copy>   
+        </xsl:copy>
     </xsl:template>
     
     <xsl:template match="ns1:field[@name='National_ID']"/>

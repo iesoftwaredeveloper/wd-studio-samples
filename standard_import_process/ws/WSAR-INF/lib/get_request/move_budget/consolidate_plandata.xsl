@@ -196,18 +196,18 @@
                     </ecmc:region>
                 </xsl:if>
                 <xsl:if test="string-length(je:Project) != 0">
-                    <bsvc:Worktags_Reference>
+                    <bsvc:Accounting_Worktag_Reference>
                         <bsvc:ID bsvc:type="Project_ID">
                             <xsl:value-of select="je:Project/je:ID[@je:type = 'Project_ID']"/>
                         </bsvc:ID>
-                    </bsvc:Worktags_Reference>
+                    </bsvc:Accounting_Worktag_Reference>
                 </xsl:if>
                 <xsl:if test="string-length(je:Initiatives) != 0">
-                    <bsvc:Worktags_Reference>
+                    <bsvc:Accounting_Worktag_Reference>
                         <bsvc:ID bsvc:type="Organization_Reference_ID">
                             <xsl:value-of select="je:Initiatives/je:ID[@je:type = 'Organization_Reference_ID']"/>
                         </bsvc:ID>
-                    </bsvc:Worktags_Reference>
+                    </bsvc:Accounting_Worktag_Reference>
                 </xsl:if>
                 <xsl:if test="string-length(je:Revenue_Category) != 0">
                     <ecmc:revenue_category>

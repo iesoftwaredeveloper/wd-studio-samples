@@ -10,17 +10,17 @@
      xmlns:wd="urn:com.workday/bsvc"
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
  
-	<cc:assembly id="WorkdayAssembly" version="2017.35">
-        <cc:aggregator id="aggregate_filedetails" force-batch-when="props['filetoprocess-totalcount'] == props['filetoprocess-current']">
+    <cc:assembly id="WorkdayAssembly" version="2017.35">
+        <cc:aggregator id="aggregate_filedetails" routes-to="tmp-details" force-batch-when="props['filetoprocess.totalcount'] == props['filetoprocess.current']">
             <cc:size-batch-strategy/>
             <cc:xml-message-content-collater output="variable" output-mimetype="text/xml" output-variable="filedetails.xml">
         <cc:header-text>&lt;filedetails></cc:header-text>
         <cc:footer-text>&lt;/filedetails></cc:footer-text>
       </cc:xml-message-content-collater>
         </cc:aggregator>
-        <cc:local-in id="copy_message_to_file_var" routes-to="aggregate_filedetails">
-            <cc:parameter name="filetoprocess-totalcount"/>
-            <cc:parameter name="filetoprocess-current"/>
+        <cc:local-in id="copy_message_to_file_var" routes-to="convert-to-xml">
+            <cc:parameter name="filetoprocess.totalcount"/>
+            <cc:parameter name="filetoprocess.current"/><cc:parameter default="'lib/convert_file/transform_file_to_xml_csv.xsd'" name="convertToXML.filename" required="true"/><cc:parameter default="false" name="convertToXML" required="true" type="boolean"/>
         </cc:local-in>
         <cc:local-out id="call_delete_SFTP_files" execute-when="props['delete-sftp-files'] == 1" endpoint="vm://common_sftp_file_processing/delete_SFTP_files">
             <cc:set name="sftp.filename" value="props['sftp.filename']"/>
@@ -121,27 +121,24 @@
             <cc:parameter default="true" name="displayfilelist" required="false"/>
         </cc:local-in>
         <cc:local-out id="call_process_retrieval_file" execute-when="vars['wd.retrieve.variable'] != null" endpoint="vm://common_sftp_file_processing/process_retrieval_file">
-            <cc:set name="processfile.subroutine" value="props['processfile.subroutine']"/>
-            <cc:set name="sftp.filename" value=" vars['wd.retrieve.variable'].fileName"/>
-        </cc:local-out>
+            <cc:set name="processfile.subroutine" value="props['web.service.get.response.endpoint']"/>
+            <cc:set name="sftp.filename" value="vars['wd.retrieve.variable'].fileName"/>
+        <cc:set name="web.service.get.request" value="props['web.service.get.request']"/><cc:set name="convert.ToXML"/></cc:local-out>
         <cc:route id="route_each_document">
-            <cc:doc-iterator/>
+            <cc:doc-iterator labels="@{props['retrieval.labels']}"/>
             <cc:sub-route name="ToProcess" routes-to="call_process_retrieval_file"/>
         </cc:route>
         <cc:async-mediation id="setup_process_counters" routes-to="route_each_document">
             <cc:steps>
                 <cc:eval id="Setup-Counters">
-                    <cc:expression>props['counter'] = 0</cc:expression>
-                    <cc:expression>props['error-counter'] = 0</cc:expression>
-                    <cc:expression>props['imported-counter'] = 0</cc:expression>
-                    <cc:expression>props['skipped-counter'] = 0</cc:expression>
-                    <cc:expression>props['file-number'] = 0</cc:expression>
-                    <cc:expression>props['file-count'] = da.size()</cc:expression>
-                    <cc:expression>vars['tempfailedoutput.xml']='&lt;blankxml/>'</cc:expression>
+                    <cc:expression>props['page.total'] = da.size(props['retrieval.labels'])</cc:expression>
                 </cc:eval>
             </cc:steps>
         </cc:async-mediation>
-        <cc:local-in id="process_retrieved_file" routes-to="setup_process_counters" access="public" icon="local-in-process_retrieved_file1.png"><cc:parameter name="processfile.subroutine" required="true"/></cc:local-in>
+        <cc:local-in id="process_retrieved_file" routes-to="setup_process_counters" access="public" icon="local-in-process_retrieved_file1.png">
+            <cc:parameter name="web.service.get.response.endpoint" required="true"/>
+            <cc:parameter default="'Retrieved'" name="retrieval.labels" required="true"/><cc:parameter name="web.service.get.request"/><cc:parameter default="false" name="convert.ToXML" required="true" type="boolean"/>
+        </cc:local-in>
         <cc:local-out id="put_integration_message_nofile" execute-when="vars['filestoprocess'].xpath('//filecount') == 0 &amp;&amp; props['missing.file.error'] == 1" endpoint="vm://wcc/PutIntegrationMessage">
             <cc:set name="is.message.severity" value="'WARNING'"/>
             <cc:set name="is.message.summary" value="'No Files Found to Process'"/>
@@ -216,8 +213,8 @@
         <cc:async-mediation id="set_filename" routes-to="check_empty_doc">
             <cc:steps>
                 <cc:eval id="set_filename">
-                	<cc:expression>props['process.filename'] = message.getHeader('content-disposition').toString().substring(message.getHeader('content-disposition').toString().lastIndexOf(&quot;filename=&quot;)+9).replaceAll('&quot;','')</cc:expression>
-               	</cc:eval>
+                    <cc:expression>props['process.filename'] = message.getHeader('content-disposition').toString().substring(message.getHeader('content-disposition').toString().lastIndexOf(&quot;filename=&quot;)+9).replaceAll('&quot;','')</cc:expression>
+                </cc:eval>
             </cc:steps>
         </cc:async-mediation>
         <cc:splitter id="Splitter-FTP-files" no-split-message-error="false">
@@ -260,8 +257,8 @@
             <cc:parameter default="false" name="missing.file.error" required="true"/>
         </cc:local-in>
         <cc:local-out id="call_process_file_subRoutine" store-message="none" endpoint="vm://@{props['processfile.subroutine']}">
-            <cc:set name="filetoprocess-totalcount" value="props['file-count']"/>
-        </cc:local-out>
+            <cc:set name="filetoprocess-totalcount" value="props['page.total']"/>
+        <cc:set name="filetoprocess-current" value="props['file.number.retrieve']"/><cc:set name="convertToXML" value="props['convert.ToXML']"/><cc:set name="convertToXML.filename" value="props['web.service.get.request']"/></cc:local-out>
         <cc:local-out id="call_log_filename" routes-response-to="cp_to_msg" endpoint="vm://wcc/PutIntegrationMessage">
             <cc:set name="is.message.severity" value="'INFO'"/>
             <cc:set name="is.message.summary" value="'Processing File: ' + props['sftp.filename']"/>
@@ -269,7 +266,7 @@
         <cc:async-mediation id="cp_to_msg" routes-to="call_process_file_subRoutine">
             <cc:steps>
                 <cc:eval id="reset-file-counters">
-                    <cc:expression>props['file-number']=props['file-number'] +1</cc:expression>
+                    <cc:expression>props['file.number.retrieve'] = ((props['file.number.retrieve'] == null)? 0:props['file.number.retrieve']) +1</cc:expression>
                     <cc:expression>props['imported-counter-file'] = 0</cc:expression>
                     <cc:expression>props['counter-file'] = 0</cc:expression>
                     <cc:expression>props['failed-counter-file'] = 0</cc:expression>
@@ -287,7 +284,7 @@
         </cc:async-mediation>
         <cc:local-in id="process_retrieval_file" routes-to="set_file_data_var_retrieval">
             <cc:parameter name="processfile.subroutine" required="false"/>
-            <cc:parameter name="sftp.filename"/>
+            <cc:parameter name="sftp.filename"/><cc:parameter name="web.service.get.request"/><cc:parameter default="false" name="convert.ToXML" required="true" type="boolean"/>
         </cc:local-in>
         <cc:async-mediation id="set_file_data_var_mget" routes-to="call_log_filename">
             <cc:steps>
@@ -306,6 +303,19 @@
         <cc:local-in id="SubRoutineProcessFile" routes-to="set_file_data_var">
             <cc:parameter name="processfile.subroutine" required="false"/>
         </cc:local-in>
-	</cc:assembly>
+        <cc:async-mediation id="convert-to-xml" routes-to="aggregate_filedetails" execute-steps-when="props['convertToXML']">
+            <cc:steps>
+                <cc:textschema id="generic-txt-xml" output="message" style="text2xml" url="@{props['convertToXML.filename']}"/>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:local-out id="call_store_msg_return_msg" execute-when="props['web.service.response.log'] == true" endpoint="vm://standard_logging/store_msg_return_msg">
+            <cc:set name="store.filename" value="props['running.process'] + '_output.xml'"/>
+        </cc:local-out>
+        <cc:async-mediation id="tmp-details" routes-to="call_store_msg_return_msg">
+            <cc:steps>
+                <cc:copy id="cp-details" input="variable" input-variable="filedetails.xml"/>
+            </cc:steps>
+        </cc:async-mediation>
+    </cc:assembly>
 
 </beans>

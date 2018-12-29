@@ -86,6 +86,7 @@
             <xsl:apply-templates select="node()[not(self::wd:Note_Data)
                 and not(self::wd:Settlement_Account_Data)
                 and not(self::wd:Areas_Changed)]"/>
+            <xsl:apply-templates select="$supplier_updatedata//ecmc:child_supplier"/> 
             <xsl:apply-templates select="$supplier_updatedata//ecmc:notes"/>
             <!--<xsl:for-each select="$supplier_updatedata//supplierdetaildata[lower-case(alternatenameusagecurrent) = 'new']">
                 <xsl:call-template name="newalternatenames">
@@ -386,15 +387,24 @@
         </wd:Usage_Data>
     </xsl:template>
 
+    <xsl:template match="ecmc:child_supplier">
+        <wd:Proposed_Children_Reference>
+            <wd:ID>
+                <xsl:attribute name="wd:type" select="'Supplier_ID'"/>
+                <xsl:value-of select="."/>
+            </wd:ID>
+        </wd:Proposed_Children_Reference>
+    </xsl:template>
     <xsl:template match="supplier_update_file">
         <xsl:param name="supplierid"/>
         <xsl:for-each-group select=".//ecmc:supplier_update_record" group-by="ecmc:supplier_id">
             <xsl:if test="$supplierid = current-grouping-key()">
                 <ecmc:supplier_update_record>
                     <xsl:attribute name="supplierid" select="current-grouping-key()"/>
-                    <xsl:apply-templates select="current-group()">
+                    <!-- <xsl:apply-templates select="current-group()">
                         <xsl:with-param name="supplier_updatedata" select="current-grouping-key()"/>
-                    </xsl:apply-templates>
+                    </xsl:apply-templates> -->
+                    <xsl:copy-of select="current-group()"/>
                 </ecmc:supplier_update_record>
             </xsl:if>
         </xsl:for-each-group>

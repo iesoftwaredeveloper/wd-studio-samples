@@ -44,7 +44,8 @@
         <cc:local-out id="call_get_response_endpoint" store-message="none" endpoint="vm://@{props['web.service.get.response.endpoint']}">
             <cc:set name="page.current" value="props['is.paged.get.current.page']"/>
             <cc:set name="page.total" value="props['is.paged.get.total.pages']"/>
-        <cc:set name="record.count.total" value="props['is.paged.get.total.results']"/></cc:local-out>
+            <cc:set name="record.count.total" value="props['is.paged.get.total.results']"/>
+        </cc:local-out>
         <cc:workday-out-rest id="make_workday_raas_call" routes-response-to="call_determine_endpoint" extra-path="@{props['report.extra.path']}"/>
         <cc:local-in id="get_raas_web_service_call" routes-to="put_raas_call_msg" access="public" icon="local-in-get_raas_web_service_call.png">
             <cc:parameter name="report.extra.path"/>
@@ -140,8 +141,9 @@
         </cc:local-out>
         <cc:async-mediation id="set-wd-id" routes-to="make_workday_soap_call" handle-downstream-errors="true">
             <cc:steps>
+                <cc:copy id="cp-ws-call" output="variable" output-variable="ws.put.msg"/>
                 <cc:eval id="set-wd-tran-id">
-                    <cc:expression>props['workday.transaction.id'] = (props['web.service.put.workday.id.tag'] == null) '':parts[0].xpath(props['web.service.put.workday.id.tag'], props['web.service.put.workday.id.namespace'])</cc:expression>
+                    <cc:expression>props['workday.transaction.id'] = (props['web.service.put.workday.id.tag'] == null)? '' : vars['ws.put.msg'].xpath(props['web.service.put.workday.id.tag'], props['web.service.put.workday.id.namespace'])</cc:expression>
                 </cc:eval>
             </cc:steps>
             <cc:send-error id="SendError" routes-to="call_process_Err_Msg"/>
