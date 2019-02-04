@@ -124,35 +124,6 @@
             <cc:parameter default="0" documentation="Count of Failed records. Used to confirm if a failed transaction file needs to be created" name="record.counter.failed" required="false"/>
             <cc:parameter default="true" name="log.summarydata" required="false"/>
         </cc:local-in>
-        <cc:async-mediation id="resetmessagetosource">
-            <cc:steps>
-                <cc:copy id="CopyInputtoMessage" input="variable" input-variable="sourcelinedata.xml"/>
-            </cc:steps>
-        </cc:async-mediation>
-        <cc:local-out id="call_store_msg_return_msg_err" execute-when="intsys.getAttribute('logerrorinformation') == true" routes-response-to="resetmessagetosource" endpoint="vm://standard_logging/store_msg_return_msg">
-            <cc:set name="upload.filename" value="'errorinformation.xml'"/>
-            <cc:set name="document.deliver" value="'false'"/>
-            <cc:set name="output.filename" value="'noOutputFilenameProvided.xml'"/>
-            <cc:set name="store.filename" value="'Logging_Output.txt'"/>
-        </cc:local-out>
-        <cc:async-mediation id="processlineoutput" routes-to="call_store_msg_return_msg_err">
-            <cc:steps>
-                <cc:eval id="findstats">
-                    <cc:expression>props['transaction.status'] = vars['error.record'].xpath(&quot;//errorstatus&quot;)</cc:expression>
-                    <cc:expression>props['error.reason'] = vars['error.record'].xpath(&quot;//errorreason&quot;)</cc:expression>
-                    <cc:expression>props['errormessage.detail']=vars['error.record'].xpath(&quot;//errordetails&quot;)</cc:expression>
-                    <cc:expression>props['workday.transaction.id']=''</cc:expression>
-                    <cc:expression>props['transaction.id']=vars['error.record'].xpath(&quot;//sourcetransactionid&quot;)</cc:expression>
-                    <cc:expression>props['additional.information']=vars['error.record'].xpath(&quot;//loginformation&quot;)</cc:expression>
-                    <cc:expression>props['summarysplit.value']=vars['error.record'].xpath(&quot;//summarysplitvalue&quot;)</cc:expression>
-                    <cc:expression>props['spendcategory.list']=vars['error.record'].xpath(&quot;//spendcategorylist&quot;)</cc:expression>
-                    <cc:expression>props['attachment.filename']=vars['error.record'].xpath(&quot;//attachmentfilename&quot;)</cc:expression>
-                </cc:eval>
-                <cc:copy id="copydataforstoring" output="variable" output-variable="upload.data" input="variable" input-variable="error.record"/>
-            </cc:steps>
-        </cc:async-mediation>
-        <cc:local-in id="checkerrorrecord" routes-to="processlineoutput" access="private" use-global-error-handlers="false">
-        </cc:local-in>
         <cc:local-out id="call_log_err" endpoint="vm://wcc/PutIntegrationMessage">
             <cc:set name="is.message.severity" value="'ERROR'"/>
             <cc:set name="is.message.summary" value="'Error converting Text to XML for file: ' + props['sftp.filename']"/>
@@ -261,11 +232,11 @@
             <cc:set name="file.deliver" value="props['file.deliver']"/>
             <cc:set name="file.delivery.services" value="props['file.delivery.services']"/>
         </cc:local-out>
-        <cc:aggregator id="ZipFilesForTransfer" routes-to="call_store_consol_file" force-batch-on-last-message="false" force-batch-when="props['file.number.total'] == props['file.number.current']">
+        <cc:aggregator id="zip-for-transfer" routes-to="call_store_consol_file" force-batch-on-last-message="false" force-batch-when="props['file.number.total'] == props['file.number.current']">
             <cc:size-batch-strategy batch-size="-1"/>
             <cc:zip-file-collater output="variable" output-variable="consoltransactions.file" format="zip" message-entity-name="@{props['detail.filename']}"/>
         </cc:aggregator>
-        <cc:local-in id="zip_and_store_output" routes-to="ZipFilesForTransfer" access="private">
+        <cc:local-in id="zip_and_store_output" routes-to="zip-for-transfer" access="private">
             <cc:parameter name="detail.filename" required="true" type="string"/>
             <cc:parameter name="detail.message" required="false" type="string"/>
             <cc:parameter name="summary.filename" required="true"/>

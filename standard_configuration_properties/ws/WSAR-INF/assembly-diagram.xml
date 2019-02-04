@@ -43,13 +43,15 @@
   <visualProperties x="983" y="648">
     <element href="assembly.xml#put_log_processing_stats"/>
   </visualProperties>
+  <visualProperties x="73" y="356">
+    <element href="assembly.xml#set-process-properties"/>
+  </visualProperties>
+  <visualProperties x="209" y="552">
+    <element href="assembly.xml#set-attributes"/>
+  </visualProperties>
   <connections type="routesResponseTo">
     <source href="assembly.xml#put_running_proc_msg"/>
     <target href="assembly.xml#get_set_properties"/>
-  </connections>
-  <connections type="routesTo">
-    <source href="assembly.xml#get_set_properties"/>
-    <target href="assembly.xml#call_get_request_endpoint"/>
   </connections>
   <connections type="routesTo">
     <source href="assembly.xml#begin_migration_process"/>
@@ -91,6 +93,18 @@
     <source href="assembly.xml#put_log_processing_stats"/>
     <target href="assembly.xml#call_aggregateprocessingdetails"/>
   </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#get_set_properties"/>
+    <target href="assembly.xml#set-process-properties"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#set-process-properties"/>
+    <target href="assembly.xml#set-attributes"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#set-attributes"/>
+    <target href="assembly.xml#call_get_request_endpoint"/>
+  </connections>
   <swimlanes x="22" y="31" bgColor="12632256" name="Set Properties" orientation="VERTICAL" elements="//@swimlanes.2 //@swimlanes.3" alignment="MIDDLE"/>
   <swimlanes x="-15" y="441" bgColor="12632256" name="Split and Process" elements="//@swimlanes.6 //@swimlanes.5" alignment="MIDDLE"/>
   <swimlanes x="158" y="258" bgColor="8454016" name="Setup and Log Running Process" alignment="MIDDLE">
@@ -100,7 +114,7 @@
     <elements href="assembly.xml#put_running_proc_msg"/>
   </swimlanes>
   <swimlanes x="864" y="179" bgColor="8454016" name="Set Properties and Continue" alignment="MIDDLE">
-    <elements href="assembly.xml#get_set_properties"/>
+    <elements href="#//@swimlanes.7"/>
     <elements href="assembly.xml#call_get_request_endpoint"/>
     <elements href="assembly.xml#call_parse_and_store_logging_info"/>
   </swimlanes>
@@ -115,5 +129,10 @@
     <elements href="assembly.xml#file-counters"/>
     <elements href="assembly.xml#split_response"/>
     <elements href="assembly.xml#record-counters"/>
+  </swimlanes>
+  <swimlanes x="52" y="302" bgColor="16443110" name="Set Properties" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#get_set_properties"/>
+    <elements href="assembly.xml#set-process-properties"/>
+    <elements href="assembly.xml#set-attributes"/>
   </swimlanes>
 </wdnm:Diagram>

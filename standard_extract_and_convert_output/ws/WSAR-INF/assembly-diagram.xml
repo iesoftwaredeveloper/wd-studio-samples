@@ -14,7 +14,7 @@
     <element href="assembly.xml#convert_via_schema"/>
   </visualProperties>
   <visualProperties>
-    <element href="assembly.xml#CallStoreMessageInFileSubRoutine_splitxml"/>
+    <element href="assembly.xml#call_store_msg_return_msg_splitxml"/>
   </visualProperties>
   <visualProperties>
     <element href="assembly.xml#reset_counter_xml"/>
@@ -40,9 +40,6 @@
   <visualProperties>
     <element href="assembly.xml#aggregate_zip_response_data"/>
   </visualProperties>
-  <visualProperties x="421" y="569">
-    <element href="assembly.xml#cp-msg-txt"/>
-  </visualProperties>
   <connections type="routesTo">
     <source href="assembly.xml#aggregatexmlmessage"/>
     <target href="assembly.xml#aggregate_xml_response_data"/>
@@ -57,10 +54,10 @@
   </connections>
   <connections type="routesTo">
     <source href="assembly.xml#convert_via_schema"/>
-    <target href="assembly.xml#CallStoreMessageInFileSubRoutine_splitxml"/>
+    <target href="assembly.xml#call_store_msg_return_msg_splitxml"/>
   </connections>
   <connections type="routesResponseTo">
-    <source href="assembly.xml#CallStoreMessageInFileSubRoutine_splitxml"/>
+    <source href="assembly.xml#call_store_msg_return_msg_splitxml"/>
     <target href="assembly.xml#reset_counter_xml"/>
   </connections>
   <connections type="routesTo">
@@ -80,10 +77,6 @@
     <target href="assembly.xml#aggregate_zip_response_data"/>
   </connections>
   <connections type="routesTo">
-    <source href="assembly.xml#cp-msg-txt"/>
-    <target href="assembly.xml#call_store_msg_return_msg"/>
-  </connections>
-  <connections type="routesTo">
     <source href="assembly.xml#aggregate_text_response_data"/>
     <target href="assembly.xml#call_store_msg_return_msg"/>
   </connections>
@@ -94,13 +87,12 @@
   </swimlanes>
   <swimlanes bgColor="8454016" name="convert to text output" alignment="MIDDLE">
     <elements href="assembly.xml#convert_via_schema"/>
-    <elements href="assembly.xml#CallStoreMessageInFileSubRoutine_splitxml"/>
+    <elements href="assembly.xml#call_store_msg_return_msg_splitxml"/>
     <elements href="assembly.xml#reset_counter_xml"/>
   </swimlanes>
   <swimlanes bgColor="8454016" name="aggregate text data" alignment="MIDDLE">
     <elements href="assembly.xml#aggregatetextmessage"/>
     <elements href="assembly.xml#aggregate_text_response_data"/>
-    <elements href="assembly.xml#cp-msg-txt"/>
     <elements href="assembly.xml#call_store_msg_return_msg"/>
     <elements href="assembly.xml#reset_counter"/>
   </swimlanes>
