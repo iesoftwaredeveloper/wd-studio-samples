@@ -116,7 +116,7 @@
             <cc:set name="convertToXML.filename" value="'lib/convert_file/transform_file_to_xml_csv.xsd'"/>
             <cc:set name="web.service.get.conform.xml" value="props['web.service.get.conform.xml']"/>
             <cc:set name="web.service.get.conform.xml.filename" value="props['web.service.get.conform.xml.filename']"/>
-            <cc:set name="web.service.get.conform.xml.subroutine" value="props['web.service.get.conform.xml.ednpoint']"/>
+            <cc:set name="web.service.get.conform.xml.subroutine" value="props['web.service.get.conform.xml.endpoint']"/>
         </cc:local-out>
         <cc:route id="route_each_document">
             <cc:doc-iterator labels="@{props['retrieval.labels']}"/>
@@ -262,7 +262,8 @@
             <cc:set name="filetoprocess.current" value="props['file.number.retrieve']"/>
             <cc:set name="conform.XML" value="props['web.service.get.conform.xml']"/>
             <cc:set name="conform.XML.filename" value="props['web.service.get.conform.xml.filename']"/>
-        <cc:set name="conform.XML.subroutine" value="props['web.service.get.conform.xml.subroutine']"/></cc:local-out>
+            <cc:set name="conform.XML.subroutine" value="props['web.service.get.conform.xml.endpoint']"/>
+        </cc:local-out>
         <cc:local-out id="call_log_filename" routes-response-to="convert-to-xml" endpoint="vm://wcc/PutIntegrationMessage">
             <cc:set name="is.message.severity" value="'INFO'"/>
             <cc:set name="is.message.summary" value="'Processing File: ' + props['sftp.filename']"/>
@@ -284,6 +285,9 @@
         <cc:async-mediation id="set_file_data_var_retrieval" routes-to="call_log_filename">
             <cc:steps>
                 <cc:copy id="copy_data_to_var" output="variable" output-mimetype="text/xml" output-variable="file.data" input="variable" input-variable="wd.retrieve.variable"/>
+                <cc:eval id="set-page">
+                    <cc:expression>props['page.current'] = ((props['page.current'] == null)? 0:props['page.current']) + 1</cc:expression>
+                </cc:eval>
             </cc:steps>
         </cc:async-mediation>
         <cc:local-in id="process_retrieval_file" routes-to="set_file_data_var_retrieval">
@@ -291,8 +295,9 @@
             <cc:parameter name="sftp.filename"/>
             <cc:parameter default="'false'" name="convert.ToXML" required="true" type="string"/>
             <cc:parameter default="'lib/convert_file/transform_file_to_xml_csv.xsd'" name="convert.ToXML.filename" required="true" type="string"/>
-            <cc:parameter default="'false'" name="web.service.get.conform.xml"/>
-            <cc:parameter name="web.service.get.conform.xml.filename"/><cc:parameter name="web.service.get.conform.xml.subroutine"/>
+            <cc:parameter default="'false'" name="web.service.get.conform.xml" required="false"/>
+            <cc:parameter name="web.service.get.conform.xml.filename" required="false"/>
+            <cc:parameter name="web.service.get.conform.xml.subroutine" required="false"/>
         </cc:local-in>
         <cc:async-mediation id="set_file_data_var_mget" routes-to="call_log_filename">
             <cc:steps>
@@ -321,10 +326,12 @@
         </cc:local-out>
         <cc:async-mediation id="tmp-details" routes-to="call_conform_xml">
             <cc:steps>
-                <cc:copy id="cp-details" input="variable" input-variable="filedetails.xml"/>
+                <cc:copy id="cp-details" output="message" input="variable" input-variable="filedetails.xml"/>
             </cc:steps>
         </cc:async-mediation>
-        <cc:local-out id="call_conform_xml" store-message="none" execute-when="props['conform.XML'] == 'true'" routes-response-to="call_store_msg_return_msg" endpoint="vm://@{props['conform.XML.subroutine']}"><cc:set name="conform.XML.filename" value="props['conform.XML.filename']"/></cc:local-out>
+        <cc:local-out id="call_conform_xml" store-message="none" execute-when="props['conform.XML'] == 'true'" routes-response-to="call_store_msg_return_msg" endpoint="vm://@{props['conform.XML.subroutine']}">
+            <cc:set name="conform.XML.filename" value="props['conform.XML.filename']"/>
+        </cc:local-out>
     </cc:assembly>
 
 </beans>

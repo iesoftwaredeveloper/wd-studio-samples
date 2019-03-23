@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-    xmlns:atc="http://ltfinc.net/Accounting_Technology_Common"
+    xmlns:fhc="https://github.com/firehawk-consulting/firehawk"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     xmlns:tl="https://github.com/firehawk-consulting/firehawk/schemas/transaction_log.xsd"
-    exclude-result-prefixes="xsl atc xs tl">
+    exclude-result-prefixes="xsl fhc xs tl">
     <!--xsl:output method="text"/-->
     <xsl:variable name="linefeed"><xsl:text>&#xA;</xsl:text></xsl:variable>
     <xsl:variable name="carriagereturn"><xsl:text>&#13;</xsl:text></xsl:variable>
@@ -12,7 +12,7 @@
     <xsl:param name="summarylog.filename"/>
     <xsl:param name="summarylog.file.extension"/>
 
-    <xsl:function name="atc:forceValue" as="xs:decimal">
+    <xsl:function name="fhc:forceValue" as="xs:decimal">
         <xsl:param name="inputdata"/>
         <xsl:choose>
             <xsl:when test="string-length(xs:string($inputdata))">
@@ -50,7 +50,6 @@
                                     text-align:right;
                                     }
                                     table#summary { width: 100%;
-                                    
                                     }
                                     th { background-color: orange;
                                     text-align: center;
@@ -62,7 +61,6 @@
                                 </style>
                             </head>
                             <body>
-                                
                                 <h2 style="text-align:center;">Summary Processing Statistics</h2>
                                 <p></p>
                                 <table id="summary">
@@ -95,7 +93,7 @@
                                             <xsl:value-of select="count(current-group())"/>
                                         </td>
                                         <td>
-                                            <xsl:value-of select="format-number(atc:forceValue(sum(current-group()//atc:forceValue(tl:record_stats//tl:amount))),'#,##0.00')"/>
+                                            <xsl:value-of select="format-number(fhc:forceValue(sum(current-group()//fhc:forceValue(tl:record_stats//tl:amount))),'#,##0.00')"/>
                                         </td>
                                     </tr>
                                 </table>
@@ -123,7 +121,7 @@
             </xsl:for-each-group>
         </tl:summary_log>
     </xsl:template>
-    
+
     <xsl:template match="tl:transaction_record">
         <tr>
             <td>
@@ -159,7 +157,7 @@
                 <xsl:value-of select="normalize-space(tl:record_error_info/tl:description)"/>
             </td>
             <td>
-                <xsl:value-of select="format-number(atc:forceValue(tl:record_stats/tl:amount), '#,##0.00')"/>
+                <xsl:value-of select="format-number(fhc:forceValue(tl:record_stats/tl:amount), '#,##0.00')"/>
             </td>
             <td>
                 <xsl:value-of select="tl:record_stats/tl:additional_information"/>

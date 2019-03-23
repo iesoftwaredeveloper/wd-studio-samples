@@ -109,6 +109,13 @@
                     <xsl:value-of select="normalize-space(ecmc:account)"/>
                 </bsvc:ID>
             </bsvc:Ledger_Account_or_Ledger_Account_Summary_Reference>
+            <xsl:if test="string-length(ecmc:book_code) != 0">
+                <bsvc:Book_Code_Reference>
+                    <bsvc:ID bsvc:type="Book_Code_ID">
+                        <xsl:value-of select="ecmc:book_code"/>
+                    </bsvc:ID>
+                </bsvc:Book_Code_Reference>
+            </xsl:if>
             <bsvc:Budget_Currency_Reference>
                 <bsvc:ID bsvc:type="Currency_ID">
                     <xsl:value-of select="'USD'"/>

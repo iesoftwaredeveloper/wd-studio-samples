@@ -15,12 +15,12 @@
         <cc:local-out id="call_store_msg_return_msg_put" execute-when="props['web.service.request.log'] == true" routes-response-to="call_split_ws_call" endpoint="vm://standard_logging/store_msg_return_msg">
             <cc:set name="store.filename" value="'webservice_put_request.xml'"/>
         </cc:local-out>
-        <cc:async-mediation id="create_put_web_service_call" routes-to="call_store_msg_return_msg_put" handle-downstream-errors="true">
+        <cc:async-mediation id="xslt_put_web_service_xml" routes-to="call_store_msg_return_msg_put" handle-downstream-errors="true">
             <cc:steps>
-                <cc:xslt id="create_ws_request" url="@{props['web.service.put.request']}"/>
+                <cc:xslt id="create_ws_request" input="message" url="@{props['web.service.put.request']}"/>
             </cc:steps>
         </cc:async-mediation>
-        <cc:local-out id="call_store_msg_return_msg_source" execute-when="props['web.service.response.log'] == true" routes-response-to="create_put_web_service_call" endpoint="vm://standard_logging/store_msg_return_msg">
+        <cc:local-out id="call_store_msg_return_msg_source" execute-when="props['web.service.response.log'] == true" routes-response-to="call_lookup_and_conform" endpoint="vm://standard_logging/store_msg_return_msg">
             <cc:set name="store.filename" value="'webservice_get_response.xml'"/>
         </cc:local-out>
         <cc:local-in id="put_workday_web_serivce_call" routes-to="call_store_msg_return_msg_source" access="public" icon="local-in-put_workday_web_serivce_call.png">
@@ -28,18 +28,26 @@
             <cc:parameter name="update.data"/>
             <cc:parameter name="web.service.put.application"/>
             <cc:parameter name="web.service.version"/>
-            <cc:parameter name="multi.instance.update.1.wids"/>
-            <cc:parameter name="multi.instance.update.2.wids"/>
-            <cc:parameter name="multi.instance.update.3.wids"/>
-            <cc:parameter name="single.instance.update.1.wids"/>
-            <cc:parameter name="single.instance.update.2.wids"/>
-            <cc:parameter name="single.instance.update.3.wids"/>
-            <cc:parameter name="single.instance.update.1.name"/>
-            <cc:parameter name="single.instance.update.2.name"/>
-            <cc:parameter name="single.instance.update.3.name"/>
+            <cc:parameter name="multi.instance.update.1.wids" required="false"/>
+            <cc:parameter name="multi.instance.update.2.wids" required="false"/>
+            <cc:parameter name="multi.instance.update.3.wids" required="false"/>
+            <cc:parameter name="single.instance.update.1.wids" required="false"/>
+            <cc:parameter name="single.instance.update.2.wids" required="false"/>
+            <cc:parameter name="single.instance.update.3.wids" required="false"/>
+            <cc:parameter name="single.instance.update.1.name" required="false"/>
+            <cc:parameter name="single.instance.update.2.name" required="false"/>
+            <cc:parameter name="single.instance.update.3.name" required="false"/>
             <cc:parameter name="web.service.auto.complete"/>
             <cc:parameter name="web.service.submit"/>
             <cc:parameter name="web.service.add.only"/>
+            <cc:parameter default="'false'" name="lookup.wd.data" required="true"/>
+            <cc:parameter name="lookup.wd.data.subroutine" required="false"/>
+            <cc:parameter name="lookup.wd.data.filename" required="false"/>
+            <cc:parameter name="lookup.wd.data.request.type" required="false"/>
+            <cc:parameter name="lookup.wd.data.application" required="false"/>
+            <cc:parameter default="'false'" name="conform.XML" required="false"/>
+            <cc:parameter name="conform.XML.subroutine" required="false"/>
+            <cc:parameter name="conform.XML.filename" required="false"/>
         </cc:local-in>
         <cc:local-out id="call_get_response_endpoint" store-message="none" endpoint="vm://@{props['web.service.get.response.endpoint']}">
             <cc:set name="page.current" value="props['is.paged.get.current.page']"/>
@@ -53,8 +61,8 @@
             <cc:parameter name="web.service.request.log"/>
             <cc:parameter name="web.service.get.application"/>
             <cc:parameter name="web.service.version"/>
-            <cc:parameter default="'false'" name="web.service.get.consolidate.response.data" required="true"/>
-            <cc:parameter default="'lib/indent_xml.xsl'" name="web.service.get.response.consolidate.filename" required="true"/>
+            <cc:parameter default="'false'" name="web.service.get.conform.xml" required="true"/>
+            <cc:parameter default="'lib/indent_xml.xsl'" name="web.service.get.conform.xml.filename" required="true"/>
         </cc:local-in>
         <cc:local-out id="get_paging_results_from_get" endpoint="vm://wcc/PagedGet">
             <cc:set name="is.paged.get.request.current.page.xpath" value="'/env:Envelope/env:Body/*/wd:Response_Filter/wd:Page'"/>
@@ -70,39 +78,39 @@
         <cc:local-out id="call_store_msg_return_msg_get" execute-when="props['web.service.request.log'] == true" routes-response-to="get_paging_results_from_get" endpoint="vm://standard_logging/store_msg_return_msg">
             <cc:set name="store.filename" value="'webservice_get_request.xml'"/>
         </cc:local-out>
-        <cc:async-mediation id="create_get_web_service_call" routes-to="call_store_msg_return_msg_get">
+        <cc:async-mediation id="xslt_get_web_service_xml" routes-to="call_store_msg_return_msg_get">
             <cc:steps>
                 <cc:xslt id="create_ws_request" url="@{props['web.service.get.request']}"/>
             </cc:steps>
         </cc:async-mediation>
-        <cc:local-in id="get_workday_paged_web_service_call" routes-to="create_get_web_service_call" access="public" icon="local-in-get_workday_paged_web_service_call.png">
+        <cc:local-in id="get_workday_paged_web_service_call" routes-to="xslt_get_web_service_xml" access="public" icon="local-in-get_workday_paged_web_service_call.png">
             <cc:parameter name="web.service.get.request"/>
             <cc:parameter name="web.service.get.response.endpoint"/>
             <cc:parameter name="web.service.request.log"/>
             <cc:parameter name="web.service.get.application"/>
             <cc:parameter name="web.service.version"/>
-            <cc:parameter default="'lib/indent_xml.xsl'" name="web.service.get.response.consolidate.filename" required="true"/>
-            <cc:parameter default="'false'" name="web.service.get.consolidate.response.data" required="true"/>
+            <cc:parameter default="'lib/indent_xml.xsl'" name="web.service.get.conform.xml.filename" required="true"/>
+            <cc:parameter default="'false'" name="web.service.get.conform.xml" required="true"/>
         </cc:local-in>
         <cc:local-out id="put_raas_call_msg" execute-when="props['web.service.request.log'] == true" routes-response-to="make_workday_raas_call" endpoint="vm://wcc/PutIntegrationMessage">
             <cc:set name="is.message.severity" value="'INFO'"/>
             <cc:set name="is.message.summary" value="'Executing RaaS with Endpoint: ' + props['report.extra.path']"/>
             <cc:set name="is.message.storage.enabled" value="false"/>
         </cc:local-out>
-        <cc:local-in id="group_rsp_data" routes-to="group_rsp"/>
-        <cc:async-mediation id="group_rsp" routes-to="call_store_msg_return_msg_rsp_conformed">
+        <cc:local-in id="group_rsp_data" routes-to="xslt_group_rsp"/>
+        <cc:async-mediation id="xslt_group_rsp" routes-to="call_store_msg_return_msg_rsp_group">
             <cc:steps>
-                <cc:xslt id="consolidate_response" url="@{props['web.service.get.response.consolidate.filename']}"/>
+                <cc:xslt id="consolidate_response" url="@{props['web.service.get.conform.xml.filename']}"/>
             </cc:steps>
         </cc:async-mediation>
         <cc:local-out id="call_store_msg_return_msg_rsp" execute-when="props['web.service.response.log'] == true" routes-response-to="call_group_rsp_data" endpoint="vm://standard_logging/store_msg_return_msg">
             <cc:set name="store.filename" value="'webservice_get_response_full.xml'"/>
         </cc:local-out>
-        <cc:local-out id="call_store_msg_return_msg_rsp_conformed" execute-when="props['web.service.response.log'] == true" endpoint="vm://standard_logging/store_msg_return_msg">
+        <cc:local-out id="call_store_msg_return_msg_rsp_group" execute-when="props['web.service.response.log'] == true" endpoint="vm://standard_logging/store_msg_return_msg">
             <cc:set name="store.filename" value="'webservice_get_response_full_transformed.xml'"/>
         </cc:local-out>
-        <cc:local-in id="determine_endpoint" routes-to="call_store_msg_return_msg_rsp"/>
-        <cc:local-out id="call_group_rsp_data" execute-when="props['web.service.get.consolidate.response.data'] == 'true'" routes-response-to="call_get_response_endpoint" endpoint="vm://standard_import_process/group_rsp_data"/>
+        <cc:local-in id="determine_endpoint" routes-to="call_store_msg_return_msg_rsp" access="public"/>
+        <cc:local-out id="call_group_rsp_data" execute-when="props['web.service.get.conform.xml'] == 'true'" routes-response-to="call_get_response_endpoint" endpoint="vm://standard_import_process/group_rsp_data"/>
         <cc:local-out id="call_determine_endpoint" endpoint="vm://standard_import_process/determine_endpoint"/>
         <cc:splitter id="split_ws_put" no-split-message-error="false">
             <cc:sub-route name="make_ws_soap_call" routes-to="set-wd-id"/>
@@ -114,7 +122,7 @@
             <cc:set name="record.counter" value="props['record.counter']"/>
             <cc:set name="file.number" value="props['file.number.current']"/>
             <cc:set name="file.record.counter" value="props['file.record.counter']"/>
-            <cc:set name="file.name" value="'no filename provided'"/>
+            <cc:set name="file.name" value="props['sftp.filename']"/>
             <cc:set name="source.transaction.id" value="props['record.counter']"/>
             <cc:set name="workday.transaction.id" value="props['workday.transaction.id']"/>
             <cc:set name="record.status" value="'imported'"/>
@@ -132,7 +140,7 @@
             <cc:set name="record.counter" value="props['record.counter']"/>
             <cc:set name="file.number" value="props['file.number.current']"/>
             <cc:set name="file.record.counter" value="props['file.record.counter']"/>
-            <cc:set name="file.name" value="'no filename provided'"/>
+            <cc:set name="file.name" value="props['sftp.filename']"/>
             <cc:set name="source.transaction.id" value="props['record.counter']"/>
             <cc:set name="workday.transaction.id" value="props['workday.transaction.id']"/>
             <cc:set name="record.status" value="'failed'"/>
@@ -148,6 +156,46 @@
             </cc:steps>
             <cc:send-error id="SendError" routes-to="call_process_Err_Msg"/>
         </cc:async-mediation>
+        <cc:local-out id="call_lkp_wd" store-message="none" execute-when="props['lookup.wd.data']=='true'" routes-response-to="return_bckp_msg" endpoint="vm://@{props['lookup.wd.data.subroutine']}">
+            <cc:set name="web.service.lookup.filename" value="props['lookup.wd.data.filename']"/>
+            <cc:set name="web.service.lookup.application" value="props['lookup.wd.data.application']"/>
+            <cc:set name="web.service.request.type" value="props['lookup.wd.data.request.type']"/>
+        </cc:local-out>
+        <cc:local-in id="get_workday_lookup_data" routes-to="xslt_get_web_service_xml_lkp">
+            <cc:parameter name="web.service.lookup.filename" required="true"/>
+            <cc:parameter name="web.service.lookup.application" required="true"/>
+            <cc:parameter default="'default'" name="web.service.request.type" required="false"/>
+        </cc:local-in>
+        <cc:async-mediation id="xslt_get_web_service_xml_lkp" routes-to="call_store_msg_return_msg_get_lkp" handle-downstream-errors="true">
+            <cc:steps>
+                <cc:xslt id="create_ws_request" url="@{props['web.service.lookup.filename']}"/>
+            </cc:steps>
+            <cc:send-error id="SendError" routes-to="copy_to_variable"/>
+        </cc:async-mediation>
+        <cc:workday-out-soap id="get_workday_data_call" routes-response-to="copy_to_variable" application="@{props['web.service.lookup.application']}" version="@{props['web.service.version']}"/>
+        <cc:async-mediation id="copy_to_variable">
+            <cc:steps>
+                <cc:copy id="cp_to_lkp_var" output="variable" output-variable="lookup.wd.data.xml"/>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:local-out id="call_store_msg_return_msg_get_lkp" execute-when="props['web.service.request.log'] == true" routes-response-to="get_workday_data_call" endpoint="vm://standard_logging/store_msg_return_msg">
+            <cc:set name="store.filename" value="'webservice_get_request.xml'"/>
+        </cc:local-out>
+        <cc:async-mediation id="bckp_msg" routes-to="call_lkp_wd">
+            <cc:steps>
+                <cc:copy id="cp-bckp-msg" output="variable" output-variable="source.data"/>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:local-out id="call_conform_xml" store-message="none" execute-when="props['conform.XML'] == 'true'" endpoint="vm://@{props['conform.XML.subroutine']}">
+            <cc:set name="conform.XML.filename" value="props['conform.XML.filename']"/>
+        </cc:local-out>
+        <cc:async-mediation id="return_bckp_msg" routes-to="call_conform_xml">
+            <cc:steps>
+                <cc:copy id="cp-bckp-msg" output="message" input="variable" input-variable="source.data"/>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:local-in id="lookup_and_conform" routes-to="bckp_msg"/>
+        <cc:local-out id="call_lookup_and_conform" execute-when="props['lookup.wd.data']=='true' || props['conform.XML'] == 'true'" routes-response-to="xslt_put_web_service_xml" endpoint="vm://standard_import_process/lookup_and_conform"/>
     </cc:assembly>
 
 </beans>

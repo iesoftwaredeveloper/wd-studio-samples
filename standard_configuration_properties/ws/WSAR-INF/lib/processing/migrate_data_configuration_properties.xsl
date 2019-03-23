@@ -3,10 +3,12 @@
     xmlns:fhc="https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
-    <xsl:param name="running.process" select="'Organizations'"/>
+    <xsl:param name="running.process"/>
     <xsl:param name="web.service.start.date"/>
     <xsl:param name="web.service.end.date"/>
     <xsl:param name="lp.source.filter.wid"/>
+    <xsl:param name="lp.period.filter.wid"/>
+    <xsl:param name="lp.source.structure.filter.wid"/>
 
     <xsl:template match="/">
         <!-- <fhc:running_process> -->
@@ -177,94 +179,6 @@
                         </fhc:multi_instance_updates>
                         <fhc:single_instance_updates>
                             <fhc:update_attribute></fhc:update_attribute>
-                            <fhc:update_attribute></fhc:update_attribute>
-                        </fhc:single_instance_updates>
-                    </fhc:update_attributes>
-                </fhc:put_ws_attributes>
-            </fhc:web_service_information>
-        </fhc:process>
-        <fhc:process fhc:process_name="Journal Entry Beginning Balances (2017)">
-            <fhc:web_service_information>
-                <fhc:get_ws_attributes>
-                    <fhc:application>RAAS</fhc:application>
-                    <fhc:request_filename></fhc:request_filename>
-                    <fhc:report_alias>Journal_Migration_Data_BegBal</fhc:report_alias>
-                    <fhc:request_type>default</fhc:request_type>
-                    <fhc:filter_attributes>
-                        <fhc:multi_instance_filters>
-                            <fhc:filter_attribute></fhc:filter_attribute>
-                            <fhc:filter_attribute></fhc:filter_attribute>
-                            <fhc:filter_attribute></fhc:filter_attribute>
-                        </fhc:multi_instance_filters>
-                        <fhc:single_instance_filters>
-                            <fhc:filter_attribute></fhc:filter_attribute>
-                            <fhc:filter_attribute></fhc:filter_attribute>
-                            <fhc:filter_attribute></fhc:filter_attribute>
-                        </fhc:single_instance_filters>
-                    </fhc:filter_attributes>
-                    <fhc:request_endpoint>standard_import_process/get_raas_web_service_call</fhc:request_endpoint>
-                    <fhc:response_endpoint fhc:group_rsp_data="true">migration_to_region/split_and_process_response</fhc:response_endpoint>
-                    <fhc:response_consolidate_filename>lib/get_request/consolidate_journaldata.xsl</fhc:response_consolidate_filename>
-                    <fhc:split_namespace>bsvc urn:com.workday/bsvc</fhc:split_namespace>
-                    <fhc:split_tag>bsvc:Import_Accounting_Journal_Request</fhc:split_tag>
-                </fhc:get_ws_attributes>
-                <fhc:put_ws_attributes>
-                    <fhc:application>Financial_Management</fhc:application>
-                    <fhc:request_filename>lib/put_request/migration_to_region/createsubmitjournalentry.xsl</fhc:request_filename>
-                    <fhc:request_endpoint>standard_import_process/put_workday_web_serivce_call</fhc:request_endpoint>
-                    <fhc:update_attributes>
-                        <fhc:update_data_attribute>Create New Transactions</fhc:update_data_attribute>
-                        <fhc:multi_instance_updates>
-                            <fhc:update_attribute></fhc:update_attribute>
-                            <fhc:update_attribute></fhc:update_attribute>
-                            <fhc:update_attribute></fhc:update_attribute>
-                        </fhc:multi_instance_updates>
-                        <fhc:single_instance_updates>
-                            <fhc:update_attribute>Journal Source for Migration</fhc:update_attribute>
-                            <fhc:update_attribute></fhc:update_attribute>
-                        </fhc:single_instance_updates>
-                    </fhc:update_attributes>
-                </fhc:put_ws_attributes>
-            </fhc:web_service_information>
-        </fhc:process>
-        <fhc:process fhc:process_name="Journal Entry Monthly Balances">
-            <fhc:web_service_information>
-                <fhc:get_ws_attributes>
-                    <fhc:application>RAAS</fhc:application>
-                    <fhc:request_filename></fhc:request_filename>
-                    <fhc:report_alias>Journal_Migration_Data</fhc:report_alias>
-                    <fhc:request_type>default</fhc:request_type>
-                    <fhc:filter_attributes>
-                        <fhc:multi_instance_filters>
-                            <fhc:filter_attribute></fhc:filter_attribute>
-                            <fhc:filter_attribute></fhc:filter_attribute>
-                            <fhc:filter_attribute></fhc:filter_attribute>
-                        </fhc:multi_instance_filters>
-                        <fhc:single_instance_filters>
-                            <fhc:filter_attribute></fhc:filter_attribute>
-                            <fhc:filter_attribute></fhc:filter_attribute>
-                            <fhc:filter_attribute></fhc:filter_attribute>
-                        </fhc:single_instance_filters>
-                    </fhc:filter_attributes>
-                    <fhc:request_endpoint>standard_import_process/get_raas_web_service_call</fhc:request_endpoint>
-                    <fhc:response_endpoint fhc:group_rsp_data="true">migration_to_region/split_and_process_response</fhc:response_endpoint>
-                    <fhc:response_consolidate_filename>lib/get_request/consolidate_journaldata.xsl</fhc:response_consolidate_filename>
-                    <fhc:split_namespace>bsvc urn:com.workday/bsvc</fhc:split_namespace>
-                    <fhc:split_tag>bsvc:Import_Accounting_Journal_Request</fhc:split_tag>
-                </fhc:get_ws_attributes>
-                <fhc:put_ws_attributes>
-                    <fhc:application>Financial_Management</fhc:application>
-                    <fhc:request_filename>lib/put_request/migration_to_region/createsubmitjournalentry.xsl</fhc:request_filename>
-                    <fhc:request_endpoint>standard_import_process/put_workday_web_serivce_call</fhc:request_endpoint>
-                    <fhc:update_attributes>
-                        <fhc:update_data_attribute>Create New Transactions</fhc:update_data_attribute>
-                        <fhc:multi_instance_updates>
-                            <fhc:update_attribute></fhc:update_attribute>
-                            <fhc:update_attribute></fhc:update_attribute>
-                            <fhc:update_attribute></fhc:update_attribute>
-                        </fhc:multi_instance_updates>
-                        <fhc:single_instance_updates>
-                            <fhc:update_attribute>Journal Source for Migration</fhc:update_attribute>
                             <fhc:update_attribute></fhc:update_attribute>
                         </fhc:single_instance_updates>
                     </fhc:update_attributes>
@@ -576,103 +490,6 @@
                 </fhc:put_ws_attributes>
             </fhc:web_service_information>
         </fhc:process>
-        <fhc:process fhc:process_name="Missing BU and Region Data">
-            <fhc:web_service_information>
-                <fhc:get_ws_attributes>
-                    <fhc:application>RAAS</fhc:application>
-                    <fhc:request_filename></fhc:request_filename>
-                    <fhc:report_alias>Journal_Migration_Data_Missing_BU</fhc:report_alias>
-                    <fhc:request_type>default</fhc:request_type>
-                    <fhc:filter_attributes>
-                        <fhc:report_filters>
-                            <fhc:report_filter fhc:filtername="start_date">Start_Date=</fhc:report_filter>
-                            <fhc:report_filter fhc:filtername="end_date">End_Date=</fhc:report_filter>
-                        </fhc:report_filters>
-                        <fhc:multi_instance_filters>
-                            <fhc:filter_attribute></fhc:filter_attribute>
-                            <fhc:filter_attribute></fhc:filter_attribute>
-                            <fhc:filter_attribute></fhc:filter_attribute>
-                        </fhc:multi_instance_filters>
-                        <fhc:single_instance_filters>
-                            <fhc:filter_attribute></fhc:filter_attribute>
-                            <fhc:filter_attribute></fhc:filter_attribute>
-                            <fhc:filter_attribute></fhc:filter_attribute>
-                        </fhc:single_instance_filters>
-                    </fhc:filter_attributes>
-                    <fhc:request_endpoint>standard_import_process/get_raas_web_service_call</fhc:request_endpoint>
-                    <fhc:response_endpoint fhc:group_rsp_data="true">migration_to_region/store_as_lkp</fhc:response_endpoint>
-                    <fhc:response_consolidate_filename>lib/get_request/data_audits/consolidate_journaldata_comparison.xsl</fhc:response_consolidate_filename>
-                    <fhc:split_namespace>wd urn:com.workday/bsvc</fhc:split_namespace>
-                    <fhc:split_tag>wd:Report_Data</fhc:split_tag>
-                </fhc:get_ws_attributes>
-                <fhc:put_ws_attributes>
-                    <fhc:application>Financial_Management</fhc:application>
-                    <fhc:request_filename>lib/put_request/move_budget/importbudgettransform.xsl</fhc:request_filename>
-                    <fhc:request_endpoint>standard_import_process/put_workday_web_serivce_call</fhc:request_endpoint>
-                    <fhc:update_attributes>
-                        <fhc:update_data_attribute>Transfer Assets</fhc:update_data_attribute>
-                        <fhc:multi_instance_updates>
-                            <fhc:update_attribute></fhc:update_attribute>
-                            <fhc:update_attribute></fhc:update_attribute>
-                            <fhc:update_attribute></fhc:update_attribute>
-                        </fhc:multi_instance_updates>
-                        <fhc:single_instance_updates>
-                            <fhc:update_attribute></fhc:update_attribute>
-                            <fhc:update_attribute></fhc:update_attribute>
-                        </fhc:single_instance_updates>
-                    </fhc:update_attributes>
-                </fhc:put_ws_attributes>
-            </fhc:web_service_information>
-        </fhc:process>
-        <fhc:process fhc:process_name="Missing BU and Region Payroll Data">
-            <fhc:web_service_information>
-                <fhc:get_ws_attributes>
-                    <fhc:application>RAAS</fhc:application>
-                    <fhc:request_filename></fhc:request_filename>
-                    <fhc:report_alias>Journal_Migration_Data_Missing_BU</fhc:report_alias>
-                    <fhc:request_type>default</fhc:request_type>
-                    <fhc:filter_attributes>
-                        <fhc:report_filters>
-                            <fhc:report_filter fhc:filtername="start_date">Start_Date=</fhc:report_filter>
-                            <fhc:report_filter fhc:filtername="end_date">End_Date=</fhc:report_filter>
-                            <fhc:report_filter fhc:filtername="additional_options">Additional_Options!WID=</fhc:report_filter>
-                        </fhc:report_filters>
-                        <fhc:multi_instance_filters>
-                            <fhc:filter_attribute></fhc:filter_attribute>
-                            <fhc:filter_attribute></fhc:filter_attribute>
-                            <fhc:filter_attribute></fhc:filter_attribute>
-                        </fhc:multi_instance_filters>
-                        <fhc:single_instance_filters>
-                            <fhc:filter_attribute></fhc:filter_attribute>
-                            <fhc:filter_attribute></fhc:filter_attribute>
-                            <fhc:filter_attribute></fhc:filter_attribute>
-                        </fhc:single_instance_filters>
-                    </fhc:filter_attributes>
-                    <fhc:request_endpoint>standard_import_process/get_raas_web_service_call</fhc:request_endpoint>
-                    <fhc:response_endpoint fhc:group_rsp_data="true">migration_to_region/split_and_process_response</fhc:response_endpoint>
-                    <fhc:response_consolidate_filename>lib/get_request/data_audits/consolidate_journaldata_details.xsl</fhc:response_consolidate_filename>
-                    <fhc:split_namespace>wd urn:com.workday/bsvc</fhc:split_namespace>
-                    <fhc:split_tag>wd:Import_Accounting_Journal_Request</fhc:split_tag>
-                </fhc:get_ws_attributes>
-                <fhc:put_ws_attributes>
-                    <fhc:application>Financial_Management</fhc:application>
-                    <fhc:request_filename>lib/put_request/migration_to_region/createsubmitjournalentry.xsl</fhc:request_filename>
-                    <fhc:request_endpoint>standard_import_process/put_workday_web_serivce_call</fhc:request_endpoint>
-                    <fhc:update_attributes>
-                        <fhc:update_data_attribute>Create Journals</fhc:update_data_attribute>
-                        <fhc:multi_instance_updates>
-                            <fhc:update_attribute></fhc:update_attribute>
-                            <fhc:update_attribute></fhc:update_attribute>
-                            <fhc:update_attribute></fhc:update_attribute>
-                        </fhc:multi_instance_updates>
-                        <fhc:single_instance_updates>
-                            <fhc:update_attribute>Journal Source for Migration</fhc:update_attribute>
-                            <fhc:update_attribute></fhc:update_attribute>
-                        </fhc:single_instance_updates>
-                    </fhc:update_attributes>
-                </fhc:put_ws_attributes>
-            </fhc:web_service_information>
-        </fhc:process>
     </fhc:processes>
 
     <xsl:template match="fhc:report_filters">
@@ -695,8 +512,22 @@
                         <xsl:value-of select="'f6949d8151bb100018a5d49a49fc2463'"/>
                     </xsl:when>
                     <xsl:when test="@fhc:filtername='lp_source_wid'">
+                        <xsl:variable name="filter_name" select="."/>
+                        <xsl:value-of select="$filter_name"/>
+                        <xsl:for-each select="tokenize($lp.source.filter.wid,',')">
+                            <xsl:value-of select="normalize-space(.)"/>
+                            <xsl:if test="position() != last()">
+                                <xsl:value-of select="'!'"/>
+                            </xsl:if>
+                        </xsl:for-each>
+                    </xsl:when>
+                    <xsl:when test="@fhc:filtername='lp_source_plan_structure_wid'">
                         <xsl:value-of select="."/>
-                        <xsl:value-of select="$lp.source.filter.wid"/>
+                        <xsl:value-of  select="$lp.source.structure.filter.wid"/>
+                    </xsl:when>
+                    <xsl:when test="@fhc:filtername='lp_period_wid'">
+                        <xsl:value-of select="."/>
+                        <xsl:value-of  select="$lp.period.filter.wid"/>
                     </xsl:when>
                  </xsl:choose>
                  <xsl:if test="position() != last()">

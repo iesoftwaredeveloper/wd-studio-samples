@@ -8,7 +8,7 @@
     <element href="assembly.xml#call_store_msg_return_msg_source"/>
   </visualProperties>
   <visualProperties>
-    <element href="assembly.xml#create_put_web_service_call"/>
+    <element href="assembly.xml#xslt_put_web_service_xml"/>
   </visualProperties>
   <visualProperties>
     <element href="assembly.xml#call_store_msg_return_msg_put"/>
@@ -20,9 +20,9 @@
     <element href="assembly.xml#get_workday_paged_web_service_call"/>
   </visualProperties>
   <visualProperties>
-    <element href="assembly.xml#create_get_web_service_call"/>
+    <element href="assembly.xml#xslt_get_web_service_xml"/>
   </visualProperties>
-  <visualProperties>
+  <visualProperties x="505" y="1419">
     <element href="assembly.xml#call_store_msg_return_msg_get"/>
   </visualProperties>
   <visualProperties>
@@ -44,13 +44,13 @@
     <element href="assembly.xml#group_rsp_data"/>
   </visualProperties>
   <visualProperties x="1252" y="435">
-    <element href="assembly.xml#group_rsp"/>
+    <element href="assembly.xml#xslt_group_rsp"/>
   </visualProperties>
   <visualProperties x="1535" y="172">
     <element href="assembly.xml#call_store_msg_return_msg_rsp"/>
   </visualProperties>
   <visualProperties x="1251" y="392">
-    <element href="assembly.xml#call_store_msg_return_msg_rsp_conformed"/>
+    <element href="assembly.xml#call_store_msg_return_msg_rsp_group"/>
   </visualProperties>
   <visualProperties x="1108" y="442">
     <element href="assembly.xml#determine_endpoint"/>
@@ -82,24 +82,53 @@
   <visualProperties x="1624" y="187">
     <element href="assembly.xml#set-wd-id"/>
   </visualProperties>
+  <visualProperties x="9" y="373">
+    <element href="assembly.xml#call_lkp_wd"/>
+  </visualProperties>
+  <visualProperties x="85" y="868">
+    <element href="assembly.xml#get_workday_lookup_data"/>
+  </visualProperties>
+  <visualProperties x="446" y="1068">
+    <element href="assembly.xml#xslt_get_web_service_xml_lkp"/>
+  </visualProperties>
+  <visualProperties x="732" y="994">
+    <element href="assembly.xml#get_workday_data_call"/>
+  </visualProperties>
+  <visualProperties x="833" y="1001">
+    <element href="assembly.xml#copy_to_variable"/>
+  </visualProperties>
+  <visualProperties x="865" y="1428">
+    <element href="assembly.xml#call_store_msg_return_msg_get_lkp"/>
+  </visualProperties>
+  <visualProperties x="56" y="323">
+    <element href="assembly.xml#bckp_msg"/>
+  </visualProperties>
+  <visualProperties x="1511" y="487">
+    <element href="assembly.xml#call_conform_xml"/>
+  </visualProperties>
+  <visualProperties x="1527" y="155">
+    <element href="assembly.xml#return_bckp_msg"/>
+  </visualProperties>
+  <visualProperties x="1455" y="322">
+    <element href="assembly.xml#lookup_and_conform"/>
+  </visualProperties>
+  <visualProperties x="132" y="427">
+    <element href="assembly.xml#call_lookup_and_conform"/>
+  </visualProperties>
   <connections type="routesTo">
     <source href="assembly.xml#put_workday_web_serivce_call"/>
     <target href="assembly.xml#call_store_msg_return_msg_source"/>
   </connections>
-  <connections type="routesResponseTo">
-    <source href="assembly.xml#call_store_msg_return_msg_source"/>
-    <target href="assembly.xml#create_put_web_service_call"/>
-  </connections>
   <connections type="routesTo">
-    <source href="assembly.xml#create_put_web_service_call"/>
+    <source href="assembly.xml#xslt_put_web_service_xml"/>
     <target href="assembly.xml#call_store_msg_return_msg_put"/>
   </connections>
   <connections type="routesTo">
     <source href="assembly.xml#get_workday_paged_web_service_call"/>
-    <target href="assembly.xml#create_get_web_service_call"/>
+    <target href="assembly.xml#xslt_get_web_service_xml"/>
   </connections>
   <connections type="routesTo">
-    <source href="assembly.xml#create_get_web_service_call"/>
+    <source href="assembly.xml#xslt_get_web_service_xml"/>
     <target href="assembly.xml#call_store_msg_return_msg_get"/>
   </connections>
   <connections type="routesResponseTo">
@@ -115,8 +144,8 @@
     <target href="assembly.xml#make_workday_raas_call"/>
   </connections>
   <connections type="routesTo">
-    <source href="assembly.xml#group_rsp"/>
-    <target href="assembly.xml#call_store_msg_return_msg_rsp_conformed"/>
+    <source href="assembly.xml#xslt_group_rsp"/>
+    <target href="assembly.xml#call_store_msg_return_msg_rsp_group"/>
   </connections>
   <connections type="routesResponseTo">
     <source href="assembly.xml#make_workday_raas_call"/>
@@ -140,7 +169,7 @@
   </connections>
   <connections type="routesTo">
     <source href="assembly.xml#group_rsp_data"/>
-    <target href="assembly.xml#group_rsp"/>
+    <target href="assembly.xml#xslt_group_rsp"/>
   </connections>
   <connections type="routesResponseTo">
     <source href="assembly.xml#call_store_msg_return_msg_rsp"/>
@@ -166,57 +195,139 @@
     <source href="assembly.xml#set-wd-id"/>
     <target href="assembly.xml#make_workday_soap_call"/>
   </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#get_workday_lookup_data"/>
+    <target href="assembly.xml#xslt_get_web_service_xml_lkp"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#get_workday_data_call"/>
+    <target href="assembly.xml#copy_to_variable"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#xslt_get_web_service_xml_lkp"/>
+    <target href="assembly.xml#call_store_msg_return_msg_get_lkp"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_store_msg_return_msg_get_lkp"/>
+    <target href="assembly.xml#get_workday_data_call"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#//@beans/@mixed.1/@mixed.59/@mixed.3"/>
+    <target href="assembly.xml#copy_to_variable"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#bckp_msg"/>
+    <target href="assembly.xml#call_lkp_wd"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#lookup_and_conform"/>
+    <target href="assembly.xml#bckp_msg"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_store_msg_return_msg_source"/>
+    <target href="assembly.xml#call_lookup_and_conform"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_lookup_and_conform"/>
+    <target href="assembly.xml#xslt_put_web_service_xml"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_lkp_wd"/>
+    <target href="assembly.xml#return_bckp_msg"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#return_bckp_msg"/>
+    <target href="assembly.xml#call_conform_xml"/>
+  </connections>
   <swimlanes x="18" y="-13" bgColor="12566463" name="Put Web Service Call" orientation="VERTICAL" elements="//@swimlanes.7 //@swimlanes.9" alignment="MIDDLE"/>
-  <swimlanes bgColor="8454016" name="Get Web Service Call" alignment="MIDDLE">
-    <elements href="assembly.xml#get_workday_paged_web_service_call"/>
-    <elements href="assembly.xml#create_get_web_service_call"/>
-    <elements href="assembly.xml#call_store_msg_return_msg_get"/>
-    <elements href="assembly.xml#get_paging_results_from_get"/>
-  </swimlanes>
-  <swimlanes bgColor="8454016" name="Call RaaS">
-    <elements href="assembly.xml#get_raas_web_service_call"/>
-    <elements href="assembly.xml#put_raas_call_msg"/>
-    <elements href="assembly.xml#make_workday_raas_call"/>
-    <elements href="assembly.xml#call_determine_endpoint"/>
-  </swimlanes>
+  <swimlanes bgColor="8454016" name="Get Web Service Call" elements="//@swimlanes.20 //@swimlanes.21" alignment="MIDDLE"/>
+  <swimlanes bgColor="8454016" name="Call RaaS" elements="//@swimlanes.22 //@swimlanes.23"/>
   <swimlanes x="18" y="329" bgColor="12632256" name="Get Workday Data" orientation="VERTICAL" elements="//@swimlanes.1 //@swimlanes.2" alignment="MIDDLE"/>
   <swimlanes x="18" y="554" bgColor="8454016" name="Group Response Data" alignment="MIDDLE">
     <elements href="assembly.xml#group_rsp_data"/>
-    <elements href="assembly.xml#group_rsp"/>
-    <elements href="assembly.xml#call_store_msg_return_msg_rsp_conformed"/>
+    <elements href="assembly.xml#xslt_group_rsp"/>
+    <elements href="assembly.xml#call_store_msg_return_msg_rsp_group"/>
   </swimlanes>
-  <swimlanes x="1133" y="387" bgColor="8454016" name="Process Response" alignment="MIDDLE">
-    <elements href="assembly.xml#determine_endpoint"/>
-    <elements href="assembly.xml#call_store_msg_return_msg_rsp"/>
-    <elements href="assembly.xml#call_group_rsp_data"/>
-    <elements href="assembly.xml#call_get_response_endpoint"/>
-  </swimlanes>
-  <swimlanes x="1097" y="335" bgColor="12632256" name="Response Data Processing" orientation="VERTICAL" elements="//@swimlanes.4 //@swimlanes.5" alignment="MIDDLE"/>
+  <swimlanes x="1133" y="387" bgColor="8454016" name="Process Response" elements="//@swimlanes.26 //@swimlanes.27" alignment="MIDDLE"/>
+  <swimlanes x="1097" y="335" bgColor="12632256" name="Response Data Processing" orientation="VERTICAL" elements="//@swimlanes.18 //@swimlanes.5" alignment="MIDDLE"/>
   <swimlanes x="26" y="141" bgColor="9498256" name="Local In" alignment="MIDDLE">
     <elements href="assembly.xml#put_workday_web_serivce_call"/>
     <elements href="assembly.xml#call_store_msg_return_msg_source"/>
   </swimlanes>
-  <swimlanes x="1427" y="6" bgColor="12566463" name="Split and Process" elements="//@swimlanes.16 //@swimlanes.14" alignment="MIDDLE"/>
-  <swimlanes x="851" y="248" bgColor="9498256" name="Process Put Call" alignment="MIDDLE">
-    <elements href="assembly.xml#create_put_web_service_call"/>
-    <elements href="assembly.xml#call_store_msg_return_msg_put"/>
-    <elements href="assembly.xml#call_split_ws_call"/>
-  </swimlanes>
-  <swimlanes x="867" y="192" bgColor="15066597" name="Error Processing" alignment="MIDDLE">
+  <swimlanes x="1427" y="6" bgColor="12566463" name="Split and Process" orientation="VERTICAL" elements="//@swimlanes.32 //@swimlanes.4" alignment="MIDDLE"/>
+  <swimlanes x="851" y="248" bgColor="9498256" name="Process Put Call" elements="//@swimlanes.31 //@swimlanes.17" alignment="MIDDLE"/>
+  <swimlanes x="867" y="192" bgColor="8454143" name="Error Processing" orientation="VERTICAL" alignment="MIDDLE">
     <elements href="assembly.xml#call_process_Err_Msg"/>
     <elements href="assembly.xml#call_create_transaction_log_record_err"/>
   </swimlanes>
-  <swimlanes x="-51" y="8" name="Standard Import Process" orientation="VERTICAL" elements="//@swimlanes.12 //@swimlanes.13"/>
+  <swimlanes x="-47" y="54" bgColor="15128749" name="Standard Import Process" orientation="VERTICAL" elements="//@swimlanes.12 //@swimlanes.13" alignment="MIDDLE"/>
   <swimlanes x="420" y="732" bgColor="42495" name="Put and Split Data" elements="//@swimlanes.0 //@swimlanes.8" alignment="MIDDLE"/>
   <swimlanes x="506" y="766" bgColor="4108284" name="Get and Process Data" elements="//@swimlanes.3 //@swimlanes.6" alignment="MIDDLE"/>
   <swimlanes x="1815" y="274" bgColor="9498256" name="End Processing" orientation="VERTICAL" elements="//@swimlanes.15 //@swimlanes.10" alignment="MIDDLE"/>
-  <swimlanes x="1878" y="295" bgColor="15066597" name="Make Web Service Call" alignment="MIDDLE">
+  <swimlanes x="1878" y="295" bgColor="8454143" name="Make Web Service Call" orientation="VERTICAL" alignment="MIDDLE">
     <elements href="assembly.xml#make_workday_soap_call"/>
     <elements href="assembly.xml#call_create_transaction_log_record"/>
   </swimlanes>
-  <swimlanes x="670" y="282" bgColor="9498256" name="Swimlane" alignment="MIDDLE">
-    <elements href="assembly.xml#split_ws_call"/>
-    <elements href="assembly.xml#split_ws_put"/>
+  <swimlanes x="670" y="282" bgColor="9498256" name="Split Envelope WS Call" alignment="MIDDLE">
+    <elements href="#//@swimlanes.28"/>
     <elements href="assembly.xml#set-wd-id"/>
   </swimlanes>
+  <swimlanes x="225" y="326" bgColor="8454143" name="Call Sub Routine for Import" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#call_lookup_and_conform"/>
+    <elements href="assembly.xml#xslt_put_web_service_xml"/>
+    <elements href="assembly.xml#call_store_msg_return_msg_put"/>
+    <elements href="assembly.xml#call_split_ws_call"/>
+  </swimlanes>
+  <swimlanes x="156" y="866" bgColor="8454016" name="Get Workday Lookup Data" elements="//@swimlanes.24 //@swimlanes.25" alignment="MIDDLE"/>
+  <swimlanes x="84" y="316" bgColor="8454143" name="Backup and Lookup" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#bckp_msg"/>
+    <elements href="assembly.xml#call_lkp_wd"/>
+  </swimlanes>
+  <swimlanes x="8" y="778" bgColor="8454143" name="Local-in Paged WS" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#get_workday_paged_web_service_call"/>
+    <elements href="assembly.xml#xslt_get_web_service_xml"/>
+  </swimlanes>
+  <swimlanes x="356" y="854" bgColor="8454143" name="Log and Call Sub Routine" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#call_store_msg_return_msg_get"/>
+    <elements href="assembly.xml#get_paging_results_from_get"/>
+  </swimlanes>
+  <swimlanes x="4" y="1010" bgColor="8454143" name="Local-in RaaS" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#get_raas_web_service_call"/>
+    <elements href="assembly.xml#put_raas_call_msg"/>
+  </swimlanes>
+  <swimlanes x="528" y="1040" bgColor="8454143" name="Make RaaS" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#make_workday_raas_call"/>
+    <elements href="assembly.xml#call_determine_endpoint"/>
+  </swimlanes>
+  <swimlanes x="6" y="1266" bgColor="8454143" name="Local-in Lookup Data" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#get_workday_lookup_data"/>
+    <elements href="assembly.xml#xslt_get_web_service_xml_lkp"/>
+  </swimlanes>
+  <swimlanes x="590" y="1286" bgColor="8454143" name="Get WD Data and Set Variable" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#call_store_msg_return_msg_get_lkp"/>
+    <elements href="assembly.xml#get_workday_data_call"/>
+    <elements href="assembly.xml#copy_to_variable"/>
+  </swimlanes>
+  <swimlanes x="678" y="1184" bgColor="8454143" name="Local-in Group Determine" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#determine_endpoint"/>
+    <elements href="assembly.xml#call_store_msg_return_msg_rsp"/>
+  </swimlanes>
+  <swimlanes x="1229" y="1212" bgColor="8454143" name="Group Data and Process Rsp" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#call_group_rsp_data"/>
+    <elements href="assembly.xml#call_get_response_endpoint"/>
+  </swimlanes>
+  <swimlanes x="608" y="372" bgColor="8454143" name="Start Import" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#split_ws_call"/>
+    <elements href="assembly.xml#split_ws_put"/>
+  </swimlanes>
+  <swimlanes x="1508" y="415" bgColor="16777088" name="Backup, Lookup and Conform" elements="//@swimlanes.19 //@swimlanes.30" alignment="MIDDLE"/>
+  <swimlanes x="234" y="575" bgColor="8454143" name="Conform XML" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#call_conform_xml"/>
+    <elements href="assembly.xml#return_bckp_msg"/>
+  </swimlanes>
+  <swimlanes x="316" y="441" bgColor="8454143" name="Lookup and Conform XML" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#lookup_and_conform"/>
+    <elements href="#//@swimlanes.29"/>
+  </swimlanes>
+  <swimlanes x="796" y="582" bgColor="16443110" name="Import Workday Data" elements="//@swimlanes.16 //@swimlanes.14"/>
 </wdnm:Diagram>
