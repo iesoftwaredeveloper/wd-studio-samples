@@ -96,13 +96,6 @@
             <wd:Control_Total_Amount>
                 <xsl:value-of select="ecmc:control_total_amount"/>
             </wd:Control_Total_Amount>
-    	       <!-- <wd:Tax_Amount>1000.00</wd:Tax_Amount>
-    <bsvc:Freight_Amount>1000.00</bsvc:Freight_Amount>
-    
-    <bsvc:Other_Charges>1000.00</bsvc:Other_Charges>
-    <bsvc:Handling_Code_Reference bsvc:Descriptor="string">
-      <bsvc:ID bsvc:type="string">string</bsvc:ID>
-    </bsvc:Handling_Code_Reference> -->
             <wd:Memo>
                 <xsl:value-of select="ecmc:memo"/>
             </wd:Memo>

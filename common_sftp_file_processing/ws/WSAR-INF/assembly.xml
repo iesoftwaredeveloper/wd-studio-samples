@@ -22,7 +22,8 @@
             <cc:parameter name="filetoprocess.totalcount"/>
             <cc:parameter name="filetoprocess.current"/>
             <cc:parameter default="'lib/convert_file/transform_file_to_xml_csv.xsd'" name="conform.XML.filename" required="true"/>
-            <cc:parameter default="'false'" name="conform.XML" required="true" type="string"/><cc:parameter name="conform.XML.subroutine"/>
+            <cc:parameter default="'false'" name="conform.XML" required="true" type="string"/>
+            <cc:parameter name="conform.XML.subroutine"/>
         </cc:local-in>
         <cc:local-out id="call_delete_SFTP_files" execute-when="props['delete-sftp-files'] == 1" endpoint="vm://common_sftp_file_processing/delete_SFTP_files">
             <cc:set name="sftp.filename" value="props['sftp.filename']"/>
@@ -113,6 +114,7 @@
             <cc:set name="processfile.subroutine" value="props['web.service.get.response.endpoint']"/>
             <cc:set name="sftp.filename" value="vars['wd.retrieve.variable'].fileName"/>
             <cc:set name="convert.ToXML" value="props['convert.ToXML']"/>
+            <cc:set name="convert.ToXML.delimiter" value="props['convert.ToXML.delimiter']"/>
             <cc:set name="convertToXML.filename" value="'lib/convert_file/transform_file_to_xml_csv.xsd'"/>
             <cc:set name="web.service.get.conform.xml" value="props['web.service.get.conform.xml']"/>
             <cc:set name="web.service.get.conform.xml.filename" value="props['web.service.get.conform.xml.filename']"/>
@@ -133,6 +135,7 @@
             <cc:parameter name="web.service.get.response.endpoint" required="true"/>
             <cc:parameter default="'Retrieved'" name="retrieval.labels" required="true"/>
             <cc:parameter default="'false'" name="convert.ToXML" required="true" type="string"/>
+            <cc:parameter name="convert.ToXML.delimiter"/>
             <cc:parameter default="''" name="convert.ToXML.filename" required="false"/>
             <cc:parameter default="'false'" name="web.service.get.conform.xml" required="false"/>
             <cc:parameter default="''" name="web.service.get.conform.xml.filename" required="false"/>
@@ -266,9 +269,9 @@
         </cc:local-out>
         <cc:local-out id="call_log_filename" routes-response-to="convert-to-xml" endpoint="vm://wcc/PutIntegrationMessage">
             <cc:set name="is.message.severity" value="'INFO'"/>
-            <cc:set name="is.message.summary" value="'Processing File: ' + props['sftp.filename']"/>
+            <cc:set name="is.message.summary" value="'Processing File: ' + props['sftp.filename'] + ' with delimiter: ' + props['convert.ToXML.delimiter']"/>
         </cc:local-out>
-        <cc:async-mediation id="cp_to_msg" routes-to="call_process_file_subRoutine">
+        <cc:async-mediation id="cp_to_msg" routes-to="call_store_msg_return_msg_file">
             <cc:steps>
                 <cc:eval id="reset-file-counters">
                     <cc:expression>props['file.number.retrieve'] = ((props['file.number.retrieve'] == null)? 0:props['file.number.retrieve']) + 1</cc:expression>
@@ -298,6 +301,7 @@
             <cc:parameter default="'false'" name="web.service.get.conform.xml" required="false"/>
             <cc:parameter name="web.service.get.conform.xml.filename" required="false"/>
             <cc:parameter name="web.service.get.conform.xml.subroutine" required="false"/>
+            <cc:parameter default="'TAB'" name="convert.ToXML.delimiter" required="true"/>
         </cc:local-in>
         <cc:async-mediation id="set_file_data_var_mget" routes-to="call_log_filename">
             <cc:steps>
@@ -307,6 +311,7 @@
         <cc:local-in id="process_file" routes-to="set_file_data_var_mget">
             <cc:parameter name="processfile.subroutine" required="false"/>
             <cc:parameter name="sftp.filename"/>
+            <cc:parameter default="'TAB'" name="convert.ToXML.delimiter" required="true"/>
         </cc:local-in>
         <cc:async-mediation id="set_file_data_var" routes-to="cp_to_msg">
             <cc:steps>
@@ -318,7 +323,7 @@
         </cc:local-in>
         <cc:async-mediation id="convert-to-xml" routes-to="cp_to_msg" execute-steps-when="props['convert.ToXML'] == 'true'">
             <cc:steps>
-                <cc:textschema id="generic-txt-xml" output="variable" output-variable="file.data" input="variable" input-variable="file.data" style="text2xml" url="@{props['convert.ToXML.filename']}"/>
+                <cc:csv-to-xml id="text-to-xml" output="variable" output-variable="file.data" input="variable" input-variable="file.data" namespacePrefix="tfxc" namespaceURI="https://github.com/firehawk-consulting/firehawk/schemas/text_to_xml/transform_file_to_xml_unparsed.xsd" rootName="inputFile" rowName="record" separator="@{props['convert.ToXML.delimiter']}" useFirstLineAsHeader="false"/>
             </cc:steps>
         </cc:async-mediation>
         <cc:local-out id="call_store_msg_return_msg" execute-when="props['web.service.response.log'] == true" endpoint="vm://standard_logging/store_msg_return_msg">
@@ -331,6 +336,14 @@
         </cc:async-mediation>
         <cc:local-out id="call_conform_xml" store-message="none" execute-when="props['conform.XML'] == 'true'" routes-response-to="call_store_msg_return_msg" endpoint="vm://@{props['conform.XML.subroutine']}">
             <cc:set name="conform.XML.filename" value="props['conform.XML.filename']"/>
+        </cc:local-out>
+        <cc:async-mediation id="AsyncMediation">
+            <cc:steps>
+                <cc:textschema id="generic-txt-xml" output="variable" output-variable="file.data" input="variable" input-variable="file.data" style="text2xml" url="@{props['convert.ToXML.filename']}"/>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:local-out id="call_store_msg_return_msg_file" execute-when="props['web.service.response.log'] == true" routes-response-to="call_process_file_subRoutine" endpoint="vm://standard_logging/store_msg_return_msg">
+            <cc:set name="store.filename" value="'convert_to_xml_data.xml'"/>
         </cc:local-out>
     </cc:assembly>
 

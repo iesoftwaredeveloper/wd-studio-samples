@@ -12,7 +12,7 @@
 
     <cc:assembly id="WorkdayAssembly" version="2017.35">
         <cc:local-out id="call_get_request_endpoint" store-message="none" routes-response-to="call_parse_and_store_logging_info" endpoint="vm://@{props['web.service.get.request.endpoint']}">
-            <cc:set name="web.service.get.request" value="props['web.service.get.request']"/>
+            <cc:set name="web.service.get.request" value="props['web.service.get.request.filename']"/>
             <cc:set name="report.extra.path" value="props['report.extra.path'] + props['report.filter']"/>
             <cc:set name="web.service.version" value="props['web.service.version']"/>
             <cc:set name="retrieval.labels" value="props['retrieval.file.labels']"/>
@@ -20,6 +20,7 @@
             <cc:set name="web.service.request.log" value="props['web.service.request.log']"/>
             <cc:set name="web.service.get.application" value="props['web.service.get.application']"/>
             <cc:set name="convert.ToXML" value="props['web.service.get.convert.to.xml']"/>
+            <cc:set name="convert.ToXML.delimiter" value="props['web.service.get.convert.to.xml.delimiter']"/>
             <cc:set name="convert.ToXML.filename" value="props['web.service.get.convert.to.xml.filename']"/>
             <cc:set name="web.service.get.conform.xml" value="props['web.service.get.conform.xml']"/>
             <cc:set name="web.service.get.conform.xml.filename" value="props['web.service.get.conform.xml.filename']"/>
@@ -154,6 +155,7 @@
                     <cc:expression>props['web.service.get.request.type'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:sub_process/fhc:sub_type&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.get.request.endpoint'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:sub_process/fhc:endpoint&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.get.convert.to.xml'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:sub_process/fhc:sub_process[@fhc:subprocess_name = 'convert_to_xml']/@fhc:execute_subprocess&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
+                    <cc:expression>props['web.service.get.convert.to.xml.delimiter'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:sub_process/fhc:sub_process[@fhc:subprocess_name = 'convert_to_xml']/fhc:delimiter&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.get.convert.to.xml.filename'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:sub_process/fhc:sub_process[@fhc:subprocess_name = 'convert_to_xml']/fhc:filename&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.get.conform.xml'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:sub_process/fhc:sub_process[@fhc:subprocess_name = 'conform_xml']/@fhc:execute_subprocess&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.get.conform.xml.filename'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:sub_process/fhc:sub_process[@fhc:subprocess_name = 'conform_xml']/fhc:filename&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
@@ -191,7 +193,15 @@
                     <cc:expression>props['web.service.put.update.data.attribute'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:update_attributes/fhc:update_data_attribute&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.put.workday.id.tag'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:workday_transaction_id_data/fhc:tag&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.put.workday.id.namespace'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:workday_transaction_id_data/@fhc:namespace&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
-                </cc:eval></cc:steps>
+                </cc:eval>
+                <cc:eval id="set-output-props">
+                    <cc:expression>props['output.transform.xml.filename'] = vars['config.properties'].xpath(&quot;//fhc:output_information/fhc:filename&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
+                    <cc:expression>props['output.aggregation.data.type'] = vars['config.properties'].xpath(&quot;//fhc:output_information/@fhc:aggregation_data_type&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
+                    <cc:expression>props['output.file.delivery.service'] = vars['config.properties'].xpath(&quot;//fhc:output_information/fhc:output_file/@fhc:delivery_service&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
+                    <cc:expression>props['output.file.sequencer'] = vars['config.properties'].xpath(&quot;//fhc:output_information/fhc:output_file/fhc:sequencer&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
+                    <cc:expression>props['output.file.deliver.documents.attribute']= vars['config.properties'].xpath(&quot;//fhc:output_information/fhc:output_file/fhc:deliver_documents_attribute&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
+                </cc:eval>
+            </cc:steps>
         </cc:async-mediation>
         <cc:async-mediation id="set-attributes" routes-to="call_get_request_endpoint">
             <cc:steps>
@@ -213,7 +223,9 @@
                     <cc:expression>props['single.instance.update.3.name'] = (props['web.service.put.update.single.instance.3'].length() == 0)? 'no': intsys.getAttribute(props['web.service.put.update.single.instance.3'])</cc:expression>
                     <cc:expression>props['update.data'] = intsys.getAttributeAsBoolean(props['web.service.put.update.data.attribute'], true)</cc:expression>
                     <cc:expression>props['report.extra.path'] = (props['report.alias'].length() == 0)? 'no': intsys.reportService.getExtrapath(props['report.alias'])</cc:expression>
-                </cc:eval></cc:steps>
+                    <cc:expression>props['deliver.documents'] = intsys.getAttributeAsBoolean(props['output.file.deliver.documents.attribute'], true)</cc:expression>
+                </cc:eval>
+            </cc:steps>
         </cc:async-mediation>
         <cc:async-mediation id="set-worker-prop" routes-to="put_running_proc_msg" execute-steps-when="props['set.get.worker.properties'] == 'true'">
             <cc:steps>
@@ -261,14 +273,13 @@
         </cc:async-mediation>
         <cc:async-mediation id="validate_config_file" routes-to="set-ws-props">
             <cc:steps>
-                <cc:validate id="Validate" input="variable" input-variable="config-xml" failure-message="'Configuration File is not valid'" namespaces="fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd" schema="lib/config_files/configuration_file_sync_data.xsd" xpath="//fhc:processes"/></cc:steps>
-            <cc:send-error id="SendError" rethrow-error="true" routes-to="call_failed_validation">
-                <cc:condition-expression>props['error.message.summary'] = 'Configuration File Failed XML Validation'</cc:condition-expression>
-            </cc:send-error>
+                <cc:validate id="Validate" input="variable" input-variable="config-xml" failure-message="'Configuration File is not valid'" namespaces="fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd" schema="lib/config_files/configuration_file_sync_data.xsd" xpath="//fhc:processes"/>
+            </cc:steps>
+            <cc:send-error id="SendError" rethrow-error="true" routes-to="call_failed_validation"/>
         </cc:async-mediation>
         <cc:local-out id="call_failed_validation" endpoint="vm://wcc/PutIntegrationMessage">
             <cc:set name="is.message.severity" value="'CRITICAL'"/>
-            <cc:set name="is.message.summary" value="props['error.message.summary']"/>
+            <cc:set name="is.message.summary" value="'Configuration File Failed Validation'"/>
             <cc:set name="is.message.detail" value="context.errorMessage"/>
         </cc:local-out>
     </cc:assembly>

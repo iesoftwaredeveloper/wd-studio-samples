@@ -62,7 +62,7 @@
             <cc:parameter name="web.service.get.application"/>
             <cc:parameter name="web.service.version"/>
             <cc:parameter default="'false'" name="web.service.get.conform.xml" required="true"/>
-            <cc:parameter default="'lib/indent_xml.xsl'" name="web.service.get.conform.xml.filename" required="true"/>
+            <cc:parameter default="'lib/indent_xml.xsl'" name="web.service.get.conform.xml.filename" required="true"/><cc:parameter name="web.service.get.conform.xml.endpoint" required="false"/>
         </cc:local-in>
         <cc:local-out id="get_paging_results_from_get" endpoint="vm://wcc/PagedGet">
             <cc:set name="is.paged.get.request.current.page.xpath" value="'/env:Envelope/env:Body/*/wd:Response_Filter/wd:Page'"/>
@@ -110,7 +110,7 @@
             <cc:set name="store.filename" value="'webservice_get_response_full_transformed.xml'"/>
         </cc:local-out>
         <cc:local-in id="determine_endpoint" routes-to="call_store_msg_return_msg_rsp" access="public"/>
-        <cc:local-out id="call_group_rsp_data" execute-when="props['web.service.get.conform.xml'] == 'true'" routes-response-to="call_get_response_endpoint" endpoint="vm://standard_import_process/group_rsp_data"/>
+        <cc:local-out id="call_group_rsp_data" execute-when="props['web.service.get.conform.xml'] == 'true'" routes-response-to="call_get_response_endpoint" endpoint="vm://@{props['web.service.get.conform.xml.endpoint']}"/>
         <cc:local-out id="call_determine_endpoint" endpoint="vm://standard_import_process/determine_endpoint"/>
         <cc:splitter id="split_ws_put" no-split-message-error="false">
             <cc:sub-route name="make_ws_soap_call" routes-to="set-wd-id"/>
