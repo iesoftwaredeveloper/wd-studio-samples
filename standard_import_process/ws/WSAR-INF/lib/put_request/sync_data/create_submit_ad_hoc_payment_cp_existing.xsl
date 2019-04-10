@@ -43,45 +43,60 @@
     </xsl:template>
 
     <xsl:template match="wd:Ad_hoc_Payment_Data" mode="#default">
-        <env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
-            xmlns:wd="urn:com.workday/bsvc">
-            <env:Header/>
-            <env:Body>
-                <wd:Submit_Ad_hoc_Payment_Request>
-                    <xsl:attribute name="wd:version" select="$web.service.version"/>
-                    <xsl:attribute name="wd:Add_Only">
-                        <xsl:choose>
-                            <xsl:when test="string-length($web.service.add.only) = 0">
-                                <xsl:value-of select="'1'"/>
-                            </xsl:when>
-                            <xsl:otherwise>
-                                <xsl:value-of select="$web.service.add.only"/>
-                            </xsl:otherwise>
-                        </xsl:choose>
-                    </xsl:attribute>
-                    <wd:Business_Process_Parameters>
-                        <wd:Auto_Complete>
-                            <xsl:choose>
-                                <xsl:when test="string-length($web.service.auto.complete) = 0">
-                                    <xsl:value-of select="'0'"/>
-                                </xsl:when>
-                                <xsl:otherwise>
-                                    <xsl:value-of select="$web.service.auto.complete"/>
-                                </xsl:otherwise>
-                            </xsl:choose>
-                        </wd:Auto_Complete>
-                        <wd:Comment_Data>
-                            <wd:Comment>
-                                <xsl:value-of select="$business.process.defaultcomment"/>
-                            </wd:Comment>
-                        </wd:Comment_Data>
-                    </wd:Business_Process_Parameters>
-                    <xsl:apply-templates select="." mode="header">
-                        <xsl:with-param name="ad.hoc.payment.id" select="wd:Ad_hoc_Payment_ID"/>
-                    </xsl:apply-templates>
-                </wd:Submit_Ad_hoc_Payment_Request>
-            </env:Body>
-        </env:Envelope>
+        <consolidated_wrap>
+            <xsl:if test="xs:boolean($web.service.add.only) = false()">
+                <env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+                    xmlns:wd="urn:com.workday/bsvc">
+                    <env:Header/>
+                    <env:Body>
+                        <wd:Cancel_Ad_hoc_Payment_Request>
+                            <xsl:attribute name="wd:version" select="$web.service.version"/>
+                            <wd:Ad_hoc_Payment_Reference>
+                                <wd:ID wd:type="Ad_hoc_Payment_Reference_ID">
+                                    <xsl:value-of select="wd:Ad_hoc_Payment_ID"/>
+                                </wd:ID>
+                            </wd:Ad_hoc_Payment_Reference>
+                            <wd:Void_Check>true</wd:Void_Check>
+                            <wd:Reason_for_Cancel>
+                                <xsl:value-of select="'Reissue Payment'"/>
+                            </wd:Reason_for_Cancel>
+                        </wd:Cancel_Ad_hoc_Payment_Request>
+                    </env:Body>
+                </env:Envelope>
+            </xsl:if>
+            <env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+                xmlns:wd="urn:com.workday/bsvc">
+                <env:Header/>
+                <env:Body>
+                    <wd:Submit_Ad_hoc_Payment_Request>
+                        <xsl:attribute name="wd:version" select="$web.service.version"/>
+                        <xsl:attribute name="wd:Add_Only">
+                            <xsl:value-of select="$web.service.add.only"/>
+                        </xsl:attribute>
+                        <wd:Business_Process_Parameters>
+                            <wd:Auto_Complete>
+                                <xsl:choose>
+                                    <xsl:when test="string-length($web.service.auto.complete) = 0">
+                                        <xsl:value-of select="'0'"/>
+                                    </xsl:when>
+                                    <xsl:otherwise>
+                                        <xsl:value-of select="$web.service.auto.complete"/>
+                                    </xsl:otherwise>
+                                </xsl:choose>
+                            </wd:Auto_Complete>
+                            <wd:Comment_Data>
+                                <wd:Comment>
+                                    <xsl:value-of select="$business.process.defaultcomment"/>
+                                </wd:Comment>
+                            </wd:Comment_Data>
+                        </wd:Business_Process_Parameters>
+                        <xsl:apply-templates select="." mode="header">
+                            <xsl:with-param name="ad.hoc.payment.id" select="wd:Ad_hoc_Payment_ID"/>
+                        </xsl:apply-templates>
+                    </wd:Submit_Ad_hoc_Payment_Request>
+                </env:Body>
+            </env:Envelope>
+        </consolidated_wrap>
     </xsl:template>
 
     <xsl:template match="wd:Ad_hoc_Payment_Data" mode="header">
@@ -117,11 +132,17 @@
 
     <xsl:template match="wd:Address_Line_Data">
         <xsl:param name="ad.hoc.payment.id"/>
+        <xsl:variable name="address_type" select="@wd:Type"/>
         <wd:Address_Line_Data>
-            <xsl:attribute name="wd:Type" select="@wd:Type"/>
+            <xsl:attribute name="wd:Type" select="$address_type"/>
             <xsl:choose>
-                <xsl:when test="exists($adhocpayment.filedata//fhcpd:ad_hoc_payment[fhcpd:payment_reference_id=$ad.hoc.payment.id]/fhcpd:address_data)">
+                <xsl:when test="exists($adhocpayment.filedata//fhcpd:ad_hoc_payment[fhcpd:payment_reference_id=$ad.hoc.payment.id]/fhcpd:address_data)
+                    and $address_type = 'ADDRESS_LINE_1'">
                     <xsl:value-of select="$adhocpayment.filedata//fhcpd:ad_hoc_payment[fhcpd:payment_reference_id=$ad.hoc.payment.id]/fhcpd:address_data/fhcpd:address_line_1"/>
+                </xsl:when>
+                <xsl:when test="exists($adhocpayment.filedata//fhcpd:ad_hoc_payment[fhcpd:payment_reference_id=$ad.hoc.payment.id]/fhcpd:address_data)
+                    and $address_type = 'ADDRESS_LINE_2'">
+                    <xsl:value-of select="$adhocpayment.filedata//fhcpd:ad_hoc_payment[fhcpd:payment_reference_id=$ad.hoc.payment.id]/fhcpd:address_data/fhcpd:address_line_2"/>
                 </xsl:when>
                 <xsl:otherwise>
                     <xsl:value-of select="."/>
@@ -188,6 +209,16 @@
                 </xsl:otherwise>
             </xsl:choose>
         </wd:Worktags_Reference>
+    </xsl:template>
+
+    <xsl:template match="wd:Memo">
+        <xsl:param name="ad.hoc.payment.id"/>
+        <wd:Memo>
+            <xsl:value-of select="'REISSUE CHECK: '"/>
+            <xsl:value-of select="$adhocpayment.filedata//fhcpd:ad_hoc_payment[fhcpd:payment_reference_id=$ad.hoc.payment.id]/fhcpd:check_number"/>
+           <!-- <xsl:value-of select="' - '"/>
+            <xsl:value-of select="."/> -->
+        </wd:Memo>
     </xsl:template>
 
     <!-- Nodes to Remove -->
