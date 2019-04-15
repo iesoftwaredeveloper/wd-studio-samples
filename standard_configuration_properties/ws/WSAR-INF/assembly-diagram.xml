@@ -119,7 +119,7 @@
     <source href="assembly.xml#//@beans/@mixed.1/@mixed.33/@mixed.3"/>
     <target href="assembly.xml#call_failed_validation"/>
   </connections>
-  <swimlanes x="22" y="31" bgColor="12632256" name="Set Properties" orientation="VERTICAL" elements="//@swimlanes.2 //@swimlanes.3" alignment="MIDDLE"/>
+  <swimlanes x="22" y="31" bgColor="12632256" name="Set Properties" orientation="VERTICAL" elements="//@swimlanes.2 //@swimlanes.3"/>
   <swimlanes x="-15" y="441" bgColor="12632256" name="Split and Process" orientation="VERTICAL" elements="//@swimlanes.6 //@swimlanes.9" alignment="MIDDLE"/>
   <swimlanes x="158" y="258" bgColor="8454016" name="Setup and Log Running Process" alignment="MIDDLE">
     <elements href="assembly.xml#set_processing_properties"/>

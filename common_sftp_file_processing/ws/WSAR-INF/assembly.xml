@@ -282,7 +282,7 @@
                     <cc:expression>props['aggregation-complete-flag'] = false</cc:expression>
                     <cc:expression>props['summary-transaction-created'] = false</cc:expression>
                 </cc:eval>
-                <cc:copy id="cp_var_to_msg" input="variable" input-variable="file.data"/>
+                <cc:copy id="cp_var_to_msg" output-mimetype="text/xml" input="variable" input-variable="file.data"/>
             </cc:steps>
         </cc:async-mediation>
         <cc:async-mediation id="set_file_data_var_retrieval" routes-to="call_log_filename">
@@ -323,7 +323,7 @@
         </cc:local-in>
         <cc:async-mediation id="convert-to-xml" routes-to="cp_to_msg" execute-steps-when="props['convert.ToXML'] == 'true'">
             <cc:steps>
-                <cc:csv-to-xml id="text-to-xml" output="variable" output-variable="file.data" input="variable" input-variable="file.data" namespacePrefix="tfxc" namespaceURI="https://github.com/firehawk-consulting/firehawk/schemas/text_to_xml/transform_file_to_xml_unparsed.xsd" rootName="inputFile" rowName="record" separator="@{props['convert.ToXML.delimiter']}" useFirstLineAsHeader="false"/>
+                <cc:csv-to-xml id="text-to-xml" output="variable" output-mimetype="text/xml" output-variable="file.data" input="variable" input-variable="file.data" namespacePrefix="tfxc" namespaceURI="https://github.com/firehawk-consulting/firehawk/schemas/text_to_xml/transform_file_to_xml_unparsed.xsd" rootName="inputFile" rowName="record" separator="@{props['convert.ToXML.delimiter']}" useFirstLineAsHeader="false"/>
             </cc:steps>
         </cc:async-mediation>
         <cc:local-out id="call_store_msg_return_msg" execute-when="props['web.service.response.log'] == true" endpoint="vm://standard_logging/store_msg_return_msg">
@@ -343,7 +343,7 @@
             </cc:steps>
         </cc:async-mediation>
         <cc:local-out id="call_store_msg_return_msg_file" execute-when="props['web.service.response.log'] == true" routes-response-to="call_process_file_subRoutine" endpoint="vm://standard_logging/store_msg_return_msg">
-            <cc:set name="store.filename" value="'convert_to_xml_data.xml'"/>
+            <cc:set name="store.filename" value="props['running.process'] + '_convert_to_xml_data.xml'"/>
         </cc:local-out>
     </cc:assembly>
 

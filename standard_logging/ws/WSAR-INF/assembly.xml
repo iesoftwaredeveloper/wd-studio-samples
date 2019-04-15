@@ -10,7 +10,7 @@
      xmlns:wd="urn:com.workday/bsvc"
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-    <cc:assembly id="WorkdayAssembly" version="2017.35">
+    <cc:assembly id="WorkdayAssembly" version="2019.6">
         <cc:async-mediation id="return-msg">
             <cc:steps>
                 <cc:copy id="cp-back-to-msg" input="variable" input-variable="input.msg"/>

@@ -10,25 +10,21 @@
      xmlns:wd="urn:com.workday/bsvc"
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
  
-    <cc:assembly id="WorkdayAssembly" version="2017.35">
+    <cc:assembly id="WorkdayAssembly" version="2019.6">
         <cc:workday-out-soap id="make_workday_soap_call" routes-response-to="call_create_transaction_log_record" application="@{props['web.service.put.application']}" version="@{props['web.service.version']}"/>
         <cc:local-out id="call_store_msg_return_msg_put" execute-when="props['web.service.request.log'] == true" routes-response-to="call_split_ws_call" endpoint="vm://standard_logging/store_msg_return_msg">
             <cc:set name="store.filename" value="'webservice_put_request.xml'"/>
         </cc:local-out>
-        <cc:async-mediation id="xslt_put_web_service_xml" routes-to="call_store_msg_return_msg_put" handle-downstream-errors="true">
-            <cc:steps>
-                <cc:xslt id="create_ws_request" input="message" url="@{props['web.service.put.request']}"/>
-            </cc:steps>
-        </cc:async-mediation>
         <cc:local-out id="call_store_msg_return_msg_source" execute-when="props['web.service.response.log'] == true" routes-response-to="call_lookup_and_conform" endpoint="vm://standard_logging/store_msg_return_msg">
             <cc:set name="store.filename" value="'webservice_get_response.xml'"/>
         </cc:local-out>
         <cc:local-in id="put_workday_web_serivce_call" routes-to="call_store_msg_return_msg_source" access="public" icon="local-in-put_workday_web_serivce_call.png">
-            <cc:parameter name="web.service.put.request"/>
+            <cc:parameter name="web.service.put.create.ws.xml.filename" required="true"/>
+            <cc:parameter name="web.service.put.create.ws.xml.endpoint" required="true"/>
             <cc:parameter name="update.data"/>
             <cc:parameter name="web.service.put.application"/>
             <cc:parameter name="web.service.version"/>
-            <cc:parameter name="multi.instance.update.1.wids" required="false"/>
+            <cc:parameter name="web.service.auto.complete"/><cc:parameter name="web.service.submit"/><cc:parameter name="web.service.add.only"/><cc:parameter name="multi.instance.update.1.wids" required="false"/>
             <cc:parameter name="multi.instance.update.2.wids" required="false"/>
             <cc:parameter name="multi.instance.update.3.wids" required="false"/>
             <cc:parameter name="single.instance.update.1.wids" required="false"/>
@@ -37,9 +33,9 @@
             <cc:parameter name="single.instance.update.1.name" required="false"/>
             <cc:parameter name="single.instance.update.2.name" required="false"/>
             <cc:parameter name="single.instance.update.3.name" required="false"/>
-            <cc:parameter name="web.service.auto.complete"/>
-            <cc:parameter name="web.service.submit"/>
-            <cc:parameter name="web.service.add.only"/>
+            
+            
+            
             <cc:parameter default="'false'" name="lookup.wd.data" required="true"/>
             <cc:parameter name="lookup.wd.data.subroutine" required="false"/>
             <cc:parameter name="lookup.wd.data.filename" required="false"/>
@@ -76,21 +72,16 @@
             <cc:set name="is.paged.get.process.endpoint" value="'vm://standard_import_process/determine_endpoint'"/>
         </cc:local-out>
         <cc:local-out id="call_store_msg_return_msg_get" execute-when="props['web.service.request.log'] == true" routes-response-to="get_paging_results_from_get" endpoint="vm://standard_logging/store_msg_return_msg">
-            <cc:set name="store.filename" value="'webservice_get_request.xml'"/>
+            <cc:set name="store.filename" value="props['running.process'] + '_webservice_get_request.xml'"/>
         </cc:local-out>
-        <cc:async-mediation id="xslt_get_web_service_xml" routes-to="call_store_msg_return_msg_get">
-            <cc:steps>
-                <cc:xslt id="create_ws_request" url="@{props['web.service.get.request']}"/>
-            </cc:steps>
-        </cc:async-mediation>
-        <cc:local-in id="get_workday_paged_web_service_call" routes-to="xslt_get_web_service_xml" access="public" icon="local-in-get_workday_paged_web_service_call.png">
+        <cc:local-in id="get_workday_paged_web_service_call" routes-to="call_create_wd_get_call" access="public" icon="local-in-get_workday_paged_web_service_call.png">
             <cc:parameter name="web.service.get.request"/>
             <cc:parameter name="web.service.get.response.endpoint"/>
             <cc:parameter name="web.service.request.log"/>
             <cc:parameter name="web.service.get.application"/>
             <cc:parameter name="web.service.version"/>
             <cc:parameter default="'lib/indent_xml.xsl'" name="web.service.get.conform.xml.filename" required="true"/>
-            <cc:parameter default="'false'" name="web.service.get.conform.xml" required="true"/>
+            <cc:parameter default="'false'" name="web.service.get.conform.xml" required="true"/><cc:parameter name="web.service.get.create.ws.xml.filename"/><cc:parameter name="web.service.get.create.ws.xml.endpoint"/>
         </cc:local-in>
         <cc:local-out id="put_raas_call_msg" execute-when="props['web.service.request.log'] == true" routes-response-to="make_workday_raas_call" endpoint="vm://wcc/PutIntegrationMessage">
             <cc:set name="is.message.severity" value="'INFO'"/>
@@ -195,7 +186,11 @@
             </cc:steps>
         </cc:async-mediation>
         <cc:local-in id="lookup_and_conform" routes-to="bckp_msg"/>
-        <cc:local-out id="call_lookup_and_conform" execute-when="props['lookup.wd.data']=='true' || props['conform.XML'] == 'true'" routes-response-to="xslt_put_web_service_xml" endpoint="vm://standard_import_process/lookup_and_conform"/>
+        <cc:local-out id="call_lookup_and_conform" execute-when="props['lookup.wd.data']=='true' || props['conform.XML'] == 'true'" routes-response-to="call_create_wd_put_call" endpoint="vm://standard_import_process/lookup_and_conform"/>
+        <cc:local-out id="call_create_wd_put_call" routes-response-to="call_store_msg_return_msg_put" endpoint="vm://@{props['web.service.put.create.ws.xml.endpoint']}"><cc:set name="web.service.create.ws.xml.filename" value="props['web.service.put.create.ws.xml.filename']"/></cc:local-out>
+        <cc:local-out id="call_create_wd_get_call" routes-response-to="call_store_msg_return_msg_get" endpoint="vm://@{props['web.service.get.create.ws.xml.endpoint']}">
+            <cc:set name="web.service.create.ws.xml.filename" value="props['web.service.get.create.ws.xml.filename']"/>
+        </cc:local-out>
     </cc:assembly>
 
 </beans>
