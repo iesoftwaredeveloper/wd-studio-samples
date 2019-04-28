@@ -24,7 +24,10 @@
             <cc:parameter name="update.data"/>
             <cc:parameter name="web.service.put.application"/>
             <cc:parameter name="web.service.version"/>
-            <cc:parameter name="web.service.auto.complete"/><cc:parameter name="web.service.submit"/><cc:parameter name="web.service.add.only"/><cc:parameter name="multi.instance.update.1.wids" required="false"/>
+            <cc:parameter name="web.service.auto.complete"/>
+            <cc:parameter name="web.service.submit"/>
+            <cc:parameter name="web.service.add.only"/>
+            <cc:parameter name="multi.instance.update.1.wids" required="false"/>
             <cc:parameter name="multi.instance.update.2.wids" required="false"/>
             <cc:parameter name="multi.instance.update.3.wids" required="false"/>
             <cc:parameter name="single.instance.update.1.wids" required="false"/>
@@ -33,9 +36,6 @@
             <cc:parameter name="single.instance.update.1.name" required="false"/>
             <cc:parameter name="single.instance.update.2.name" required="false"/>
             <cc:parameter name="single.instance.update.3.name" required="false"/>
-            
-            
-            
             <cc:parameter default="'false'" name="lookup.wd.data" required="true"/>
             <cc:parameter name="lookup.wd.data.subroutine" required="false"/>
             <cc:parameter name="lookup.wd.data.filename" required="false"/>
@@ -45,71 +45,13 @@
             <cc:parameter name="conform.XML.subroutine" required="false"/>
             <cc:parameter name="conform.XML.filename" required="false"/>
         </cc:local-in>
-        <cc:local-out id="call_get_response_endpoint" store-message="none" endpoint="vm://@{props['web.service.get.response.endpoint']}">
-            <cc:set name="page.current" value="props['is.paged.get.current.page']"/>
-            <cc:set name="page.total" value="props['is.paged.get.total.pages']"/>
-            <cc:set name="record.count.total" value="props['is.paged.get.total.results']"/>
-        </cc:local-out>
-        <cc:workday-out-rest id="make_workday_raas_call" routes-response-to="call_determine_endpoint" extra-path="@{props['report.extra.path']}"/>
-        <cc:local-in id="get_raas_web_service_call" routes-to="put_raas_call_msg" access="public" icon="local-in-get_raas_web_service_call.png">
-            <cc:parameter name="report.extra.path"/>
-            <cc:parameter name="web.service.get.response.endpoint"/>
-            <cc:parameter name="web.service.request.log"/>
-            <cc:parameter name="web.service.get.application"/>
-            <cc:parameter name="web.service.version"/>
-            <cc:parameter default="'false'" name="web.service.get.conform.xml" required="true"/>
-            <cc:parameter default="'lib/indent_xml.xsl'" name="web.service.get.conform.xml.filename" required="true"/><cc:parameter name="web.service.get.conform.xml.endpoint" required="false"/>
-        </cc:local-in>
-        <cc:local-out id="get_paging_results_from_get" endpoint="vm://wcc/PagedGet">
-            <cc:set name="is.paged.get.request.current.page.xpath" value="'/env:Envelope/env:Body/*/wd:Response_Filter/wd:Page'"/>
-            <cc:set name="is.paged.get.response.current.page.xpath" value="'/env:Envelope/env:Body/*/wd:Response_Results/wd:Page'"/>
-            <cc:set name="is.paged.get.response.total.pages.xpath" value="'/env:Envelope/env:Body/*/wd:Response_Results/wd:Total_Pages'"/>
-            <cc:set name="is.paged.get.response.total.results.xpath" value="'/env:Envelope/env:Body/*/wd:Response_Results/wd:Total_Results'"/>
-            <cc:set name="is.paged.get.application" value="props['web.service.get.application']"/>
-            <cc:set name="is.paged.get.version" value="props['web.service.version']"/>
-            <cc:set name="is.paged.get.page.zero" value="false"/>
-            <cc:set name="is.paged.get.store.requests" value="true"/>
-            <cc:set name="is.paged.get.process.endpoint" value="'vm://standard_import_process/determine_endpoint'"/>
-        </cc:local-out>
-        <cc:local-out id="call_store_msg_return_msg_get" execute-when="props['web.service.request.log'] == true" routes-response-to="get_paging_results_from_get" endpoint="vm://standard_logging/store_msg_return_msg">
-            <cc:set name="store.filename" value="props['running.process'] + '_webservice_get_request.xml'"/>
-        </cc:local-out>
-        <cc:local-in id="get_workday_paged_web_service_call" routes-to="call_create_wd_get_call" access="public" icon="local-in-get_workday_paged_web_service_call.png">
-            <cc:parameter name="web.service.get.request"/>
-            <cc:parameter name="web.service.get.response.endpoint"/>
-            <cc:parameter name="web.service.request.log"/>
-            <cc:parameter name="web.service.get.application"/>
-            <cc:parameter name="web.service.version"/>
-            <cc:parameter default="'lib/indent_xml.xsl'" name="web.service.get.conform.xml.filename" required="true"/>
-            <cc:parameter default="'false'" name="web.service.get.conform.xml" required="true"/><cc:parameter name="web.service.get.create.ws.xml.filename"/><cc:parameter name="web.service.get.create.ws.xml.endpoint"/>
-        </cc:local-in>
-        <cc:local-out id="put_raas_call_msg" execute-when="props['web.service.request.log'] == true" routes-response-to="make_workday_raas_call" endpoint="vm://wcc/PutIntegrationMessage">
-            <cc:set name="is.message.severity" value="'INFO'"/>
-            <cc:set name="is.message.summary" value="'Executing RaaS with Endpoint: ' + props['report.extra.path']"/>
-            <cc:set name="is.message.storage.enabled" value="false"/>
-        </cc:local-out>
-        <cc:local-in id="group_rsp_data" routes-to="xslt_group_rsp"/>
-        <cc:async-mediation id="xslt_group_rsp" routes-to="call_store_msg_return_msg_rsp_group">
-            <cc:steps>
-                <cc:xslt id="consolidate_response" url="@{props['web.service.get.conform.xml.filename']}"/>
-            </cc:steps>
-        </cc:async-mediation>
-        <cc:local-out id="call_store_msg_return_msg_rsp" execute-when="props['web.service.response.log'] == true" routes-response-to="call_group_rsp_data" endpoint="vm://standard_logging/store_msg_return_msg">
-            <cc:set name="store.filename" value="'webservice_get_response_full.xml'"/>
-        </cc:local-out>
-        <cc:local-out id="call_store_msg_return_msg_rsp_group" execute-when="props['web.service.response.log'] == true" endpoint="vm://standard_logging/store_msg_return_msg">
-            <cc:set name="store.filename" value="'webservice_get_response_full_transformed.xml'"/>
-        </cc:local-out>
-        <cc:local-in id="determine_endpoint" routes-to="call_store_msg_return_msg_rsp" access="public"/>
-        <cc:local-out id="call_group_rsp_data" execute-when="props['web.service.get.conform.xml'] == 'true'" routes-response-to="call_get_response_endpoint" endpoint="vm://@{props['web.service.get.conform.xml.endpoint']}"/>
-        <cc:local-out id="call_determine_endpoint" endpoint="vm://standard_import_process/determine_endpoint"/>
         <cc:splitter id="split_ws_put" no-split-message-error="false">
             <cc:sub-route name="make_ws_soap_call" routes-to="set-wd-id"/>
             <cc:xml-stream-splitter namespaces="env http://schemas.xmlsoap.org/soap/envelope/" xpath="//env:Envelope"/>
         </cc:splitter>
-        <cc:local-in id="split_ws_call" routes-to="split_ws_put" icon="local-in-split_and_process_response.png"/>
+        <cc:local-in id="split_ws_call" routes-to="set-ws-props" icon="local-in-split_and_process_response.png"/>
         <cc:local-out id="call_split_ws_call" endpoint="vm://standard_import_process/split_ws_call"/>
-        <cc:local-out id="call_create_transaction_log_record" execute-when="props['web.service.summary.log'] == true" endpoint="vm://standard_logging/create_transaction_log_record">
+        <cc:local-out id="call_create_transaction_log_record" execute-when="props['web.service.summary.log'] == true" routes-response-to="call_aggregateprocessingdetails" endpoint="vm://standard_logging/create_transaction_log_record">
             <cc:set name="record.counter" value="props['record.counter']"/>
             <cc:set name="file.number" value="props['file.number.current']"/>
             <cc:set name="file.record.counter" value="props['file.record.counter']"/>
@@ -119,6 +61,7 @@
             <cc:set name="record.status" value="'imported'"/>
             <cc:set name="error.reason" value="''"/>
             <cc:set name="error.message.detail" value="''"/>
+            <cc:set name="additional.information" value="props['workday.web.service.call']"/>
         </cc:local-out>
         <cc:local-out id="call_process_Err_Msg" routes-response-to="call_create_transaction_log_record_err" endpoint="vm://standard_logging/process_Err_Msg">
             <cc:set name="failed-on-import" value="true"/>
@@ -127,7 +70,7 @@
             <cc:set name="error.message.detail.expanded" value="context.errorMessage + ' ' + props['workday.transaction.id']"/>
             <cc:set name="error.message.detail" value="'Submit Web Service Call Failure'"/>
         </cc:local-out>
-        <cc:local-out id="call_create_transaction_log_record_err" execute-when="props['web.service.summary.log'] == true" endpoint="vm://standard_logging/create_transaction_log_record">
+        <cc:local-out id="call_create_transaction_log_record_err" execute-when="props['web.service.summary.log'] == true" routes-response-to="call_aggregateprocessingdetails" endpoint="vm://standard_logging/create_transaction_log_record">
             <cc:set name="record.counter" value="props['record.counter']"/>
             <cc:set name="file.number" value="props['file.number.current']"/>
             <cc:set name="file.record.counter" value="props['file.record.counter']"/>
@@ -137,12 +80,15 @@
             <cc:set name="record.status" value="'failed'"/>
             <cc:set name="error.reason" value="'Error on Import'"/>
             <cc:set name="error.message.detail" value="context.errorMessage"/>
+            <cc:set name="additional.information" value="props['workday.web.service.call']"/>
         </cc:local-out>
         <cc:async-mediation id="set-wd-id" routes-to="make_workday_soap_call" handle-downstream-errors="true">
             <cc:steps>
                 <cc:copy id="cp-ws-call" output="variable" output-variable="ws.put.msg"/>
                 <cc:eval id="set-wd-tran-id">
                     <cc:expression>props['workday.transaction.id'] = (props['web.service.put.workday.id.tag'] == null)? '' : vars['ws.put.msg'].xpath(props['web.service.put.workday.id.tag'], props['web.service.put.workday.id.namespace'])</cc:expression>
+                    <cc:expression>props['workday.web.service.call'] = vars['ws.put.msg'].xpath(&quot;//env:Body/local-name(*[1])&quot;)</cc:expression>
+                    <cc:expression>props['web.service.calls.count'] = ((props['web.service.calls.count'] == null)? 0:props['web.service.calls.count']) + 1</cc:expression>
                 </cc:eval>
             </cc:steps>
             <cc:send-error id="SendError" routes-to="call_process_Err_Msg"/>
@@ -151,26 +97,6 @@
             <cc:set name="web.service.lookup.filename" value="props['lookup.wd.data.filename']"/>
             <cc:set name="web.service.lookup.application" value="props['lookup.wd.data.application']"/>
             <cc:set name="web.service.request.type" value="props['lookup.wd.data.request.type']"/>
-        </cc:local-out>
-        <cc:local-in id="get_workday_lookup_data" routes-to="xslt_get_web_service_xml_lkp">
-            <cc:parameter name="web.service.lookup.filename" required="true"/>
-            <cc:parameter name="web.service.lookup.application" required="true"/>
-            <cc:parameter default="'default'" name="web.service.request.type" required="false"/>
-        </cc:local-in>
-        <cc:async-mediation id="xslt_get_web_service_xml_lkp" routes-to="call_store_msg_return_msg_get_lkp" handle-downstream-errors="true">
-            <cc:steps>
-                <cc:xslt id="create_ws_request" url="@{props['web.service.lookup.filename']}"/>
-            </cc:steps>
-            <cc:send-error id="SendError" routes-to="copy_to_variable"/>
-        </cc:async-mediation>
-        <cc:workday-out-soap id="get_workday_data_call" routes-response-to="copy_to_variable" application="@{props['web.service.lookup.application']}" version="@{props['web.service.version']}"/>
-        <cc:async-mediation id="copy_to_variable">
-            <cc:steps>
-                <cc:copy id="cp_to_lkp_var" output="variable" output-variable="lookup.wd.data.xml"/>
-            </cc:steps>
-        </cc:async-mediation>
-        <cc:local-out id="call_store_msg_return_msg_get_lkp" execute-when="props['web.service.request.log'] == true" routes-response-to="get_workday_data_call" endpoint="vm://standard_logging/store_msg_return_msg">
-            <cc:set name="store.filename" value="'webservice_get_request.xml'"/>
         </cc:local-out>
         <cc:async-mediation id="bckp_msg" routes-to="call_lkp_wd">
             <cc:steps>
@@ -187,10 +113,26 @@
         </cc:async-mediation>
         <cc:local-in id="lookup_and_conform" routes-to="bckp_msg"/>
         <cc:local-out id="call_lookup_and_conform" execute-when="props['lookup.wd.data']=='true' || props['conform.XML'] == 'true'" routes-response-to="call_create_wd_put_call" endpoint="vm://standard_import_process/lookup_and_conform"/>
-        <cc:local-out id="call_create_wd_put_call" routes-response-to="call_store_msg_return_msg_put" endpoint="vm://@{props['web.service.put.create.ws.xml.endpoint']}"><cc:set name="web.service.create.ws.xml.filename" value="props['web.service.put.create.ws.xml.filename']"/></cc:local-out>
-        <cc:local-out id="call_create_wd_get_call" routes-response-to="call_store_msg_return_msg_get" endpoint="vm://@{props['web.service.get.create.ws.xml.endpoint']}">
-            <cc:set name="web.service.create.ws.xml.filename" value="props['web.service.get.create.ws.xml.filename']"/>
+        <cc:local-out id="call_create_wd_put_call" routes-response-to="call_store_msg_return_msg_put" endpoint="vm://@{props['web.service.put.create.ws.xml.endpoint']}">
+            <cc:set name="web.service.create.ws.xml.filename" value="props['web.service.put.create.ws.xml.filename']"/>
         </cc:local-out>
+        <cc:local-out id="call_aggregateprocessingdetails" execute-when="props['web.service.summary.log'] == true &amp;&amp; props['web.service.calls.count'] != props['web.service.calls.total']" endpoint="vm://standard_logging/aggregate_processing_details">
+            <cc:set name="summarylog.filename" value="'Summary_Log_Information'"/>
+            <cc:set name="summarylog.file.extension" value="'html'"/>
+            <cc:set name="record.count.total" value="props['record.count.total']"/>
+            <cc:set name="record.counter" value="props['record.counter'] "/>
+            <cc:set name="file.number.total" value="props['page.total']"/>
+            <cc:set name="file.number.current" value="props['page.current']"/>
+            <cc:set name="summary.log.file.extension" value="'html'"/>
+        <cc:set name="continue.loop" value="'yes'"/></cc:local-out>
+        <cc:async-mediation id="set-ws-props" routes-to="split_ws_put">
+            <cc:steps>
+                <cc:eval id="set-import-stats">
+                    <cc:expression>props['web.service.calls.total'] = parts[0].xpath(&quot;count(//env:Body)&quot;)</cc:expression>
+                    <cc:expression>props['web.service.calls.count'] = 0</cc:expression>
+                </cc:eval>
+            </cc:steps>
+        </cc:async-mediation>
     </cc:assembly>
 
 </beans>

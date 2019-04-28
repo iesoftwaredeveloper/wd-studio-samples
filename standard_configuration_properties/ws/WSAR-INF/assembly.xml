@@ -25,7 +25,9 @@
             <cc:set name="web.service.get.conform.xml" value="props['web.service.get.conform.xml']"/>
             <cc:set name="web.service.get.conform.xml.filename" value="props['web.service.get.conform.xml.filename']"/>
             <cc:set name="web.service.get.conform.xml.endpoint" value="props['web.service.get.conform.xml.endpoint']"/>
-        <cc:set name="web.service.get.create.ws.xml.filename" value="props['web.service.get.create.ws.xml.filename']"/><cc:set name="web.service.get.create.ws.xml.endpoint" value="props['web.service.get.create.ws.xml.endpoint']"/></cc:local-out>
+            <cc:set name="web.service.get.create.ws.xml.filename" value="props['web.service.get.create.ws.xml.filename']"/>
+            <cc:set name="web.service.get.create.ws.xml.endpoint" value="props['web.service.get.create.ws.xml.endpoint']"/>
+        </cc:local-out>
         <cc:async-mediation id="get_set_properties" routes-to="set-process-properties">
             <cc:steps>
                 <cc:eval id="setup-counters">
@@ -36,10 +38,9 @@
                     <cc:expression>props['file.number.total'] = -1</cc:expression>
                     <cc:expression>vars['tempfailedoutput.xml']='&lt;blankxml/>'</cc:expression>
                 </cc:eval>
-                <cc:xslt id="get-properties" output="variable" output-variable="config.properties" input="variable" input-variable="config-xml" url="lib/processing/set_configuration_properties.xsl"/>
             </cc:steps>
         </cc:async-mediation>
-        <cc:local-out id="put_running_proc_msg" routes-response-to="get_set_properties" endpoint="vm://wcc/PutIntegrationMessage">
+        <cc:local-out id="put_running_proc_msg" routes-response-to="call_set-props-attributes" endpoint="vm://wcc/PutIntegrationMessage">
             <cc:set name="is.message.severity" value="'INFO'"/>
             <cc:set name="is.message.summary" value="'Currently Executing: ' + props['running.process']"/>
             <cc:set name="is.message.storage.enabled" value="false"/>
@@ -116,11 +117,11 @@
             <cc:set name="file.number.total" value="props['page.total']"/>
             <cc:set name="file.number.current" value="props['page.current']"/>
             <cc:set name="summary.log.file.extension" value="'html'"/>
-        </cc:local-out>
+        <cc:set name="continue.loop" value="'no'"/></cc:local-out>
         <cc:async-mediation id="file-counters" routes-to="split_response">
             <cc:steps>
                 <cc:eval id="reset-file-counters">
-                    <cc:expression>props['file.number.current'] = ((props['file.number.current'] == null)? 0:props['file.number.current']) +1</cc:expression>
+                    <cc:expression>props['file.number.current'] = ((props['file.number.current'] == null)? 0:props['file.number.current']) + 1</cc:expression>
                     <cc:expression>props['file.record.counter'] = 0</cc:expression>
                     <cc:expression>props['file.record.counter.imported'] = 0</cc:expression>
                     <cc:expression>props['file.record.counter.failed'] = 0</cc:expression>
@@ -210,7 +211,7 @@
                 </cc:eval>
             </cc:steps>
         </cc:async-mediation>
-        <cc:async-mediation id="set-attributes" routes-to="call_get_request_endpoint">
+        <cc:async-mediation id="set-attributes">
             <cc:steps>
                 <cc:eval id="set-attribute-values">
                     <cc:expression>props['multi.instance.filter.1.wids'] = (props['web.service.get.filter.multi.instance.1'].length() == 0)? 'no': intsys.getAttributeReferenceDataList(props['web.service.get.filter.multi.instance.1'], 'WID').toString().replace(&quot;[&quot;,&quot;&quot;).replace(&quot;]&quot;,&quot;&quot;)</cc:expression>
@@ -229,8 +230,12 @@
                     <cc:expression>props['single.instance.update.2.name'] = (props['web.service.put.update.single.instance.2'].length() == 0)? 'no': intsys.getAttribute(props['web.service.put.update.single.instance.2'])</cc:expression>
                     <cc:expression>props['single.instance.update.3.name'] = (props['web.service.put.update.single.instance.3'].length() == 0)? 'no': intsys.getAttribute(props['web.service.put.update.single.instance.3'])</cc:expression>
                     <cc:expression>props['update.data'] = intsys.getAttributeAsBoolean(props['web.service.put.update.data.attribute'], true)</cc:expression>
+                    <cc:expression>props['deliver.documents'] = intsys.getAttributeAsBoolean(props['output.file.deliver.documents.attribute'], true)</cc:expression>
+                </cc:eval>
+                <cc:xslt id="set-report-filter" output="variable" output-variable="report.filter.xml" input="variable" input-variable="config.properties" url="lib/processing/set_report_filter_details.xsl"/>
+                <cc:eval id="set-report-props">
                     <cc:expression>props['report.extra.path'] = (props['report.alias'].length() == 0)? 'no': intsys.reportService.getExtrapath(props['report.alias'])</cc:expression>
-                    <cc:expression>props['deliver.documents'] = intsys.getAttribute(props['output.file.deliver.documents.attribute'])</cc:expression>
+                    <cc:expression>props['report.filter'] = vars['report.filter.xml'].xpath(&quot;//fhc:report_filter&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                 </cc:eval>
             </cc:steps>
         </cc:async-mediation>
@@ -280,7 +285,8 @@
         </cc:async-mediation>
         <cc:async-mediation id="validate_config_file" routes-to="set-ws-props">
             <cc:steps>
-                <cc:validate id="Validate" input="variable" input-variable="config-xml" failure-message="'Configuration File is not valid'" namespaces="fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd" schema="lib/config_files/configuration_file_sync_data.xsd" xpath="//fhc:processes"/>
+                <cc:xslt id="get-properties" output="variable" output-variable="config.properties" input="variable" input-variable="config-xml" url="lib/processing/set_configuration_properties.xsl"/>
+                <cc:validate id="Validate" input="variable" input-variable="config.properties" failure-message="'Configuration File is not valid'" namespaces="fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd" schema="lib/config_files/configuration_file_sync_data.xsd" xpath="//fhc:processes"/>
             </cc:steps>
             <cc:send-error id="SendError" rethrow-error="true" routes-to="call_failed_validation"/>
         </cc:async-mediation>
@@ -289,6 +295,8 @@
             <cc:set name="is.message.summary" value="'Configuration File Failed Validation'"/>
             <cc:set name="is.message.detail" value="context.errorMessage"/>
         </cc:local-out>
+        <cc:local-in id="set-props-attributes" routes-to="get_set_properties"/>
+        <cc:local-out id="call_set-props-attributes" routes-response-to="call_get_request_endpoint" endpoint="vm://standard_configuration_properties/set-props-attributes"/>
     </cc:assembly>
 
 </beans>
