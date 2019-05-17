@@ -36,6 +36,8 @@
                     <cc:expression>props['record.counter.imported'] = 0</cc:expression>
                     <cc:expression>props['record.counter.skipped'] = 0</cc:expression>
                     <cc:expression>props['file.number.total'] = -1</cc:expression>
+                    <cc:expression>props['page.total'] = -1</cc:expression>
+                    <cc:expression>props['page.current'] = 0</cc:expression>
                     <cc:expression>vars['tempfailedoutput.xml']='&lt;blankxml/>'</cc:expression>
                 </cc:eval>
             </cc:steps>

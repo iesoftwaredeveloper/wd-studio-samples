@@ -61,6 +61,9 @@
   <visualProperties x="792" y="340">
     <element href="assembly.xml#set-ws-props"/>
   </visualProperties>
+  <visualProperties x="1754" y="348">
+    <element href="assembly.xml#call_putIntMsg_put_log"/>
+  </visualProperties>
   <connections type="routesTo">
     <source href="assembly.xml#put_workday_web_serivce_call"/>
     <target href="assembly.xml#call_store_msg_return_msg_source"/>
@@ -68,10 +71,6 @@
   <connections type="routesResponseTo">
     <source href="assembly.xml#call_store_msg_return_msg_put"/>
     <target href="assembly.xml#call_split_ws_call"/>
-  </connections>
-  <connections type="routesResponseTo">
-    <source href="assembly.xml#make_workday_soap_call"/>
-    <target href="assembly.xml#call_create_transaction_log_record"/>
   </connections>
   <connections type="routesResponseTo">
     <source href="assembly.xml#call_process_Err_Msg"/>
@@ -133,6 +132,14 @@
     <source href="assembly.xml#call_create_transaction_log_record_err"/>
     <target href="assembly.xml#call_aggregateprocessingdetails"/>
   </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#make_workday_soap_call"/>
+    <target href="assembly.xml#call_putIntMsg_put_log"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_putIntMsg_put_log"/>
+    <target href="assembly.xml#call_create_transaction_log_record"/>
+  </connections>
   <swimlanes x="18" y="-13" bgColor="12566463" name="Put Web Service Call" orientation="VERTICAL" elements="//@swimlanes.1 //@swimlanes.3" alignment="MIDDLE"/>
   <swimlanes x="26" y="141" bgColor="9498256" name="Local In">
     <elements href="assembly.xml#put_workday_web_serivce_call"/>
@@ -153,6 +160,7 @@
   </swimlanes>
   <swimlanes x="1878" y="295" bgColor="8454143" name="Make Web Service Call" orientation="VERTICAL" alignment="MIDDLE">
     <elements href="assembly.xml#make_workday_soap_call"/>
+    <elements href="assembly.xml#call_putIntMsg_put_log"/>
     <elements href="assembly.xml#call_create_transaction_log_record"/>
   </swimlanes>
   <swimlanes x="670" y="282" bgColor="9498256" name="Split Envelope WS Call" alignment="MIDDLE">

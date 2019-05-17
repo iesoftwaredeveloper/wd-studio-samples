@@ -11,7 +11,7 @@
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
  
     <cc:assembly id="WorkdayAssembly" version="2019.6">
-        <cc:workday-out-soap id="make_workday_soap_call" routes-response-to="call_create_transaction_log_record" application="@{props['web.service.put.application']}" version="@{props['web.service.version']}"/>
+        <cc:workday-out-soap id="make_workday_soap_call" routes-response-to="call_putIntMsg_put_log" application="@{props['web.service.put.application']}" version="@{props['web.service.version']}"/>
         <cc:local-out id="call_store_msg_return_msg_put" execute-when="props['web.service.request.log'] == true" routes-response-to="call_split_ws_call" endpoint="vm://standard_logging/store_msg_return_msg">
             <cc:set name="store.filename" value="'webservice_put_request.xml'"/>
         </cc:local-out>
@@ -88,7 +88,7 @@
                 <cc:eval id="set-wd-tran-id">
                     <cc:expression>props['workday.transaction.id'] = (props['web.service.put.workday.id.tag'] == null)? '' : vars['ws.put.msg'].xpath(props['web.service.put.workday.id.tag'], props['web.service.put.workday.id.namespace'])</cc:expression>
                     <cc:expression>props['workday.web.service.call'] = vars['ws.put.msg'].xpath(&quot;//env:Body/local-name(*[1])&quot;)</cc:expression>
-                    <cc:expression>props['web.service.calls.count'] = ((props['web.service.calls.count'] == null)? 0:props['web.service.calls.count']) + 1</cc:expression>
+                    <cc:expression>props['web.service.calls.counter'] = ((props['web.service.calls.counter'] == null)? 0:props['web.service.calls.counter']) + 1</cc:expression>
                 </cc:eval>
             </cc:steps>
             <cc:send-error id="SendError" routes-to="call_process_Err_Msg"/>
@@ -124,15 +124,19 @@
             <cc:set name="file.number.total" value="props['page.total']"/>
             <cc:set name="file.number.current" value="props['page.current']"/>
             <cc:set name="summary.log.file.extension" value="'html'"/>
-        <cc:set name="continue.loop" value="'yes'"/></cc:local-out>
+            <cc:set name="continue.loop" value="'yes'"/>
+            <cc:set name="web.service.calls.counter" value="props['web.service.calls.counter']"/>
+            <cc:set name="web.service.calls.total" value="props['web.service.calls.total']"/>
+        </cc:local-out>
         <cc:async-mediation id="set-ws-props" routes-to="split_ws_put">
             <cc:steps>
                 <cc:eval id="set-import-stats">
                     <cc:expression>props['web.service.calls.total'] = parts[0].xpath(&quot;count(//env:Body)&quot;)</cc:expression>
-                    <cc:expression>props['web.service.calls.count'] = 0</cc:expression>
+                    <cc:expression>props['web.service.calls.counter'] = 0</cc:expression>
                 </cc:eval>
             </cc:steps>
         </cc:async-mediation>
+        <cc:local-out id="call_putIntMsg_put_log" execute-when="props['web.service.summary.log'] == true" routes-response-to="call_create_transaction_log_record" endpoint="vm://wcc/PutIntegrationMessage"><cc:set name="is.message.severity" value="'INFO'"/><cc:set name="is.message.summary" value="'Processed Web Service Call: ' + props['web.service.calls.counter'] + ' of ' + props['web.service.calls.total']"/><cc:set name="is.message.storage.enabled" value="false"/></cc:local-out>
     </cc:assembly>
 
 </beans>

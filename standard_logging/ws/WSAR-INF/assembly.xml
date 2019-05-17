@@ -322,7 +322,7 @@
                 <cc:xslt id="create_output_html" output="variable" output-mimetype="text/xml" output-variable="processingsummary.log" input="message" url="lib/transformations/create_processing_html_output.xsl"/>
             </cc:steps>
         </cc:async-mediation>
-        <cc:aggregator id="agg-process-record" routes-to="save_processing_rpt" allow-external-control="false" force-batch-on-last-message="false" force-batch-when="(props['file.number.total'] == props['file.number.current'] &amp;&amp; (props['record.count.total'] == props['record.counter'] || (props['record.count.total'] == -1 &amp;&amp; util.isLastMessageInBatch())) &amp;&amp; props['continue.loop'] == 'no') || props['force-close'] == 'yes'">
+        <cc:aggregator id="agg-process-record" routes-to="save_processing_rpt" allow-external-control="false" force-batch-on-last-message="false" force-batch-when="(props['file.number.total'] == props['file.number.current'] &amp;&amp; (props['record.count.total'] == props['record.counter'] || (props['record.count.total'] == -1 &amp;&amp; util.isLastMessageInBatch() &amp;&amp; props['web.service.calls.total'] == props['web.service.calls.counter'])) &amp;&amp; props['continue.loop'] == 'no') || props['force-close'] == 'yes'">
             <cc:size-batch-strategy batch-size="-1"/>
             <cc:xml-message-content-collater output="message" output-mimetype="text/plain">
         <cc:header-text>&lt;Process_Details></cc:header-text>
@@ -344,9 +344,12 @@
             <cc:parameter default="'html'" name="summary.log.file.extension"/>
             <cc:parameter default="-1" name="record.count.total" required="false"/>
             <cc:parameter default="-99" name="record.counter" required="false"/>
+            <cc:parameter default="-1" name="web.service.calls.counter" required="false"/>
+            <cc:parameter default="-1" name="web.service.calls.total" required="false"/>
             <cc:parameter default="-1" name="file.number.total" required="false"/>
             <cc:parameter default="-1" name="file.number.current" required="false"/>
-            <cc:parameter default="'no'" name="force-close" required="false" type="string"/><cc:parameter default="'no'" name="continue.loop" required="true"/>
+            <cc:parameter default="'no'" name="force-close" required="false" type="string"/>
+            <cc:parameter default="'no'" name="continue.loop" required="true"/>
             <cc:out-parameter name="aggregation-complete-flag"/>
         </cc:local-in>
         <cc:async-mediation id="cp-msg_to_failed-var" execute-steps-when="props['file.record.counter.failed'] != 0">

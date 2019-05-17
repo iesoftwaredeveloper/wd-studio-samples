@@ -17,7 +17,9 @@
     <xsl:param name="single.instance.filter.3.wids"/>
 
     <xsl:template match="/">
-        <xsl:apply-templates select="//fhc:process//fhc:report_filters"/>
+        <fhc:report_filters>
+            <xsl:apply-templates select="//fhc:process//fhc:report_filters"/>
+        </fhc:report_filters>
     </xsl:template>
 
     <xsl:template match="fhc:report_filters">

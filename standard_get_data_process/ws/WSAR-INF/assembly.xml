@@ -36,7 +36,7 @@
             </cc:steps>
             <cc:send-error id="SendError" routes-to="copy_to_variable"/>
         </cc:async-mediation>
-        <cc:local-in id="get_workday_lookup_data" routes-to="xslt_get_web_service_xml_lkp">
+        <cc:local-in id="get_workday_lookup_data" routes-to="xslt_get_web_service_xml_lkp" access="public">
             <cc:parameter name="web.service.lookup.filename" required="true"/>
             <cc:parameter name="web.service.lookup.application" required="true"/>
             <cc:parameter default="'default'" name="web.service.request.type" required="false"/>
@@ -67,7 +67,7 @@
             <cc:set name="is.paged.get.version" value="props['web.service.version']"/>
             <cc:set name="is.paged.get.page.zero" value="false"/>
             <cc:set name="is.paged.get.store.requests" value="true"/>
-            <cc:set name="is.paged.get.process.endpoint" value="'vm://standard_import_process/determine_endpoint'"/>
+            <cc:set name="is.paged.get.process.endpoint" value="'vm://standard_get_data_process/determine_endpoint'"/>
         </cc:local-out>
         <cc:local-out id="call_store_msg_return_msg_get" execute-when="props['web.service.request.log'] == true" routes-response-to="get_paging_results_from_get" endpoint="vm://standard_logging/store_msg_return_msg">
             <cc:set name="store.filename" value="props['running.process'] + '_webservice_get_request.xml'"/>
@@ -86,6 +86,6 @@
             <cc:parameter name="web.service.get.create.ws.xml.filename"/>
             <cc:parameter name="web.service.get.create.ws.xml.endpoint"/>
         </cc:local-in>
-	</cc:assembly>
+    </cc:assembly>
 
 </beans>
