@@ -53,7 +53,7 @@
     <element href="assembly.xml#call_get_response_endpoint"/>
   </visualProperties>
   <visualProperties x="1676" y="651">
-    <element href="assembly.xml#call_store_msg_return_msg_get_lkp0"/>
+    <element href="assembly.xml#call_store_msg_return_msg_get_lkp_rsp"/>
   </visualProperties>
   <connections type="routesTo">
     <source href="assembly.xml#get_workday_paged_web_service_call"/>
@@ -109,10 +109,10 @@
   </connections>
   <connections type="routesResponseTo">
     <source href="assembly.xml#get_workday_data_call"/>
-    <target href="assembly.xml#call_store_msg_return_msg_get_lkp0"/>
+    <target href="assembly.xml#call_store_msg_return_msg_get_lkp_rsp"/>
   </connections>
   <connections type="routesResponseTo">
-    <source href="assembly.xml#call_store_msg_return_msg_get_lkp0"/>
+    <source href="assembly.xml#call_store_msg_return_msg_get_lkp_rsp"/>
     <target href="assembly.xml#copy_to_variable"/>
   </connections>
   <swimlanes bgColor="8454143" name="Local-in Paged WS" orientation="VERTICAL" alignment="MIDDLE">
@@ -141,7 +141,7 @@
   <swimlanes bgColor="8454143" name="Get WD Data and Set Variable" orientation="VERTICAL" alignment="MIDDLE">
     <elements href="assembly.xml#call_store_msg_return_msg_get_lkp"/>
     <elements href="assembly.xml#get_workday_data_call"/>
-    <elements href="assembly.xml#call_store_msg_return_msg_get_lkp0"/>
+    <elements href="assembly.xml#call_store_msg_return_msg_get_lkp_rsp"/>
     <elements href="assembly.xml#copy_to_variable"/>
   </swimlanes>
   <swimlanes bgColor="8454016" name="Get Workday Lookup Data" elements="//@swimlanes.7 //@swimlanes.8" alignment="MIDDLE"/>

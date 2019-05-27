@@ -10,7 +10,7 @@
      xmlns:wd="urn:com.workday/bsvc"
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
  
-	<cc:assembly id="WorkdayAssembly" version="2019.6">
+    <cc:assembly id="WorkdayAssembly" version="2019.6">
         <cc:local-out id="call_get_response_endpoint" store-message="none" endpoint="vm://@{props['web.service.get.response.endpoint']}">
             <cc:set name="page.current" value="props['is.paged.get.current.page']"/>
             <cc:set name="page.total" value="props['is.paged.get.total.pages']"/>
@@ -26,7 +26,7 @@
                 <cc:copy id="cp_to_lkp_var" output="variable" output-variable="lookup.wd.data.xml"/>
             </cc:steps>
         </cc:async-mediation>
-        <cc:workday-out-soap id="get_workday_data_call" routes-response-to="call_store_msg_return_msg_get_lkp0" application="@{props['web.service.lookup.application']}" version="@{props['web.service.version']}"/>
+        <cc:workday-out-soap id="get_workday_data_call" routes-response-to="call_store_msg_return_msg_get_lkp_rsp" application="@{props['web.service.lookup.application']}" version="@{props['web.service.version']}"/>
         <cc:local-out id="call_store_msg_return_msg_get_lkp" execute-when="props['web.service.request.log'] == true" routes-response-to="get_workday_data_call" endpoint="vm://standard_logging/store_msg_return_msg">
             <cc:set name="store.filename" value="'lookup_data_webservice_get_request.xml'"/>
         </cc:local-out>
@@ -86,9 +86,9 @@
             <cc:parameter name="web.service.get.create.ws.xml.filename"/>
             <cc:parameter name="web.service.get.create.ws.xml.endpoint"/>
         </cc:local-in>
-        <cc:local-out id="call_store_msg_return_msg_get_lkp0" execute-when="props['web.service.response.log'] == true" routes-response-to="copy_to_variable" endpoint="vm://standard_logging/store_msg_return_msg">
+        <cc:local-out id="call_store_msg_return_msg_get_lkp_rsp" execute-when="props['web.service.response.log'] == true" routes-response-to="copy_to_variable" endpoint="vm://standard_logging/store_msg_return_msg">
             <cc:set name="store.filename" value="'lookup_data_webservice_get_response.xml'"/>
         </cc:local-out>
-	</cc:assembly>
+    </cc:assembly>
 
 </beans>
