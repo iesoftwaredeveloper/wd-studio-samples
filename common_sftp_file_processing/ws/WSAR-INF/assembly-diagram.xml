@@ -134,7 +134,7 @@
     <element href="assembly.xml#aggregate_filedetails"/>
   </visualProperties>
   <visualProperties x="6" y="-38">
-    <element href="assembly.xml#convert-to-xml"/>
+    <element href="assembly.xml#convert-txt-to-xml"/>
   </visualProperties>
   <visualProperties x="1591" y="12">
     <element href="assembly.xml#call_store_msg_return_msg"/>
@@ -147,6 +147,15 @@
   </visualProperties>
   <visualProperties x="1661" y="53">
     <element href="assembly.xml#call_store_msg_return_msg_file"/>
+  </visualProperties>
+  <visualProperties x="92" y="1256">
+    <element href="assembly.xml#convert-excel-to-csv"/>
+  </visualProperties>
+  <visualProperties x="778" y="1403">
+    <element href="assembly.xml#convert-file-to-xml"/>
+  </visualProperties>
+  <visualProperties x="604" y="1237">
+    <element href="assembly.xml#call_convert-file-to-xml"/>
   </visualProperties>
   <connections type="routesTo">
     <source href="assembly.xml#process_retrieval_file"/>
@@ -256,14 +265,6 @@
     <source href="assembly.xml#copy_message_to_file_var"/>
     <target href="assembly.xml#aggregate_filedetails"/>
   </connections>
-  <connections type="routesResponseTo">
-    <source href="assembly.xml#call_log_filename"/>
-    <target href="assembly.xml#convert-to-xml"/>
-  </connections>
-  <connections type="routesTo">
-    <source href="assembly.xml#convert-to-xml"/>
-    <target href="assembly.xml#cp_to_msg"/>
-  </connections>
   <connections type="routesTo">
     <source href="assembly.xml#get_SFTP_files_InternalUseOnly"/>
     <target href="assembly.xml#call_get_sftp_file_list"/>
@@ -308,7 +309,23 @@
     <source href="assembly.xml#set_file_data_var_mget"/>
     <target href="assembly.xml#call_process_file_mget"/>
   </connections>
-  <swimlanes bgColor="12566463" name="Process External File" elements="//@swimlanes.21 //@swimlanes.40 //@swimlanes.2" alignment="MIDDLE"/>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_log_filename"/>
+    <target href="assembly.xml#call_convert-file-to-xml"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_convert-file-to-xml"/>
+    <target href="assembly.xml#cp_to_msg"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#convert-file-to-xml"/>
+    <target href="assembly.xml#convert-excel-to-csv"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#convert-excel-to-csv"/>
+    <target href="assembly.xml#convert-txt-to-xml"/>
+  </connections>
+  <swimlanes bgColor="12566463" name="Process External File" elements="//@swimlanes.21 //@swimlanes.45" alignment="MIDDLE"/>
   <swimlanes bgColor="31221" name="Start File Processing" orientation="VERTICAL" elements="//@swimlanes.14 //@swimlanes.0" alignment="MIDDLE"/>
   <swimlanes bgColor="42495" name="Reset Processing Counters and Variables" alignment="MIDDLE">
     <elements href="assembly.xml#cp_to_msg"/>
@@ -346,7 +363,7 @@
   <swimlanes bgColor="12566463" name="Aggregate external files to one variable" orientation="VERTICAL" elements="//@swimlanes.29 //@swimlanes.30" alignment="END"/>
   <swimlanes x="1243" y="28" bgColor="31221" name="Private local-in transports for processing" orientation="VERTICAL" elements="//@swimlanes.13 //@swimlanes.15" alignment="MIDDLE"/>
   <swimlanes x="98" y="114" bgColor="4108284" name="Common sFTP File Processing" elements="//@swimlanes.18 //@swimlanes.5" alignment="MIDDLE"/>
-  <swimlanes x="40" y="263" bgColor="12632256" name="Process External Files" orientation="VERTICAL" elements="//@swimlanes.41 //@swimlanes.3" alignment="MIDDLE"/>
+  <swimlanes x="40" y="263" bgColor="12632256" name="Process External Files" orientation="VERTICAL" elements="//@swimlanes.40 //@swimlanes.3" alignment="MIDDLE"/>
   <swimlanes x="1189" y="195" bgColor="16443110" name="Get sFTP Files">
     <elements href="assembly.xml#get_and_process_SFTP_files_multiple"/>
     <elements href="assembly.xml#call_get_SFTP_files_InternalUseOnly_mget"/>
@@ -358,6 +375,8 @@
   <swimlanes x="728" y="1444" bgColor="42495" name="Process Retrieved File" orientation="VERTICAL" alignment="MIDDLE">
     <elements href="assembly.xml#process_retrieval_file"/>
     <elements href="assembly.xml#set_file_data_var_retrieval"/>
+    <elements href="assembly.xml#call_log_filename"/>
+    <elements href="assembly.xml#call_convert-file-to-xml"/>
   </swimlanes>
   <swimlanes x="1145" y="1148" bgColor="42495" name="Process Retrieval" orientation="VERTICAL" alignment="MIDDLE">
     <elements href="assembly.xml#process_retrieved_file"/>
@@ -417,18 +436,20 @@
     <elements href="assembly.xml#process_sftp_file"/>
     <elements href="assembly.xml#call_get_SFTP_files_InternalUseOnly"/>
   </swimlanes>
-  <swimlanes x="412" y="1167" bgColor="42495" name="Swimlane" orientation="VERTICAL" alignment="MIDDLE">
-    <elements href="assembly.xml#convert-to-xml"/>
-    <elements href="assembly.xml#call_log_filename"/>
-  </swimlanes>
-  <swimlanes x="185" y="180" bgColor="8454016" name="Swimlane" elements="//@swimlanes.42 //@swimlanes.43"/>
-  <swimlanes x="712" y="225" bgColor="42495" name="Swimlane" elements="//@swimlanes.10 //@swimlanes.44"/>
-  <swimlanes x="778" y="260" bgColor="42495" name="Swimlane" elements="//@swimlanes.11 //@swimlanes.45" alignment="MIDDLE"/>
+  <swimlanes x="185" y="180" bgColor="8454016" name="Swimlane" elements="//@swimlanes.41 //@swimlanes.42"/>
+  <swimlanes x="712" y="225" bgColor="42495" name="Swimlane" elements="//@swimlanes.10 //@swimlanes.43"/>
+  <swimlanes x="778" y="260" bgColor="42495" name="Swimlane" elements="//@swimlanes.11 //@swimlanes.44" alignment="MIDDLE"/>
   <swimlanes x="675" y="267" bgColor="8454016" name="Swimlane" orientation="VERTICAL" alignment="MIDDLE">
     <elements href="assembly.xml#Get-File-From-SFTP-Out"/>
     <elements href="assembly.xml#call_log_filename_get"/>
   </swimlanes>
   <swimlanes x="814" y="275" bgColor="8454016" name="Swimlane">
     <elements href="assembly.xml#call_log_msg_delete_file"/>
+  </swimlanes>
+  <swimlanes x="742" y="1312" bgColor="16443110" name="Convert and Process" orientation="VERTICAL" elements="//@swimlanes.2 //@swimlanes.46"/>
+  <swimlanes x="813" y="1323" bgColor="42495" name="Convert File to XML" alignment="MIDDLE">
+    <elements href="assembly.xml#convert-file-to-xml"/>
+    <elements href="assembly.xml#convert-excel-to-csv"/>
+    <elements href="assembly.xml#convert-txt-to-xml"/>
   </swimlanes>
 </wdnm:Diagram>

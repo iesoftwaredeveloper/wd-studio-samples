@@ -26,9 +26,9 @@
                 <cc:copy id="cp_to_lkp_var" output="variable" output-variable="lookup.wd.data.xml"/>
             </cc:steps>
         </cc:async-mediation>
-        <cc:workday-out-soap id="get_workday_data_call" routes-response-to="copy_to_variable" application="@{props['web.service.lookup.application']}" version="@{props['web.service.version']}"/>
+        <cc:workday-out-soap id="get_workday_data_call" routes-response-to="call_store_msg_return_msg_get_lkp0" application="@{props['web.service.lookup.application']}" version="@{props['web.service.version']}"/>
         <cc:local-out id="call_store_msg_return_msg_get_lkp" execute-when="props['web.service.request.log'] == true" routes-response-to="get_workday_data_call" endpoint="vm://standard_logging/store_msg_return_msg">
-            <cc:set name="store.filename" value="'webservice_get_request.xml'"/>
+            <cc:set name="store.filename" value="'lookup_data_webservice_get_request.xml'"/>
         </cc:local-out>
         <cc:async-mediation id="xslt_get_web_service_xml_lkp" routes-to="call_store_msg_return_msg_get_lkp" handle-downstream-errors="true">
             <cc:steps>
@@ -86,6 +86,9 @@
             <cc:parameter name="web.service.get.create.ws.xml.filename"/>
             <cc:parameter name="web.service.get.create.ws.xml.endpoint"/>
         </cc:local-in>
-    </cc:assembly>
+        <cc:local-out id="call_store_msg_return_msg_get_lkp0" execute-when="props['web.service.response.log'] == true" routes-response-to="copy_to_variable" endpoint="vm://standard_logging/store_msg_return_msg">
+            <cc:set name="store.filename" value="'lookup_data_webservice_get_response.xml'"/>
+        </cc:local-out>
+	</cc:assembly>
 
 </beans>

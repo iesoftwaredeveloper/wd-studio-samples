@@ -124,10 +124,7 @@
             <cc:set name="file.number.total" value="props['page.total']"/>
             <cc:set name="file.number.current" value="props['page.current']"/>
             <cc:set name="summary.log.file.extension" value="'html'"/>
-            <cc:set name="continue.loop" value="'yes'"/>
-            <cc:set name="web.service.calls.counter" value="props['web.service.calls.counter']"/>
-            <cc:set name="web.service.calls.total" value="props['web.service.calls.total']"/>
-        </cc:local-out>
+        <cc:set name="continue.loop" value="'yes'"/><cc:set name="web.service.calls.counter" value="props['web.service.calls.counter']"/><cc:set name="web.service.calls.total" value="props['web.service.calls.total']"/></cc:local-out>
         <cc:async-mediation id="set-ws-props" routes-to="split_ws_put">
             <cc:steps>
                 <cc:eval id="set-import-stats">
