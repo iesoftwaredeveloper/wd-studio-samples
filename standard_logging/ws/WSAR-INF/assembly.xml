@@ -10,7 +10,7 @@
      xmlns:wd="urn:com.workday/bsvc"
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-    <cc:assembly id="WorkdayAssembly" version="2017.35">
+    <cc:assembly id="WorkdayAssembly" version="2019.6">
         <cc:async-mediation id="return-msg">
             <cc:steps>
                 <cc:copy id="cp-back-to-msg" input="variable" input-variable="input.msg"/>
@@ -157,7 +157,6 @@
                 <cc:eval id="add-error-count">
                     <cc:expression>props['record.counter.failed']=((props['record.counter.failed'] == null)? 0:props['record.counter.failed'])+1</cc:expression>
                     <cc:expression>props['file.record.counter.failed'] = ((props['file.record.counter.failed'] == null)? 0:props['file.record.counter.failed']) + 1</cc:expression>
-                    <cc:expression>props['file.number.current'] = ((props['file.number.current'] == null)? 0:props['file.number.current']) + 1</cc:expression>
                     <cc:expression>props['error.message.detail']=(props['failed-on-import'] == true) ? context.errorMessage:props['error.message.detail']</cc:expression>
                     <cc:expression>props['error.reason']=(props['failed-on-import'] == true) ? 'Submit Web Service Call Failed':props['error.reason']</cc:expression>
                     <cc:expression>props['transaction.status']=(props['failed-on-import'] == true) ? 'failed':props['transaction.status']</cc:expression>
@@ -188,6 +187,14 @@
                     </cc:message>
                 </cc:write>
                 <cc:xslt id="create_transaction_record" output="variable" output-variable="processingdetails.xml" url="lib/transformations/create_summary_record.xsl"/>
+                <cc:eval id="clear-vars">
+                    <cc:expression>props['source.transaction.id'] = ''</cc:expression>
+                    <cc:expression>props['workday.transaction.id'] = ''</cc:expression>
+                    <cc:expression>props['record.status'] = ''</cc:expression>
+                    <cc:expression>props['additional.information'] = ''</cc:expression>
+                    <cc:expression>props['error.reason'] = ''</cc:expression>
+                    <cc:expression>props['error.message.detail'] = ''</cc:expression>
+                </cc:eval>
             </cc:steps>
         </cc:async-mediation>
         <cc:local-in id="create_transaction_log_record" routes-to="write_transaction_log" access="public">
@@ -202,7 +209,7 @@
             <cc:parameter name="additional.information" required="false"/>
             <cc:parameter default="0" name="transaction.amount" required="false"/>
             <cc:parameter name="error.reason" required="false"/>
-            <cc:parameter name="error.message.detail" required="false"/>
+            <cc:parameter name="error.message.detail" required="false"/><cc:parameter default="'unknown web service call'" name="web.service.call.name" required="true"/>
         </cc:local-in>
         <cc:local-out id="send_to_wd_zip" endpoint="vm://wcc/PutIntegrationMessage">
             <cc:set name="is.event.wid" value="lp.isSet() ? lp.getIntegrationEventWID() : null"/>
@@ -315,7 +322,7 @@
                 <cc:xslt id="create_output_html" output="variable" output-mimetype="text/xml" output-variable="processingsummary.log" input="message" url="lib/transformations/create_processing_html_output.xsl"/>
             </cc:steps>
         </cc:async-mediation>
-        <cc:aggregator id="agg-process-record" routes-to="save_processing_rpt" allow-external-control="false" force-batch-on-last-message="false" force-batch-when="(props['file.number.total'] == props['file.number.current'] &amp;&amp; (props['record.count.total'] == props['record.counter'] || (props['record.count.total'] == -1 &amp;&amp; util.isLastMessageInBatch()))) || props['force-close'] == 'yes'">
+        <cc:aggregator id="agg-process-record" routes-to="save_processing_rpt" allow-external-control="false" force-batch-on-last-message="false" force-batch-when="(props['file.number.total'] == props['file.number.current'] &amp;&amp; (props['record.count.total'] == props['record.counter'] || (props['record.count.total'] == -1 &amp;&amp; util.isLastMessageInBatch() &amp;&amp; props['web.service.calls.total'] == props['web.service.calls.counter'])) &amp;&amp; props['continue.loop'] == 'no') || props['force-close'] == 'yes'">
             <cc:size-batch-strategy batch-size="-1"/>
             <cc:xml-message-content-collater output="message" output-mimetype="text/plain">
         <cc:header-text>&lt;Process_Details></cc:header-text>
@@ -337,9 +344,12 @@
             <cc:parameter default="'html'" name="summary.log.file.extension"/>
             <cc:parameter default="-1" name="record.count.total" required="false"/>
             <cc:parameter default="-99" name="record.counter" required="false"/>
+            <cc:parameter default="-1" name="web.service.calls.counter" required="false"/>
+            <cc:parameter default="-1" name="web.service.calls.total" required="false"/>
             <cc:parameter default="-1" name="file.number.total" required="false"/>
             <cc:parameter default="-1" name="file.number.current" required="false"/>
             <cc:parameter default="'no'" name="force-close" required="false" type="string"/>
+            <cc:parameter default="'no'" name="continue.loop" required="true"/>
             <cc:out-parameter name="aggregation-complete-flag"/>
         </cc:local-in>
         <cc:async-mediation id="cp-msg_to_failed-var" execute-steps-when="props['file.record.counter.failed'] != 0">

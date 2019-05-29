@@ -10,7 +10,7 @@
      xmlns:wd="urn:com.workday/bsvc"
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-    <cc:assembly id="WorkdayAssembly" version="2017.35">
+    <cc:assembly id="WorkdayAssembly" version="2019.6">
         <cc:local-out id="call_get_request_endpoint" store-message="none" routes-response-to="call_parse_and_store_logging_info" endpoint="vm://@{props['web.service.get.request.endpoint']}">
             <cc:set name="web.service.get.request" value="props['web.service.get.request.filename']"/>
             <cc:set name="report.extra.path" value="props['report.extra.path'] + props['report.filter']"/>
@@ -25,6 +25,8 @@
             <cc:set name="web.service.get.conform.xml" value="props['web.service.get.conform.xml']"/>
             <cc:set name="web.service.get.conform.xml.filename" value="props['web.service.get.conform.xml.filename']"/>
             <cc:set name="web.service.get.conform.xml.endpoint" value="props['web.service.get.conform.xml.endpoint']"/>
+            <cc:set name="web.service.get.create.ws.xml.filename" value="props['web.service.get.create.ws.xml.filename']"/>
+            <cc:set name="web.service.get.create.ws.xml.endpoint" value="props['web.service.get.create.ws.xml.endpoint']"/>
         </cc:local-out>
         <cc:async-mediation id="get_set_properties" routes-to="set-process-properties">
             <cc:steps>
@@ -34,12 +36,13 @@
                     <cc:expression>props['record.counter.imported'] = 0</cc:expression>
                     <cc:expression>props['record.counter.skipped'] = 0</cc:expression>
                     <cc:expression>props['file.number.total'] = -1</cc:expression>
+                    <cc:expression>props['page.total'] = -1</cc:expression>
+                    <cc:expression>props['page.current'] = 0</cc:expression>
                     <cc:expression>vars['tempfailedoutput.xml']='&lt;blankxml/>'</cc:expression>
                 </cc:eval>
-                <cc:xslt id="get-properties" output="variable" output-variable="config.properties" input="variable" input-variable="config-xml" url="lib/processing/set_configuration_properties.xsl"/>
             </cc:steps>
         </cc:async-mediation>
-        <cc:local-out id="put_running_proc_msg" routes-response-to="get_set_properties" endpoint="vm://wcc/PutIntegrationMessage">
+        <cc:local-out id="put_running_proc_msg" routes-response-to="call_set-props-attributes" endpoint="vm://wcc/PutIntegrationMessage">
             <cc:set name="is.message.severity" value="'INFO'"/>
             <cc:set name="is.message.summary" value="'Currently Executing: ' + props['running.process']"/>
             <cc:set name="is.message.storage.enabled" value="false"/>
@@ -49,7 +52,8 @@
             <cc:parameter default="'false'" name="set.get.worker.properties" required="false"/>
         </cc:local-in>
         <cc:local-out id="call_process_xml_data" store-message="none" routes-response-to="put_log_processing_stats" endpoint="vm://@{props['web.service.put.request.endpoint']}">
-            <cc:set name="web.service.put.request" value="props['web.service.put.request']"/>
+            <cc:set name="web.service.put.create.ws.xml.filename" value="props['web.service.put.create.ws.xml.filename']"/>
+            <cc:set name="web.service.put.create.ws.xml.endpoint" value="props['web.service.put.create.ws.xml.endpoint']"/>
             <cc:set name="update.data" value="props['update.data']"/>
             <cc:set name="web.service.put.application" value="props['web.service.put.application']"/>
             <cc:set name="web.service.version" value="props['web.service.version']"/>
@@ -91,17 +95,19 @@
                 <cc:eval id="set-standard-ws-props">
                     <cc:expression>props['web.service.version'] = intsys.getAttribute('Web Service Version')</cc:expression>
                     <cc:expression>props['web.service.count'] = intsys.getAttribute('Web Service Page Count')</cc:expression>
-                    <cc:expression>props['web.service.add.only'] = intsys.getAttribute('Web Service Add Only')</cc:expression>
-                    <cc:expression>props['web.service.include.reference'] = intsys.getAttribute('Web Service Include Reference')</cc:expression>
-                    <cc:expression>props['web.service.auto.complete'] = intsys.getAttribute('Web Service Auto Complete')</cc:expression>
-                    <cc:expression>props['web.service.include.descriptors'] = intsys.getAttribute('Web Service Include Descriptors')</cc:expression>
-                    <cc:expression>props['web.service.request.log'] = intsys.getAttribute('Log Web Service Request XML')</cc:expression>
-                    <cc:expression>props['web.service.response.log'] = intsys.getAttribute('Log Web Service Response XML')</cc:expression>
-                    <cc:expression>props['web.service.submit'] = intsys.getAttribute('Web Service Submit')</cc:expression>
+                    <cc:expression>props['web.service.add.only'] = intsys.getAttributeAsBoolean('Web Service Add Only', true)</cc:expression>
+                    <cc:expression>props['web.service.include.reference'] = intsys.getAttributeAsBoolean('Web Service Include Reference',true)</cc:expression>
+                    <cc:expression>props['web.service.auto.complete'] = intsys.getAttributeAsBoolean('Web Service Auto Complete',true)</cc:expression>
+                    <cc:expression>props['web.service.include.descriptors'] = intsys.getAttributeAsBoolean('Web Service Include Descriptors',true)</cc:expression>
+                    <cc:expression>props['web.service.request.log'] = intsys.getAttributeAsBoolean('Log Web Service Request XML',true)</cc:expression>
+                    <cc:expression>props['web.service.response.log'] = intsys.getAttributeAsBoolean('Log Web Service Response XML',true)</cc:expression>
+                    <cc:expression>props['web.service.submit'] = intsys.getAttributeAsBoolean('Web Service Submit',true)</cc:expression>
                     <cc:expression>props['web.service.effective.date'] = intsys.getAttribute('Web Service Effective Date')</cc:expression>
-                    <cc:expression>props['web.service.lock.transaction'] = intsys.getAttribute('Web Service Lock Transaction')</cc:expression>
+                    <cc:expression>props['web.service.lock.transaction'] = intsys.getAttributeAsBoolean('Web Service Lock Transaction',true)</cc:expression>
                     <cc:expression>props['default.business.process.comment'] = intsys.getAttribute('Default Business Process Comment')</cc:expression>
-                    <cc:expression>props['web.service.summary.log'] = intsys.getAttribute('Log Summary Import Results')</cc:expression>
+                    <cc:expression>props['web.service.summary.log'] = intsys.getAttributeAsBoolean('Log Summary Import Results',true)</cc:expression>
+                    <cc:expression>props['web.service.include.attachments'] = intsys.getAttributeAsBoolean('Web Service Include Attachments',true)</cc:expression>
+                    <cc:expression>props['web.service.changes.only'] = intsys.getAttributeAsBoolean('Web Service Changes Only',true)</cc:expression>
                 </cc:eval>
             </cc:steps>
         </cc:async-mediation>
@@ -113,11 +119,11 @@
             <cc:set name="file.number.total" value="props['page.total']"/>
             <cc:set name="file.number.current" value="props['page.current']"/>
             <cc:set name="summary.log.file.extension" value="'html'"/>
-        </cc:local-out>
+        <cc:set name="continue.loop" value="'no'"/></cc:local-out>
         <cc:async-mediation id="file-counters" routes-to="split_response">
             <cc:steps>
                 <cc:eval id="reset-file-counters">
-                    <cc:expression>props['file.number.current'] = ((props['file.number.current'] == null)? 0:props['file.number.current']) +1</cc:expression>
+                    <cc:expression>props['file.number.current'] = ((props['file.number.current'] == null)? 0:props['file.number.current']) + 1</cc:expression>
                     <cc:expression>props['file.record.counter'] = 0</cc:expression>
                     <cc:expression>props['file.record.counter.imported'] = 0</cc:expression>
                     <cc:expression>props['file.record.counter.failed'] = 0</cc:expression>
@@ -154,6 +160,8 @@
                     <cc:expression>props['web.service.get.request.filename'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:sub_process/fhc:filename&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.get.request.type'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:sub_process/fhc:sub_type&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.get.request.endpoint'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:sub_process/fhc:endpoint&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
+                    <cc:expression>props['web.service.get.create.ws.xml.filename'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:sub_process/fhc:sub_process[@fhc:subprocess_name = 'create_ws_xml']/fhc:filename&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
+                    <cc:expression>props['web.service.get.create.ws.xml.endpoint'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:sub_process/fhc:sub_process[@fhc:subprocess_name = 'create_ws_xml']/fhc:endpoint&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.get.convert.to.xml'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:sub_process/fhc:sub_process[@fhc:subprocess_name = 'convert_to_xml']/@fhc:execute_subprocess&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.get.convert.to.xml.delimiter'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:sub_process/fhc:sub_process[@fhc:subprocess_name = 'convert_to_xml']/fhc:delimiter&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.get.convert.to.xml.filename'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:get_ws_attributes/fhc:sub_process/fhc:sub_process[@fhc:subprocess_name = 'convert_to_xml']/fhc:filename&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
@@ -177,8 +185,10 @@
                 </cc:eval>
                 <cc:eval id="set-process-props-put">
                     <cc:expression>props['web.service.put.application'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:sub_process/fhc:application&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
-                    <cc:expression>props['web.service.put.request'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:sub_process/fhc:filename&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
+                    <cc:expression>props['web.service.put.request.filename'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:sub_process/fhc:filename&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.put.request.endpoint'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:sub_process/fhc:endpoint&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
+                    <cc:expression>props['web.service.put.create.ws.xml.filename'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:sub_process/fhc:sub_process[@fhc:subprocess_name = 'create_ws_xml']/fhc:filename&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
+                    <cc:expression>props['web.service.put.create.ws.xml.endpoint'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:sub_process/fhc:sub_process[@fhc:subprocess_name = 'create_ws_xml']/fhc:endpoint&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.put.lookup.wd.data'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:sub_process/fhc:sub_process[@fhc:subprocess_name = 'lookup_wd_data']/@fhc:execute_subprocess&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.put.lookup.wd.data.application'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:sub_process/fhc:sub_process[@fhc:subprocess_name = 'lookup_wd_data']/fhc:application&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.put.lookup.wd.data.request.type'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:sub_process/fhc:sub_process[@fhc:subprocess_name = 'lookup_wd_data']/fhc:sub_type&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
@@ -203,7 +213,7 @@
                 </cc:eval>
             </cc:steps>
         </cc:async-mediation>
-        <cc:async-mediation id="set-attributes" routes-to="call_get_request_endpoint">
+        <cc:async-mediation id="set-attributes">
             <cc:steps>
                 <cc:eval id="set-attribute-values">
                     <cc:expression>props['multi.instance.filter.1.wids'] = (props['web.service.get.filter.multi.instance.1'].length() == 0)? 'no': intsys.getAttributeReferenceDataList(props['web.service.get.filter.multi.instance.1'], 'WID').toString().replace(&quot;[&quot;,&quot;&quot;).replace(&quot;]&quot;,&quot;&quot;)</cc:expression>
@@ -222,8 +232,12 @@
                     <cc:expression>props['single.instance.update.2.name'] = (props['web.service.put.update.single.instance.2'].length() == 0)? 'no': intsys.getAttribute(props['web.service.put.update.single.instance.2'])</cc:expression>
                     <cc:expression>props['single.instance.update.3.name'] = (props['web.service.put.update.single.instance.3'].length() == 0)? 'no': intsys.getAttribute(props['web.service.put.update.single.instance.3'])</cc:expression>
                     <cc:expression>props['update.data'] = intsys.getAttributeAsBoolean(props['web.service.put.update.data.attribute'], true)</cc:expression>
-                    <cc:expression>props['report.extra.path'] = (props['report.alias'].length() == 0)? 'no': intsys.reportService.getExtrapath(props['report.alias'])</cc:expression>
                     <cc:expression>props['deliver.documents'] = intsys.getAttributeAsBoolean(props['output.file.deliver.documents.attribute'], true)</cc:expression>
+                </cc:eval>
+                <cc:xslt id="set-report-filter" output="variable" output-variable="report.filter.xml" input="variable" input-variable="config.properties" url="lib/processing/set_report_filter_details.xsl"/>
+                <cc:eval id="set-report-props">
+                    <cc:expression>props['report.extra.path'] = (props['report.alias'].length() == 0)? 'no': intsys.reportService.getExtrapath(props['report.alias'])</cc:expression>
+                    <cc:expression>props['report.filter'] = vars['report.filter.xml'].xpath(&quot;//fhc:report_filter&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                 </cc:eval>
             </cc:steps>
         </cc:async-mediation>
@@ -273,7 +287,8 @@
         </cc:async-mediation>
         <cc:async-mediation id="validate_config_file" routes-to="set-ws-props">
             <cc:steps>
-                <cc:validate id="Validate" input="variable" input-variable="config-xml" failure-message="'Configuration File is not valid'" namespaces="fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd" schema="lib/config_files/configuration_file_sync_data.xsd" xpath="//fhc:processes"/>
+                <cc:xslt id="get-properties" output="variable" output-variable="config.properties" input="variable" input-variable="config-xml" url="lib/processing/set_configuration_properties.xsl"/>
+                <cc:validate id="Validate" input="variable" input-variable="config.properties" failure-message="'Configuration File is not valid'" namespaces="fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd" schema="lib/config_files/configuration_file_sync_data.xsd" xpath="//fhc:processes"/>
             </cc:steps>
             <cc:send-error id="SendError" rethrow-error="true" routes-to="call_failed_validation"/>
         </cc:async-mediation>
@@ -282,6 +297,8 @@
             <cc:set name="is.message.summary" value="'Configuration File Failed Validation'"/>
             <cc:set name="is.message.detail" value="context.errorMessage"/>
         </cc:local-out>
+        <cc:local-in id="set-props-attributes" routes-to="get_set_properties"/>
+        <cc:local-out id="call_set-props-attributes" routes-response-to="call_get_request_endpoint" endpoint="vm://standard_configuration_properties/set-props-attributes"/>
     </cc:assembly>
 
 </beans>

@@ -12,6 +12,7 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element ref="fhc:web_service_information"/>
+                <xs:element maxOccurs="1" minOccurs="0" ref="fhc:output_information"/>
             </xs:sequence>
             <xs:attribute ref="fhc:process_name" use="required"/>
         </xs:complexType>
@@ -21,7 +22,6 @@
             <xs:sequence>
                 <xs:element maxOccurs="1" minOccurs="0" ref="fhc:get_ws_attributes"/>
                 <xs:element maxOccurs="1" minOccurs="0" ref="fhc:put_ws_attributes"/>
-                <xs:element maxOccurs="1" minOccurs="0" ref="fhc:output_information"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -105,6 +105,7 @@
     <xs:element name="output_file" type="fhc:output_file"/> 
     <xs:element name="report_alias" type="xs:string"/>
     <xs:element name="endpoint" type="xs:string"/>
+    <xs:element name="deliver_documents_attribute" type="xs:string"/>
     <!-- Attributes -->
     <xs:attribute name="process_name" type="xs:string"/>
     <xs:attribute name="subprocess_name" type="fhc:subprocess"/>
@@ -113,7 +114,7 @@
     <xs:attribute name="execute_subprocess" type="fhc:true_false"/>
     <xs:attribute name="filtername" type="xs:string"/>
     <xs:attribute name="delivery_service" type="xs:string"/>
-    <xs:attribute name="aggregation_type" type="fhc:aggregation_type"/>
+    <xs:attribute name="aggregation_data_type" type="fhc:aggregation_type"/>
 
     <!-- Attributes for Web Services -->
     <xs:complexType name="ws_attributes">
@@ -148,11 +149,12 @@
             <xs:element maxOccurs="1" minOccurs="0" ref="fhc:filename"/>
             <xs:element maxOccurs="1" minOccurs="0" ref="fhc:output_file"/>
         </xs:choice>
-        <xs:attribute ref="fhc:aggregation_type"/>
+        <xs:attribute ref="fhc:aggregation_data_type"/>
     </xs:complexType>
     <xs:complexType name="output_file">
         <xs:choice maxOccurs="unbounded">
             <xs:element maxOccurs="1" minOccurs="0" ref="fhc:sequencer"/>
+            <xs:element maxOccurs="1" minOccurs="0" ref="fhc:deliver_documents_attribute"/>
         </xs:choice>
         <xs:attribute ref="fhc:delivery_service"/>
     </xs:complexType>
@@ -187,6 +189,7 @@
             <xs:enumeration value="start_put"/>
             <xs:enumeration value="put_request"/>
             <xs:enumeration value="conform_xml"/>
+            <xs:enumeration value="create_ws_xml"/>
             <xs:enumeration value="lookup_wd_data"/>
             <xs:enumeration value="group_rsp_data"/>
         </xs:restriction>
