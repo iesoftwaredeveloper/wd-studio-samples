@@ -209,7 +209,7 @@
             <cc:parameter name="additional.information" required="false"/>
             <cc:parameter default="0" name="transaction.amount" required="false"/>
             <cc:parameter name="error.reason" required="false"/>
-            <cc:parameter name="error.message.detail" required="false"/>
+            <cc:parameter name="error.message.detail" required="false"/><cc:parameter default="'unknown web service call'" name="web.service.call.name" required="true"/>
         </cc:local-in>
         <cc:local-out id="send_to_wd_zip" endpoint="vm://wcc/PutIntegrationMessage">
             <cc:set name="is.event.wid" value="lp.isSet() ? lp.getIntegrationEventWID() : null"/>

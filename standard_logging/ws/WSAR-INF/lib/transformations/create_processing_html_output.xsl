@@ -99,20 +99,25 @@
                                 </table>
                                 <br/>
                                 <br/>
-                                <xsl:for-each-group select="current-group()" group-by="tl:record_stats/tl:status">
-                                    <xsl:sort select="tl:record_stats/tl:status"/>
-                                    <table style="width:100%">
-                                        <caption>
-                                            <xsl:value-of select="upper-case(current-grouping-key())"/>
-                                            <xsl:value-of select="upper-case(' Records')"/>
-                                        </caption>
-                                        <xsl:call-template name="header-record"/>
-                                        <xsl:apply-templates select="current-group()"/>
-                                    </table>
-                                    <xsl:if test="position() != last()">
-                                        <br/>
-                                        <br/>
-                                    </xsl:if>
+                                <xsl:for-each-group select="current-group()" group-by="tl:record_stats/tl:web_service_call_name">
+                                    <xsl:variable name="ws.call.name" select="current-grouping-key()"/>
+                                    <xsl:for-each-group select="current-group()" group-by="tl:record_stats/tl:status">
+                                        <xsl:sort select="tl:record_stats/tl:status"/>
+                                        <table style="width:100%">
+                                            <caption>
+                                                <xsl:value-of select="$ws.call.name"/>
+                                                <xsl:value-of select="' '"/>
+                                                <xsl:value-of select="upper-case(current-grouping-key())"/>
+                                                <xsl:value-of select="upper-case(' Records')"/>
+                                            </caption>
+                                            <xsl:call-template name="header-record"/>
+                                            <xsl:apply-templates select="current-group()"/>
+                                        </table>
+                                        <xsl:if test="position() != last()">
+                                            <br/>
+                                            <br/>
+                                        </xsl:if>
+                                    </xsl:for-each-group>
                                 </xsl:for-each-group>
                             </body>
                         </html>
@@ -124,6 +129,9 @@
 
     <xsl:template match="tl:transaction_record">
         <tr>
+            <td>
+                <xsl:value-of select="tl:record_stats/tl:web_service_call_name"/>
+            </td>
             <td>
                 <xsl:value-of select="@tl:transaction_record_number"/>
             </td>
@@ -167,6 +175,7 @@
 
     <xsl:template name="header-record">
         <tr>
+            <th>Web Service Call Name</th>
             <th>Process Record Number</th>
             <th>File Number</th>
             <th>Source File Name</th>

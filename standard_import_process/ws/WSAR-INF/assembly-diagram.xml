@@ -146,17 +146,16 @@
     <elements href="assembly.xml#call_store_msg_return_msg_source"/>
   </swimlanes>
   <swimlanes x="1427" y="6" bgColor="12566463" name="Split and Process" orientation="VERTICAL" elements="//@swimlanes.14" alignment="MIDDLE"/>
-  <swimlanes x="851" y="248" bgColor="9498256" name="Process Put Call" elements="//@swimlanes.10 //@swimlanes.11 //@swimlanes.13"/>
-  <swimlanes x="867" y="192" bgColor="8454143" name="Error Processing" orientation="VERTICAL" alignment="MIDDLE">
-    <elements href="assembly.xml#call_create_transaction_log_record_err"/>
+  <swimlanes x="851" y="248" bgColor="9498256" name="Process Put Call" elements="//@swimlanes.10 //@swimlanes.16"/>
+  <swimlanes x="867" y="192" bgColor="8454143" name="Error Processing" alignment="MIDDLE">
     <elements href="assembly.xml#call_process_Err_Msg"/>
+    <elements href="assembly.xml#call_create_transaction_log_record_err"/>
   </swimlanes>
   <swimlanes x="-47" y="46" bgColor="15128749" name="Standard Import Process" orientation="VERTICAL" elements="//@swimlanes.6" alignment="MIDDLE"/>
   <swimlanes x="420" y="732" bgColor="42495" name="Put and Split Data" elements="//@swimlanes.0 //@swimlanes.2" alignment="MIDDLE"/>
   <swimlanes x="1815" y="274" bgColor="9498256" name="End Processing" orientation="VERTICAL" alignment="MIDDLE">
     <elements href="#//@swimlanes.8"/>
     <elements href="assembly.xml#call_aggregateprocessingdetails"/>
-    <elements href="#//@swimlanes.4"/>
   </swimlanes>
   <swimlanes x="1878" y="295" bgColor="8454143" name="Make Web Service Call" orientation="VERTICAL" alignment="MIDDLE">
     <elements href="assembly.xml#make_workday_soap_call"/>
@@ -174,18 +173,20 @@
     <elements href="assembly.xml#call_store_msg_return_msg_put"/>
     <elements href="assembly.xml#call_split_ws_call"/>
   </swimlanes>
-  <swimlanes x="84" y="316" bgColor="8454143" name="Backup and Lookup" orientation="VERTICAL" alignment="MIDDLE">
-    <elements href="assembly.xml#bckp_msg"/>
+  <swimlanes x="84" y="316" bgColor="8454143" name="Backup and Lookup" alignment="MIDDLE">
     <elements href="assembly.xml#lookup_and_conform"/>
+    <elements href="assembly.xml#bckp_msg"/>
+    <elements href="assembly.xml#call_lkp_wd"/>
   </swimlanes>
   <swimlanes x="608" y="372" bgColor="8454143" name="Start Import" orientation="VERTICAL" alignment="MIDDLE">
     <elements href="assembly.xml#split_ws_call"/>
     <elements href="assembly.xml#set-ws-props"/>
   </swimlanes>
-  <swimlanes x="234" y="575" bgColor="8454143" name="Conform XML" orientation="VERTICAL" alignment="MIDDLE">
-    <elements href="assembly.xml#call_lkp_wd"/>
-    <elements href="assembly.xml#return_bckp_msg"/>
+  <swimlanes x="234" y="575" bgColor="8454143" name="Conform XML" alignment="MIDDLE">
     <elements href="assembly.xml#call_conform_xml"/>
+    <elements href="assembly.xml#return_bckp_msg"/>
   </swimlanes>
-  <swimlanes x="796" y="582" bgColor="16443110" name="Import Workday Data" elements="//@swimlanes.9 //@swimlanes.7" alignment="MIDDLE"/>
+  <swimlanes x="796" y="582" bgColor="16443110" name="Import Workday Data" elements="//@swimlanes.15 //@swimlanes.7" alignment="MIDDLE"/>
+  <swimlanes x="725" y="362" bgColor="42495" name="Swimlane" orientation="VERTICAL" elements="//@swimlanes.9 //@swimlanes.4" alignment="MIDDLE"/>
+  <swimlanes x="267" y="508" bgColor="16443110" name="Swimlane" orientation="VERTICAL" elements="//@swimlanes.11 //@swimlanes.13" alignment="MIDDLE"/>
 </wdnm:Diagram>

@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet exclude-result-prefixes="xs" version="2.0" xmlns:tl="https://github.com/firehawk-consulting/firehawk/schemas/transaction_log.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:stylesheet exclude-result-prefixes="xs xsl" version="2.0"
+        xmlns:tl="https://github.com/firehawk-consulting/firehawk/schemas/transaction_log.xsd"
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
     <!-- Transaction Attributes -->
     <xsl:param name="transaction.grouping" select="'nosplit'"/>
     <xsl:param name="record.counter"/>
@@ -10,6 +13,7 @@
     <!-- Transaction Details -->
     <xsl:param name="source.transaction.id"/>
     <xsl:param name="workday.transaction.id"/>
+    <xsl:param name="web.service.call.name"/>
     <xsl:param name="record.status"/>
     <xsl:param name="additional.information" select="''"/>
     <xsl:param name="transaction.amount" select="0"/>
@@ -43,6 +47,11 @@
                 <tl:workday_id>
                     <xsl:value-of select="$workday.transaction.id"/>
                 </tl:workday_id>
+                <xsl:if test="string-length($web.service.call.name) != 0">
+                    <tl:web_service_call_name>
+                        <xsl:value-of select="$web.service.call.name"/>
+                    </tl:web_service_call_name>
+                </xsl:if>
                 <tl:status>
                     <xsl:value-of select="$record.status"/>
                 </tl:status>

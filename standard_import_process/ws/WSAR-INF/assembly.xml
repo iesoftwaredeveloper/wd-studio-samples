@@ -61,7 +61,8 @@
             <cc:set name="record.status" value="'imported'"/>
             <cc:set name="error.reason" value="''"/>
             <cc:set name="error.message.detail" value="''"/>
-            <cc:set name="additional.information" value="props['workday.web.service.call']"/>
+            <cc:set name="additional.information" value="''"/>
+            <cc:set name="web.service.call.name" value="props['workday.web.service.call']"/>
         </cc:local-out>
         <cc:local-out id="call_process_Err_Msg" routes-response-to="call_create_transaction_log_record_err" endpoint="vm://standard_logging/process_Err_Msg">
             <cc:set name="failed-on-import" value="true"/>
@@ -80,8 +81,8 @@
             <cc:set name="record.status" value="'failed'"/>
             <cc:set name="error.reason" value="'Error on Import'"/>
             <cc:set name="error.message.detail" value="context.errorMessage"/>
-            <cc:set name="additional.information" value="props['workday.web.service.call']"/>
-        </cc:local-out>
+            <cc:set name="additional.information" value="''"/>
+        <cc:set name="web.service.call.name" value="props['workday.web.service.call']"/></cc:local-out>
         <cc:async-mediation id="set-wd-id" routes-to="make_workday_soap_call" handle-downstream-errors="true">
             <cc:steps>
                 <cc:copy id="cp-ws-call" output="variable" output-variable="ws.put.msg"/>
@@ -124,7 +125,10 @@
             <cc:set name="file.number.total" value="props['page.total']"/>
             <cc:set name="file.number.current" value="props['page.current']"/>
             <cc:set name="summary.log.file.extension" value="'html'"/>
-        <cc:set name="continue.loop" value="'yes'"/><cc:set name="web.service.calls.counter" value="props['web.service.calls.counter']"/><cc:set name="web.service.calls.total" value="props['web.service.calls.total']"/></cc:local-out>
+            <cc:set name="continue.loop" value="'yes'"/>
+            <cc:set name="web.service.calls.counter" value="props['web.service.calls.counter']"/>
+            <cc:set name="web.service.calls.total" value="props['web.service.calls.total']"/>
+        </cc:local-out>
         <cc:async-mediation id="set-ws-props" routes-to="split_ws_put">
             <cc:steps>
                 <cc:eval id="set-import-stats">
@@ -133,7 +137,11 @@
                 </cc:eval>
             </cc:steps>
         </cc:async-mediation>
-        <cc:local-out id="call_putIntMsg_put_log" execute-when="props['web.service.summary.log'] == true" routes-response-to="call_create_transaction_log_record" endpoint="vm://wcc/PutIntegrationMessage"><cc:set name="is.message.severity" value="'INFO'"/><cc:set name="is.message.summary" value="'Processed Web Service Call: ' + props['web.service.calls.counter'] + ' of ' + props['web.service.calls.total']"/><cc:set name="is.message.storage.enabled" value="false"/></cc:local-out>
+        <cc:local-out id="call_putIntMsg_put_log" execute-when="props['web.service.summary.log'] == true" routes-response-to="call_create_transaction_log_record" endpoint="vm://wcc/PutIntegrationMessage">
+            <cc:set name="is.message.severity" value="'INFO'"/>
+            <cc:set name="is.message.summary" value="'Processed Web Service Call: ' + props['web.service.calls.counter'] + ' of ' + props['web.service.calls.total']"/>
+            <cc:set name="is.message.storage.enabled" value="false"/>
+        </cc:local-out>
     </cc:assembly>
 
 </beans>
