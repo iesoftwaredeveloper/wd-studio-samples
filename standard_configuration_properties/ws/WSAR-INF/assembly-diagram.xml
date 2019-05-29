@@ -2,10 +2,10 @@
 <wdnm:Diagram xmlns:wdnm="http://workday.com/studio/editors/notation">
   <element href="assembly.xml#WorkdayAssembly"/>
   <visualProperties>
-    <element href="assembly.xml#begin_migration_process"/>
+    <element href="assembly.xml#set_processing_properties"/>
   </visualProperties>
   <visualProperties>
-    <element href="assembly.xml#call_PutIntegrationMessage_process"/>
+    <element href="assembly.xml#put_running_proc_msg"/>
   </visualProperties>
   <visualProperties>
     <element href="assembly.xml#get_set_properties"/>
@@ -25,10 +25,7 @@
   <visualProperties x="675" y="297">
     <element href="assembly.xml#set-ws-props"/>
   </visualProperties>
-  <visualProperties x="774" y="308">
-    <element href="assembly.xml#call_process_retrieved_file"/>
-  </visualProperties>
-  <visualProperties x="1393" y="283">
+  <visualProperties x="1432" y="402">
     <element href="assembly.xml#call_aggregateprocessingdetails"/>
   </visualProperties>
   <visualProperties x="1064" y="449">
@@ -38,38 +35,32 @@
     <element href="assembly.xml#record-counters"/>
   </visualProperties>
   <visualProperties x="864" y="383">
-    <element href="assembly.xml#call_subroutineparseandstorelogs"/>
-  </visualProperties>
-  <visualProperties x="750" y="627">
-    <element href="assembly.xml#RenderProcessingStatistics"/>
+    <element href="assembly.xml#call_parse_and_store_logging_info"/>
   </visualProperties>
   <visualProperties x="983" y="648">
-    <element href="assembly.xml#PutIntegrationMessage"/>
+    <element href="assembly.xml#put_log_processing_stats"/>
   </visualProperties>
-  <connections type="routesResponseTo">
-    <source href="assembly.xml#call_PutIntegrationMessage_process"/>
-    <target href="assembly.xml#get_set_properties"/>
-  </connections>
-  <connections type="routesTo">
-    <source href="assembly.xml#get_set_properties"/>
-    <target href="assembly.xml#call_get_request_endpoint"/>
-  </connections>
-  <connections type="routesTo">
-    <source href="assembly.xml#begin_migration_process"/>
-    <target href="assembly.xml#set-ws-props"/>
-  </connections>
-  <connections type="routesTo">
-    <source href="assembly.xml#set-ws-props"/>
-    <target href="assembly.xml#call_process_retrieved_file"/>
-  </connections>
-  <connections type="routesResponseTo">
-    <source href="assembly.xml#call_process_retrieved_file"/>
-    <target href="assembly.xml#call_PutIntegrationMessage_process"/>
-  </connections>
-  <connections type="routesTo">
-    <source href="assembly.xml#split_and_process_response"/>
-    <target href="assembly.xml#file-counters"/>
-  </connections>
+  <visualProperties x="73" y="356">
+    <element href="assembly.xml#set-process-properties"/>
+  </visualProperties>
+  <visualProperties x="209" y="552">
+    <element href="assembly.xml#set-attributes"/>
+  </visualProperties>
+  <visualProperties x="339" y="688">
+    <element href="assembly.xml#set-worker-prop"/>
+  </visualProperties>
+  <visualProperties x="261" y="169">
+    <element href="assembly.xml#validate_config_file"/>
+  </visualProperties>
+  <visualProperties x="56" y="359">
+    <element href="assembly.xml#call_failed_validation"/>
+  </visualProperties>
+  <visualProperties x="57" y="594">
+    <element href="assembly.xml#set-props-attributes"/>
+  </visualProperties>
+  <visualProperties x="602" y="453">
+    <element href="assembly.xml#call_set-props-attributes"/>
+  </visualProperties>
   <connections type="routesTo">
     <source href="assembly.xml#file-counters"/>
     <target href="assembly.xml#split_response"/>
@@ -80,48 +71,106 @@
   </connections>
   <connections type="routesResponseTo">
     <source href="assembly.xml#call_get_request_endpoint"/>
-    <target href="assembly.xml#call_subroutineparseandstorelogs"/>
+    <target href="assembly.xml#call_parse_and_store_logging_info"/>
   </connections>
   <connections type="routesTo">
     <source href="assembly.xml#record-counters"/>
     <target href="assembly.xml#call_process_xml_data"/>
   </connections>
   <connections type="routesResponseTo">
-    <source href="assembly.xml#RenderProcessingStatistics"/>
-    <target href="assembly.xml#call_aggregateprocessingdetails"/>
-  </connections>
-  <connections type="routesResponseTo">
     <source href="assembly.xml#call_process_xml_data"/>
-    <target href="assembly.xml#PutIntegrationMessage"/>
+    <target href="assembly.xml#put_log_processing_stats"/>
   </connections>
   <connections type="routesResponseTo">
-    <source href="assembly.xml#PutIntegrationMessage"/>
+    <source href="assembly.xml#put_log_processing_stats"/>
     <target href="assembly.xml#call_aggregateprocessingdetails"/>
   </connections>
-  <swimlanes x="22" y="31" bgColor="12632256" name="Set Properties" orientation="VERTICAL" elements="//@swimlanes.3 //@swimlanes.4" alignment="MIDDLE"/>
-  <swimlanes bgColor="8454016" name="Process Split Data" alignment="MIDDLE">
+  <connections type="routesTo">
+    <source href="assembly.xml#get_set_properties"/>
+    <target href="assembly.xml#set-process-properties"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#set-process-properties"/>
+    <target href="assembly.xml#set-attributes"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#split_and_process_response"/>
+    <target href="assembly.xml#file-counters"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#set-ws-props"/>
+    <target href="assembly.xml#set-worker-prop"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#set-worker-prop"/>
+    <target href="assembly.xml#put_running_proc_msg"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#set_processing_properties"/>
+    <target href="assembly.xml#validate_config_file"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#validate_config_file"/>
+    <target href="assembly.xml#set-ws-props"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#//@beans/@mixed.1/@mixed.33/@mixed.3"/>
+    <target href="assembly.xml#call_failed_validation"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#set-props-attributes"/>
+    <target href="assembly.xml#get_set_properties"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#put_running_proc_msg"/>
+    <target href="assembly.xml#call_set-props-attributes"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_set-props-attributes"/>
+    <target href="assembly.xml#call_get_request_endpoint"/>
+  </connections>
+  <swimlanes x="22" y="31" bgColor="12632256" name="Set Properties" orientation="VERTICAL" elements="//@swimlanes.2 //@swimlanes.3" alignment="MIDDLE"/>
+  <swimlanes x="-15" y="441" bgColor="12632256" name="Split and Process" orientation="VERTICAL" elements="//@swimlanes.6 //@swimlanes.9 //@swimlanes.13" alignment="MIDDLE"/>
+  <swimlanes x="158" y="258" bgColor="8454016" name="Setup and Log Running Process" alignment="MIDDLE">
+    <elements href="assembly.xml#set_processing_properties"/>
+    <elements href="assembly.xml#validate_config_file"/>
+    <elements href="assembly.xml#call_failed_validation"/>
+  </swimlanes>
+  <swimlanes x="864" y="179" bgColor="8454016" name="Set Properties and Continue" elements="//@swimlanes.7 //@swimlanes.12 //@swimlanes.10" alignment="MIDDLE"/>
+  <swimlanes x="7" y="-2" bgColor="4108284" name="Standard Configuration Properties" elements="//@swimlanes.0 //@swimlanes.1" alignment="MIDDLE"/>
+  <swimlanes x="734" y="572" bgColor="8454016" name="Process and Log" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#call_process_xml_data"/>
+    <elements href="assembly.xml#put_log_processing_stats"/>
+    <elements href="assembly.xml#call_aggregateprocessingdetails"/>
+  </swimlanes>
+  <swimlanes x="36" y="586" bgColor="8454016" name="Split Data" alignment="MIDDLE">
+    <elements href="assembly.xml#split_and_process_response"/>
+    <elements href="assembly.xml#file-counters"/>
+  </swimlanes>
+  <swimlanes x="52" y="302" bgColor="16443110" name="Set WS and Worker Properties" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#set-ws-props"/>
+    <elements href="assembly.xml#set-worker-prop"/>
+  </swimlanes>
+  <swimlanes x="1335" y="352" bgColor="8454016" name="Split and set counters" alignment="MIDDLE">
     <elements href="assembly.xml#split_response"/>
     <elements href="assembly.xml#record-counters"/>
   </swimlanes>
-  <swimlanes x="-15" y="441" bgColor="12632256" name="Split and Process" alignment="MIDDLE">
-    <elements href="assembly.xml#split_and_process_response"/>
-    <elements href="assembly.xml#file-counters"/>
-    <elements href="#//@swimlanes.1"/>
-    <elements href="assembly.xml#call_process_xml_data"/>
-    <elements href="assembly.xml#PutIntegrationMessage"/>
-    <elements href="assembly.xml#call_aggregateprocessingdetails"/>
-    <elements href="assembly.xml#RenderProcessingStatistics"/>
-  </swimlanes>
-  <swimlanes x="158" y="258" bgColor="8454016" name="Setup and Log Running Process" alignment="MIDDLE">
-    <elements href="assembly.xml#begin_migration_process"/>
-    <elements href="assembly.xml#set-ws-props"/>
-    <elements href="assembly.xml#call_process_retrieved_file"/>
-    <elements href="assembly.xml#call_PutIntegrationMessage_process"/>
-  </swimlanes>
-  <swimlanes x="864" y="179" bgColor="8454016" name="Set Properties and Continue" alignment="MIDDLE">
-    <elements href="assembly.xml#get_set_properties"/>
+  <swimlanes x="1044" y="417" bgColor="8454143" name="Process Information" elements="//@swimlanes.8 //@swimlanes.5"/>
+  <swimlanes x="362" y="525" bgColor="16443110" name="Set Attributes and Execute" orientation="VERTICAL" alignment="MIDDLE">
     <elements href="assembly.xml#call_get_request_endpoint"/>
-    <elements href="assembly.xml#call_subroutineparseandstorelogs"/>
+    <elements href="assembly.xml#call_parse_and_store_logging_info"/>
   </swimlanes>
-  <swimlanes x="17" y="8" name="Standard Configuration Properties" orientation="VERTICAL" elements="//@swimlanes.0 //@swimlanes.2" alignment="MIDDLE"/>
+  <swimlanes x="309" y="610" bgColor="16443110" name="Set Properties" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#set-props-attributes"/>
+    <elements href="assembly.xml#get_set_properties"/>
+  </swimlanes>
+  <swimlanes x="834" y="434" bgColor="16443110" name="Log and Set Properties" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#call_set-props-attributes"/>
+    <elements href="assembly.xml#put_running_proc_msg"/>
+  </swimlanes>
+  <swimlanes x="302" y="525" bgColor="8454016" name="Set Configuration Details" elements="//@swimlanes.11 //@swimlanes.14" alignment="MIDDLE"/>
+  <swimlanes x="617" y="566" bgColor="16443110" name="Set Properties and Attributes" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#set-attributes"/>
+    <elements href="assembly.xml#set-process-properties"/>
+  </swimlanes>
 </wdnm:Diagram>

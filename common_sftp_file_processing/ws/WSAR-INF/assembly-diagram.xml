@@ -2,15 +2,6 @@
 <wdnm:Diagram xmlns:wdnm="http://workday.com/studio/editors/notation">
   <element href="assembly.xml#WorkdayAssembly"/>
   <visualProperties>
-    <element href="assembly.xml#SubRoutineProcessFile"/>
-  </visualProperties>
-  <visualProperties>
-    <element href="assembly.xml#set_file_data_var"/>
-  </visualProperties>
-  <visualProperties>
-    <element href="assembly.xml#process_file"/>
-  </visualProperties>
-  <visualProperties>
     <element href="assembly.xml#set_file_data_var_mget"/>
   </visualProperties>
   <visualProperties>
@@ -32,7 +23,7 @@
     <element href="assembly.xml#get_and_process_SFTP_files_multiple"/>
   </visualProperties>
   <visualProperties>
-    <element href="assembly.xml#CallMGetFilesFromSFTP_InternalUseOnly"/>
+    <element href="assembly.xml#call_get_SFTP_files_InternalUseOnly_mget"/>
   </visualProperties>
   <visualProperties>
     <element href="assembly.xml#setup_process_counters_mget"/>
@@ -59,7 +50,7 @@
     <element href="assembly.xml#get_and_process_SFTP_files"/>
   </visualProperties>
   <visualProperties>
-    <element href="assembly.xml#call_GetFileListfromSFTP"/>
+    <element href="assembly.xml#call_get_sftp_file_list_proc"/>
   </visualProperties>
   <visualProperties>
     <element href="assembly.xml#call_process_filestoprocess_var"/>
@@ -95,22 +86,13 @@
     <element href="assembly.xml#get_SFTP_files_InternalUseOnly"/>
   </visualProperties>
   <visualProperties>
-    <element href="assembly.xml#CallSubRoutineLogFilename"/>
+    <element href="assembly.xml#call_log_filename_get"/>
   </visualProperties>
   <visualProperties>
     <element href="assembly.xml#Get-File-From-SFTP-Out"/>
   </visualProperties>
   <visualProperties>
-    <element href="assembly.xml#MGetFilesFromSFTP_InternalUseOnly"/>
-  </visualProperties>
-  <visualProperties>
-    <element href="assembly.xml#CallGetFileListfromSFTP_mget"/>
-  </visualProperties>
-  <visualProperties>
-    <element href="assembly.xml#CallSubRoutineLogFilePattern"/>
-  </visualProperties>
-  <visualProperties>
-    <element href="assembly.xml#MGet-Files-From-SFTP-Out"/>
+    <element href="assembly.xml#call_get_sftp_file_list"/>
   </visualProperties>
   <visualProperties>
     <element href="assembly.xml#delete_SFTP_files"/>
@@ -119,10 +101,10 @@
     <element href="assembly.xml#Delete-Files-From-SFTP-Out"/>
   </visualProperties>
   <visualProperties>
-    <element href="assembly.xml#CallSubRoutineLogMessage"/>
+    <element href="assembly.xml#call_log_msg_delete_file"/>
   </visualProperties>
   <visualProperties>
-    <element href="assembly.xml#GetFileListfromSFTP"/>
+    <element href="assembly.xml#get_sftp_file_list"/>
   </visualProperties>
   <visualProperties>
     <element href="assembly.xml#List-Files-From-SFTP-Out"/>
@@ -140,7 +122,7 @@
     <element href="assembly.xml#call_get_SFTP_files_InternalUseOnly"/>
   </visualProperties>
   <visualProperties>
-    <element href="assembly.xml#CallSubRoutineProcessFile"/>
+    <element href="assembly.xml#call_process_each_sftp_file"/>
   </visualProperties>
   <visualProperties>
     <element href="assembly.xml#call_delete_SFTP_files"/>
@@ -151,22 +133,30 @@
   <visualProperties>
     <element href="assembly.xml#aggregate_filedetails"/>
   </visualProperties>
-  <connections type="routesTo">
-    <source href="assembly.xml#SubRoutineProcessFile"/>
-    <target href="assembly.xml#set_file_data_var"/>
-  </connections>
-  <connections type="routesTo">
-    <source href="assembly.xml#set_file_data_var"/>
-    <target href="assembly.xml#cp_to_msg"/>
-  </connections>
-  <connections type="routesTo">
-    <source href="assembly.xml#process_file"/>
-    <target href="assembly.xml#set_file_data_var_mget"/>
-  </connections>
-  <connections type="routesTo">
-    <source href="assembly.xml#set_file_data_var_mget"/>
-    <target href="assembly.xml#call_log_filename"/>
-  </connections>
+  <visualProperties x="6" y="-38">
+    <element href="assembly.xml#convert-txt-to-xml"/>
+  </visualProperties>
+  <visualProperties x="1591" y="12">
+    <element href="assembly.xml#call_store_msg_return_msg"/>
+  </visualProperties>
+  <visualProperties x="691" y="544">
+    <element href="assembly.xml#tmp-details"/>
+  </visualProperties>
+  <visualProperties x="854" y="449">
+    <element href="assembly.xml#call_conform_xml"/>
+  </visualProperties>
+  <visualProperties x="1661" y="53">
+    <element href="assembly.xml#call_store_msg_return_msg_file"/>
+  </visualProperties>
+  <visualProperties x="92" y="1256">
+    <element href="assembly.xml#convert-excel-to-csv"/>
+  </visualProperties>
+  <visualProperties x="778" y="1403">
+    <element href="assembly.xml#convert-file-to-xml"/>
+  </visualProperties>
+  <visualProperties x="604" y="1237">
+    <element href="assembly.xml#call_convert-file-to-xml"/>
+  </visualProperties>
   <connections type="routesTo">
     <source href="assembly.xml#process_retrieval_file"/>
     <target href="assembly.xml#set_file_data_var_retrieval"/>
@@ -176,19 +166,11 @@
     <target href="assembly.xml#call_log_filename"/>
   </connections>
   <connections type="routesTo">
-    <source href="assembly.xml#cp_to_msg"/>
-    <target href="assembly.xml#call_process_file_subRoutine"/>
-  </connections>
-  <connections type="routesResponseTo">
-    <source href="assembly.xml#call_log_filename"/>
-    <target href="assembly.xml#cp_to_msg"/>
-  </connections>
-  <connections type="routesTo">
     <source href="assembly.xml#get_and_process_SFTP_files_multiple"/>
-    <target href="assembly.xml#CallMGetFilesFromSFTP_InternalUseOnly"/>
+    <target href="assembly.xml#call_get_SFTP_files_InternalUseOnly_mget"/>
   </connections>
   <connections type="routesResponseTo">
-    <source href="assembly.xml#CallMGetFilesFromSFTP_InternalUseOnly"/>
+    <source href="assembly.xml#call_get_SFTP_files_InternalUseOnly_mget"/>
     <target href="assembly.xml#setup_process_counters_mget"/>
   </connections>
   <connections type="routesTo">
@@ -204,10 +186,6 @@
     <target href="assembly.xml#check_empty_doc"/>
   </connections>
   <connections type="routesTo">
-    <source href="assembly.xml#//@beans/@mixed.1/@route.1/@subRoute.0"/>
-    <target href="assembly.xml#call_process_file_mget"/>
-  </connections>
-  <connections type="routesTo">
     <source href="assembly.xml#//@beans/@mixed.1/@route.1/@subRoute.1"/>
     <target href="assembly.xml#put_integration_message_emptyfile"/>
   </connections>
@@ -221,19 +199,15 @@
   </connections>
   <connections type="routesTo">
     <source href="assembly.xml#get_and_process_SFTP_files"/>
-    <target href="assembly.xml#call_GetFileListfromSFTP"/>
+    <target href="assembly.xml#call_get_sftp_file_list_proc"/>
   </connections>
   <connections type="routesResponseTo">
-    <source href="assembly.xml#call_GetFileListfromSFTP"/>
+    <source href="assembly.xml#call_get_sftp_file_list_proc"/>
     <target href="assembly.xml#call_process_filestoprocess_var"/>
   </connections>
   <connections type="routesResponseTo">
     <source href="assembly.xml#call_process_filestoprocess_var"/>
     <target href="assembly.xml#put_integration_message_nofile"/>
-  </connections>
-  <connections type="routesTo" sourceAnchorX="1.0" targetAnchorX="0.0" targetAnchorY="0.49473684210526314">
-    <source href="assembly.xml#process_filestoprocess_var"/>
-    <target href="assembly.xml#ProcessFile"/>
   </connections>
   <connections type="routesTo" sourceAnchorX="1.0" sourceAnchorY="0.49473684210526314" targetAnchorX="0.0" targetAnchorY="0.4966442953020134">
     <source href="assembly.xml#ProcessFile"/>
@@ -248,43 +222,15 @@
     <target href="assembly.xml#setup_process_counters"/>
   </connections>
   <connections type="routesTo">
-    <source href="assembly.xml#setup_process_counters"/>
-    <target href="assembly.xml#route_each_document"/>
-  </connections>
-  <connections type="routesTo">
     <source href="assembly.xml#//@beans/@mixed.1/@route.0/@subRoute.0"/>
     <target href="assembly.xml#call_process_retrieval_file"/>
   </connections>
-  <connections type="routesTo">
-    <source href="assembly.xml#get_SFTP_files_InternalUseOnly"/>
-    <target href="assembly.xml#CallSubRoutineLogFilename"/>
-  </connections>
   <connections type="routesResponseTo">
-    <source href="assembly.xml#CallSubRoutineLogFilename"/>
+    <source href="assembly.xml#call_log_filename_get"/>
     <target href="assembly.xml#Get-File-From-SFTP-Out"/>
   </connections>
   <connections type="routesTo">
-    <source href="assembly.xml#MGetFilesFromSFTP_InternalUseOnly"/>
-    <target href="assembly.xml#CallGetFileListfromSFTP_mget"/>
-  </connections>
-  <connections type="routesResponseTo">
-    <source href="assembly.xml#CallGetFileListfromSFTP_mget"/>
-    <target href="assembly.xml#CallSubRoutineLogFilePattern"/>
-  </connections>
-  <connections type="routesResponseTo">
-    <source href="assembly.xml#CallSubRoutineLogFilePattern"/>
-    <target href="assembly.xml#MGet-Files-From-SFTP-Out"/>
-  </connections>
-  <connections type="routesTo" sourceAnchorX="1.0" targetAnchorX="0.0">
-    <source href="assembly.xml#delete_SFTP_files"/>
-    <target href="assembly.xml#Delete-Files-From-SFTP-Out"/>
-  </connections>
-  <connections type="routesResponseTo" sourceAnchorX="1.0" targetAnchorX="0.0">
-    <source href="assembly.xml#Delete-Files-From-SFTP-Out"/>
-    <target href="assembly.xml#CallSubRoutineLogMessage"/>
-  </connections>
-  <connections type="routesTo">
-    <source href="assembly.xml#GetFileListfromSFTP"/>
+    <source href="assembly.xml#get_sftp_file_list"/>
     <target href="assembly.xml#List-Files-From-SFTP-Out"/>
   </connections>
   <connections type="routesResponseTo">
@@ -301,117 +247,209 @@
   </connections>
   <connections type="routesResponseTo">
     <source href="assembly.xml#call_get_SFTP_files_InternalUseOnly"/>
-    <target href="assembly.xml#CallSubRoutineProcessFile"/>
+    <target href="assembly.xml#call_process_each_sftp_file"/>
   </connections>
   <connections type="routesResponseTo">
-    <source href="assembly.xml#CallSubRoutineProcessFile"/>
+    <source href="assembly.xml#call_process_each_sftp_file"/>
     <target href="assembly.xml#call_delete_SFTP_files"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#aggregate_filedetails"/>
+    <target href="assembly.xml#tmp-details"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#setup_process_counters"/>
+    <target href="assembly.xml#route_each_document"/>
   </connections>
   <connections type="routesTo">
     <source href="assembly.xml#copy_message_to_file_var"/>
     <target href="assembly.xml#aggregate_filedetails"/>
   </connections>
-  <swimlanes bgColor="12632256" name="Process file" alignment="MIDDLE">
-    <elements href="assembly.xml#SubRoutineProcessFile"/>
-    <elements href="assembly.xml#set_file_data_var"/>
-  </swimlanes>
-  <swimlanes bgColor="12632256" name="Process file from mGet" alignment="MIDDLE">
-    <elements href="assembly.xml#process_file"/>
-    <elements href="assembly.xml#set_file_data_var_mget"/>
-  </swimlanes>
-  <swimlanes bgColor="12632256" name="Process File from Retrieval" alignment="MIDDLE">
-    <elements href="assembly.xml#process_retrieval_file"/>
-    <elements href="assembly.xml#set_file_data_var_retrieval"/>
-  </swimlanes>
-  <swimlanes bgColor="8454016" name="Start File Processing" orientation="VERTICAL" elements="//@swimlanes.0 //@swimlanes.1 //@swimlanes.2" alignment="MIDDLE"/>
-  <swimlanes bgColor="12632256" name="Reset Processing Counters and Variables" alignment="MIDDLE">
+  <connections type="routesTo">
+    <source href="assembly.xml#get_SFTP_files_InternalUseOnly"/>
+    <target href="assembly.xml#call_get_sftp_file_list"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_get_sftp_file_list"/>
+    <target href="assembly.xml#call_log_filename_get"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#delete_SFTP_files"/>
+    <target href="assembly.xml#Delete-Files-From-SFTP-Out"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#Delete-Files-From-SFTP-Out"/>
+    <target href="assembly.xml#call_log_msg_delete_file"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#tmp-details"/>
+    <target href="assembly.xml#call_conform_xml"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_conform_xml"/>
+    <target href="assembly.xml#call_store_msg_return_msg"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#cp_to_msg"/>
+    <target href="assembly.xml#call_store_msg_return_msg_file"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_store_msg_return_msg_file"/>
+    <target href="assembly.xml#call_process_file_subRoutine"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#process_filestoprocess_var"/>
+    <target href="assembly.xml#ProcessFile"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#//@beans/@mixed.1/@route.1/@subRoute.0"/>
+    <target href="assembly.xml#set_file_data_var_mget"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#set_file_data_var_mget"/>
+    <target href="assembly.xml#call_process_file_mget"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_log_filename"/>
+    <target href="assembly.xml#call_convert-file-to-xml"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_convert-file-to-xml"/>
+    <target href="assembly.xml#cp_to_msg"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#convert-file-to-xml"/>
+    <target href="assembly.xml#convert-excel-to-csv"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#convert-excel-to-csv"/>
+    <target href="assembly.xml#convert-txt-to-xml"/>
+  </connections>
+  <swimlanes bgColor="12566463" name="Process External File" elements="//@swimlanes.21 //@swimlanes.45" alignment="MIDDLE"/>
+  <swimlanes bgColor="31221" name="Start File Processing" orientation="VERTICAL" elements="//@swimlanes.14 //@swimlanes.0" alignment="MIDDLE"/>
+  <swimlanes bgColor="42495" name="Reset Processing Counters and Variables" alignment="MIDDLE">
     <elements href="assembly.xml#cp_to_msg"/>
-    <elements href="assembly.xml#call_process_file_subRoutine"/>
+    <elements href="#//@swimlanes.33"/>
   </swimlanes>
-  <swimlanes bgColor="12632256" name="Message File Name">
-    <elements href="assembly.xml#call_log_filename"/>
-  </swimlanes>
-  <swimlanes bgColor="8454016" name="Reset Properties" orientation="VERTICAL" elements="//@swimlanes.4 //@swimlanes.5" alignment="MIDDLE"/>
-  <swimlanes x="18" y="598" bgColor="8355711" name="File Processing" elements="//@swimlanes.3 //@swimlanes.6" alignment="MIDDLE"/>
-  <swimlanes name="Set counters and Split Files" alignment="MIDDLE">
-    <elements href="assembly.xml#setup_process_counters_mget"/>
+  <swimlanes x="18" y="598" bgColor="8454016" name="File Processing" elements="//@swimlanes.1 //@swimlanes.16" alignment="MIDDLE"/>
+  <swimlanes bgColor="8454016" name="Set counters and Split Files" alignment="MIDDLE">
     <elements href="assembly.xml#Splitter-FTP-files"/>
+    <elements href="assembly.xml#set_filename"/>
   </swimlanes>
-  <swimlanes name="Start Process and mGet sFTP files" alignment="MIDDLE">
-    <elements href="assembly.xml#get_and_process_SFTP_files_multiple"/>
-    <elements href="assembly.xml#CallMGetFilesFromSFTP_InternalUseOnly"/>
-    <elements href="#//@swimlanes.8"/>
-  </swimlanes>
-  <swimlanes name="Process File">
+  <swimlanes bgColor="8454016" name="Start Process and mGet sFTP files" elements="//@swimlanes.31 //@swimlanes.12" alignment="MIDDLE"/>
+  <swimlanes bgColor="8454016" name="Process or Skip File" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#set_file_data_var_mget"/>
     <elements href="assembly.xml#call_process_file_mget"/>
-  </swimlanes>
-  <swimlanes name="Log Message about missing/empty file">
     <elements href="assembly.xml#put_integration_message_emptyfile"/>
   </swimlanes>
-  <swimlanes name="Process or Skip File" orientation="VERTICAL" elements="//@swimlanes.10 //@swimlanes.11" alignment="MIDDLE"/>
-  <swimlanes name="Check and Process file" alignment="MIDDLE">
-    <elements href="assembly.xml#set_filename"/>
+  <swimlanes bgColor="16443110" name="Check and Process file" alignment="END">
     <elements href="assembly.xml#check_empty_doc"/>
-    <elements href="#//@swimlanes.12"/>
+    <elements href="#//@swimlanes.6"/>
     <elements href="assembly.xml#call_delete_SFTP_files_mget"/>
   </swimlanes>
-  <swimlanes x="1762" y="1017" bgColor="8355711" name="get_and_process_SFTP_files_multiple" orientation="VERTICAL" elements="//@swimlanes.9 //@swimlanes.13" alignment="MIDDLE"/>
-  <swimlanes name="Process Each File from File List" alignment="MIDDLE">
-    <elements href="assembly.xml#process_filestoprocess_var"/>
-    <elements href="assembly.xml#ProcessFile"/>
-    <elements href="assembly.xml#Unzip-Files-From-SFTP"/>
-    <elements href="assembly.xml#call_process_sftp_file"/>
-  </swimlanes>
-  <swimlanes name="Get and Process file list" orientation="VERTICAL" alignment="MIDDLE">
-    <elements href="assembly.xml#call_process_filestoprocess_var"/>
-    <elements href="#//@swimlanes.15"/>
-  </swimlanes>
-  <swimlanes bgColor="15066597" name="Get and Process sFTP Files" alignment="MIDDLE">
-    <elements href="assembly.xml#get_and_process_SFTP_files"/>
-    <elements href="assembly.xml#call_GetFileListfromSFTP"/>
-    <elements href="#//@swimlanes.16"/>
-    <elements href="assembly.xml#put_integration_message_nofile"/>
-  </swimlanes>
-  <swimlanes name="Process File from Retrieval Service" alignment="MIDDLE">
-    <elements href="assembly.xml#process_retrieved_file"/>
-    <elements href="assembly.xml#setup_process_counters"/>
-    <elements href="assembly.xml#route_each_document"/>
-    <elements href="assembly.xml#call_process_retrieval_file"/>
-  </swimlanes>
-  <swimlanes name="Get sFTP File">
+  <swimlanes bgColor="8454016" name="Process Each File from File List" elements="//@swimlanes.36 //@swimlanes.37" alignment="MIDDLE"/>
+  <swimlanes bgColor="16443110" name="Process File from Retrieval Service" elements="//@swimlanes.22 //@swimlanes.32" alignment="MIDDLE"/>
+  <swimlanes bgColor="8454016" name="Get sFTP File" orientation="VERTICAL" alignment="MIDDLE">
     <elements href="assembly.xml#get_SFTP_files_InternalUseOnly"/>
-    <elements href="assembly.xml#CallSubRoutineLogFilename"/>
-    <elements href="assembly.xml#Get-File-From-SFTP-Out"/>
+    <elements href="assembly.xml#call_get_sftp_file_list"/>
   </swimlanes>
-  <swimlanes name="mGet sFTP Files">
-    <elements href="assembly.xml#MGetFilesFromSFTP_InternalUseOnly"/>
-    <elements href="assembly.xml#CallGetFileListfromSFTP_mget"/>
-    <elements href="assembly.xml#CallSubRoutineLogFilePattern"/>
-    <elements href="assembly.xml#MGet-Files-From-SFTP-Out"/>
-  </swimlanes>
-  <swimlanes name="Delete sFTP Files" alignment="MIDDLE">
+  <swimlanes bgColor="8454016" name="Delete sFTP Files" orientation="VERTICAL" alignment="MIDDLE">
     <elements href="assembly.xml#delete_SFTP_files"/>
     <elements href="assembly.xml#Delete-Files-From-SFTP-Out"/>
-    <elements href="assembly.xml#CallSubRoutineLogMessage"/>
   </swimlanes>
-  <swimlanes x="29" y="19" bgColor="8355711" name="Public local-in transports for sFTP and Retrieval Service File processing" orientation="VERTICAL" elements="//@swimlanes.17 //@swimlanes.18 //@swimlanes.19 //@swimlanes.20 //@swimlanes.21" alignment="MIDDLE"/>
-  <swimlanes name="Get sFTP File List" alignment="MIDDLE">
-    <elements href="assembly.xml#GetFileListfromSFTP"/>
+  <swimlanes x="29" y="19" bgColor="12566463" name="Public local-in transports for sFTP and Retrieval Service File processing" orientation="VERTICAL" elements="//@swimlanes.24" alignment="MIDDLE"/>
+  <swimlanes bgColor="12566463" name="Get sFTP File List" elements="//@swimlanes.27 //@swimlanes.28" alignment="MIDDLE"/>
+  <swimlanes bgColor="12566463" name="Process sFTP files" elements="//@swimlanes.23 //@swimlanes.9"/>
+  <swimlanes bgColor="12566463" name="Aggregate external files to one variable" orientation="VERTICAL" elements="//@swimlanes.29 //@swimlanes.30" alignment="END"/>
+  <swimlanes x="1243" y="28" bgColor="31221" name="Private local-in transports for processing" orientation="VERTICAL" elements="//@swimlanes.13 //@swimlanes.15" alignment="MIDDLE"/>
+  <swimlanes x="98" y="114" bgColor="4108284" name="Common sFTP File Processing" elements="//@swimlanes.18 //@swimlanes.5" alignment="MIDDLE"/>
+  <swimlanes x="40" y="263" bgColor="12632256" name="Process External Files" orientation="VERTICAL" elements="//@swimlanes.40 //@swimlanes.3" alignment="MIDDLE"/>
+  <swimlanes x="1189" y="195" bgColor="16443110" name="Get sFTP Files">
+    <elements href="assembly.xml#get_and_process_SFTP_files_multiple"/>
+    <elements href="assembly.xml#call_get_SFTP_files_InternalUseOnly_mget"/>
+  </swimlanes>
+  <swimlanes x="230" y="318" bgColor="12632256" name="Delete sFTP" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#call_delete_SFTP_files"/>
+    <elements href="assembly.xml#call_process_each_sftp_file"/>
+  </swimlanes>
+  <swimlanes x="728" y="1444" bgColor="42495" name="Process Retrieved File" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#process_retrieval_file"/>
+    <elements href="assembly.xml#set_file_data_var_retrieval"/>
+    <elements href="assembly.xml#call_log_filename"/>
+    <elements href="assembly.xml#call_convert-file-to-xml"/>
+  </swimlanes>
+  <swimlanes x="1145" y="1148" bgColor="42495" name="Process Retrieval" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#process_retrieved_file"/>
+    <elements href="assembly.xml#setup_process_counters"/>
+  </swimlanes>
+  <swimlanes x="210" y="481" bgColor="16443110" name="Process sFTP" orientation="VERTICAL" elements="//@swimlanes.38" alignment="MIDDLE"/>
+  <swimlanes x="2118" y="1044" bgColor="42495" name="Process Each File Found" orientation="VERTICAL" elements="//@swimlanes.26 //@swimlanes.8" alignment="MIDDLE"/>
+  <swimlanes x="2526" y="1220" bgColor="16443110" name="Get and Process Files" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#get_and_process_SFTP_files"/>
+    <elements href="assembly.xml#call_get_sftp_file_list_proc"/>
+  </swimlanes>
+  <swimlanes x="2192" y="1033" bgColor="9498256" name="Process File List" elements="//@swimlanes.25 //@swimlanes.35" alignment="MIDDLE"/>
+  <swimlanes x="160" y="281" bgColor="16443110" name="Start Get sFTP List" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#get_sftp_file_list"/>
     <elements href="assembly.xml#List-Files-From-SFTP-Out"/>
+  </swimlanes>
+  <swimlanes x="585" y="306" bgColor="16443110" name="Files to Process" orientation="VERTICAL" alignment="MIDDLE">
     <elements href="assembly.xml#identifyfilestoprocess"/>
     <elements href="assembly.xml#callsubroutinelogfilelist"/>
   </swimlanes>
-  <swimlanes name="Process sFTP files">
-    <elements href="assembly.xml#process_sftp_file"/>
-    <elements href="assembly.xml#call_get_SFTP_files_InternalUseOnly"/>
-    <elements href="assembly.xml#CallSubRoutineProcessFile"/>
-    <elements href="assembly.xml#call_delete_SFTP_files"/>
-  </swimlanes>
-  <swimlanes name="Aggregate external files to one variable" alignment="MIDDLE">
+  <swimlanes x="338" y="491" bgColor="16443110" name="Copy and Aggregate Msg to Var" alignment="MIDDLE">
     <elements href="assembly.xml#copy_message_to_file_var"/>
     <elements href="assembly.xml#aggregate_filedetails"/>
+    <elements href="assembly.xml#tmp-details"/>
   </swimlanes>
-  <swimlanes x="1243" y="28" bgColor="8355711" name="Private local-in transports for processing" orientation="VERTICAL" elements="//@swimlanes.23 //@swimlanes.24 //@swimlanes.25" alignment="MIDDLE"/>
-  <swimlanes x="18" y="53" name="Common sFTP File Processing" orientation="VERTICAL" elements="//@swimlanes.26 //@swimlanes.22 //@swimlanes.28" alignment="MIDDLE"/>
-  <swimlanes x="149" y="1146" name="Swimlane" elements="//@swimlanes.7 //@swimlanes.14"/>
+  <swimlanes x="904" y="493" bgColor="16443110" name="Store and Conform XML" alignment="MIDDLE">
+    <elements href="assembly.xml#call_store_msg_return_msg"/>
+    <elements href="assembly.xml#call_conform_xml"/>
+  </swimlanes>
+  <swimlanes x="1584" y="354" bgColor="12566463" name="Swimlane" orientation="VERTICAL" elements="//@swimlanes.19 //@swimlanes.34 //@swimlanes.7" alignment="MIDDLE"/>
+  <swimlanes x="381" y="1246" bgColor="42495" name="Swimlane" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#route_each_document"/>
+    <elements href="assembly.xml#call_process_retrieval_file"/>
+  </swimlanes>
+  <swimlanes x="1140" y="876" bgColor="8454016" name="Swimlane" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#call_store_msg_return_msg_file"/>
+    <elements href="assembly.xml#call_process_file_subRoutine"/>
+  </swimlanes>
+  <swimlanes x="1799" y="640" bgColor="16443110" name="Swimlane">
+    <elements href="assembly.xml#setup_process_counters_mget"/>
+    <elements href="#//@swimlanes.4"/>
+  </swimlanes>
+  <swimlanes x="2545" y="776" bgColor="16443110" name="Swimlane" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#put_integration_message_nofile"/>
+    <elements href="assembly.xml#call_process_filestoprocess_var"/>
+  </swimlanes>
+  <swimlanes x="2276" y="1015" name="Swimlane" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#process_filestoprocess_var"/>
+    <elements href="assembly.xml#ProcessFile"/>
+  </swimlanes>
+  <swimlanes x="2715" y="1036" name="Swimlane" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#Unzip-Files-From-SFTP"/>
+    <elements href="assembly.xml#call_process_sftp_file"/>
+  </swimlanes>
+  <swimlanes x="312" y="576" bgColor="8454016" name="Swimlane" elements="//@swimlanes.39 //@swimlanes.20"/>
+  <swimlanes x="413" y="626" bgColor="12632256" name="process_sftp_file" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#process_sftp_file"/>
+    <elements href="assembly.xml#call_get_SFTP_files_InternalUseOnly"/>
+  </swimlanes>
+  <swimlanes x="185" y="180" bgColor="8454016" name="Swimlane" elements="//@swimlanes.41 //@swimlanes.42"/>
+  <swimlanes x="712" y="225" bgColor="42495" name="Swimlane" elements="//@swimlanes.10 //@swimlanes.43"/>
+  <swimlanes x="778" y="260" bgColor="42495" name="Swimlane" elements="//@swimlanes.11 //@swimlanes.44" alignment="MIDDLE"/>
+  <swimlanes x="675" y="267" bgColor="8454016" name="Swimlane" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#Get-File-From-SFTP-Out"/>
+    <elements href="assembly.xml#call_log_filename_get"/>
+  </swimlanes>
+  <swimlanes x="814" y="275" bgColor="8454016" name="Swimlane">
+    <elements href="assembly.xml#call_log_msg_delete_file"/>
+  </swimlanes>
+  <swimlanes x="742" y="1312" bgColor="16443110" name="Convert and Process" orientation="VERTICAL" elements="//@swimlanes.2 //@swimlanes.46"/>
+  <swimlanes x="813" y="1323" bgColor="42495" name="Convert File to XML" alignment="MIDDLE">
+    <elements href="assembly.xml#convert-file-to-xml"/>
+    <elements href="assembly.xml#convert-excel-to-csv"/>
+    <elements href="assembly.xml#convert-txt-to-xml"/>
+  </swimlanes>
 </wdnm:Diagram>

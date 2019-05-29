@@ -10,7 +10,7 @@
      xmlns:wd="urn:com.workday/bsvc"
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
  
-	<cc:assembly id="WorkdayAssembly" version="2017.35">
+    <cc:assembly id="WorkdayAssembly" version="2019.6">
         <cc:aggregator id="aggregate_zip_response_data" force-batch-on-last-message="true" force-batch-when="(props['page.current'] == props['page.total'] || props['page.total'] == -1 || props['close.batch'] == 'yes' || (props['webservice.application'] == 'RAAS' &amp;&amp; util.isLastMessageInBatch())) &amp;&amp; props['allow.batch.close'] == 'yes'">
             <cc:size-batch-strategy batch-size="500000"/>
             <cc:zip-file-collater output="variable" output-variable="upload.data" message-entity-name="@{props['xmlmatch_value']}"/>
@@ -60,6 +60,12 @@
                 </cc:eval>
             </cc:steps>
         </cc:async-mediation>
+        <cc:local-out id="call_store_msg_return_msg_splitxml" execute-when="props['split.output.file']==true &amp;&amp; props['store.data.file']==true" routes-response-to="reset_counter_xml" endpoint="vm://standard_logging/store_msg_return_msg">
+            <cc:set name="upload.filename" value="(props['loop']==1)? props['extract.filename']:props['counter'] + '_' + props['extract.filename']"/>
+            <cc:set name="document.deliver" value="props['deliver.documents']"/>
+            <cc:set name="document.delivery.services" value="props['document.delivery.services']"/>
+            <cc:set name="store.filename" value="'Logging_Output.txt'"/>
+        </cc:local-out>
         <cc:async-mediation id="convert_via_schema" routes-to="call_store_msg_return_msg_splitxml" execute-steps-when="props['aggregate.type'] == 'schema'">
             <cc:steps>
                 <cc:textschema id="converttotext" output="variable" output-variable="upload.data" input="variable" input-variable="upload.data" style="xml2text" url="@{props['xslt.convertconsolidated.filename']}"/>
@@ -78,11 +84,6 @@
       </cc:message-content-collater>
         </cc:aggregator>
         <cc:local-in id="aggregatexmlmessage" routes-to="aggregate_xml_response_data"/>
-        <cc:local-out id="call_store_msg_return_msg_splitxml" execute-when="props['split.output.file']==true &amp;&amp; props['store.data.file']==true" routes-response-to="reset_counter_xml" endpoint="vm://standard_logging/store_msg_for_output_file">
-            <cc:set name="document.deliver" value="props['deliver.documents']"/>
-            <cc:set name="document.delivery.services" value="props['document.delivery.services']"/>
-            <cc:set name="output.filename" value="(props['loop']==1)? props['extract.filename']:props['counter'] + '_' + props['extract.filename']"/>
-        </cc:local-out>
-	</cc:assembly>
+    </cc:assembly>
 
 </beans>

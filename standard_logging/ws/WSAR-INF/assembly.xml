@@ -9,8 +9,8 @@
      xmlns:pi="urn:com.workday/picof"
      xmlns:wd="urn:com.workday/bsvc"
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
- 
-    <cc:assembly id="WorkdayAssembly" version="2017.35">
+
+    <cc:assembly id="WorkdayAssembly" version="2019.6">
         <cc:async-mediation id="return-msg">
             <cc:steps>
                 <cc:copy id="cp-back-to-msg" input="variable" input-variable="input.msg"/>
@@ -50,8 +50,8 @@
             <cc:set name="summary.message" value="'Log File Attached'"/>
             <cc:set name="file.deliver" value="'false'"/>
             <cc:set name="file.delivery.service" value="''"/>
-            <cc:set name="file.number.total" value="props['filesplit-totalcount'] "/>
-            <cc:set name="file.number.current" value="props['currentfilenumber']"/>
+            <cc:set name="file.number.total" value="props['filesplit.totalcount'] "/>
+            <cc:set name="file.number.current" value="props['filesplit.current']"/>
         </cc:local-out>
         <cc:async-mediation id="copyxmltagtomessage" routes-to="call_zip_and_store_output" execute-steps-when="props['xmltagtocopy'].length() != 0">
             <cc:steps>
@@ -62,8 +62,7 @@
             <cc:steps>
                 <cc:eval id="extractfilename">
                     <cc:expression>props['storefilename'] = parts[0].xpath(&quot;//tl:summary_log_information/@tl:filename&quot;, &quot;tl https://github.com/firehawk-consulting/firehawk/schemas/transaction_log.xsd&quot;)</cc:expression>
-                    <cc:expression>props['currentfilenumber'] = props['currentfilenumber'] + 1</cc:expression>
-                    <cc:expression>props['file-currentnumber'] = props['file-currentnumber'] + 1</cc:expression>
+                    <cc:expression>props['filesplit.current'] = props['filesplit.current'] + 1</cc:expression>
                 </cc:eval>
                 <cc:write id="addxmltypeheaderdata">
                     <cc:message>
@@ -73,19 +72,18 @@
                 </cc:write>
             </cc:steps>
         </cc:async-mediation>
-        <cc:splitter id="Splitter-single-log-file" no-split-message-error="false">
-            <cc:sub-route name="SubRoute" routes-to="setfilename"/>
+        <cc:splitter id="spli-single-log-file" no-split-message-error="false">
+            <cc:sub-route name="zip-files" routes-to="setfilename"/>
             <cc:xml-stream-splitter namespaces="tl https://github.com/firehawk-consulting/firehawk/schemas/transaction_log.xsd" xpath="//@{props['xmlsplit_tag']}"/>
         </cc:splitter>
-        <cc:async-mediation id="copytranstomsg" routes-to="Splitter-single-log-file">
+        <cc:async-mediation id="copytranstomsg" routes-to="spli-single-log-file">
             <cc:steps>
                 <cc:xslt id="findfilecount" input="variable" input-variable="xmltosplit" url="lib/transformations/extractsplitcount.xsl"/>
                 <cc:eval id="setfullfilecount">
-                    <cc:expression>props['filesplit-totalcount'] = parts[0].xpath(&quot;//nodecount&quot;)</cc:expression>
-                    <cc:expression>props['currentfilenumber'] = 0</cc:expression>
-                    <cc:expression>props['file-currentnumber'] = 0</cc:expression>
+                    <cc:expression>props['filesplit.totalcount'] = parts[0].xpath(&quot;//nodecount&quot;)</cc:expression>
+                    <cc:expression>props['filesplit.current'] = 0</cc:expression>
                 </cc:eval>
-                <cc:copy id="Copyoutputtomsg" output="message" input="variable" input-variable="xmltosplit"/>
+                <cc:copy id="cp-output-msg" output="message" input="variable" input-variable="xmltosplit"/>
             </cc:steps>
         </cc:async-mediation>
         <cc:local-in id="split_var_processing" routes-to="copytranstomsg" access="private">
@@ -95,7 +93,7 @@
         </cc:local-in>
         <cc:local-out id="call_split_var_processing_summary" endpoint="vm://standard_logging/split_var_processing">
             <cc:set name="xmlsplit_tag" value="'tl:summary_log_information'"/>
-            <cc:set name="summarylogfilename" value="props['process_type'] + '_summarylogs_' + vars['datetime'].text + '.zip'"/>
+            <cc:set name="summarylogfilename" value="props['running.process'] + '_summarylogs_' + vars['datetime'].text + '.zip'"/>
             <cc:set name="xmltagtocopy" value="'summarylogdetails'"/>
         </cc:local-out>
         <cc:async-mediation id="store_summary_log" routes-to="call_split_var_processing_summary">
@@ -108,7 +106,7 @@
         </cc:async-mediation>
         <cc:local-out id="call_split_var_processing_failure" endpoint="vm://standard_logging/split_var_processing">
             <cc:set name="xmlsplit_tag" value="props['failurexmlsplit']"/>
-            <cc:set name="summarylogfilename" value="props['process_type'] + '_failedrecords_' + vars['datetime'].text + '.zip'"/>
+            <cc:set name="summarylogfilename" value="props['running.process'] + '_failedrecords_' + vars['datetime'].text + '.zip'"/>
             <cc:set name="xmltagtocopy" value="''"/>
         </cc:local-out>
         <cc:async-mediation id="parseandstorefailures" routes-to="call_split_var_processing_failure">
@@ -119,64 +117,35 @@
                 </cc:eval>
             </cc:steps>
         </cc:async-mediation>
-        <cc:local-in id="subroutineparseandstorelogs" routes-to="call_parse_failures" access="public" icon="local-in-subroutineparseandstorelogs.png">
+        <cc:local-in id="parse_and_store_logging_info" routes-to="call_parse_failures" access="public" icon="local-in-subroutineparseandstorelogs.png">
             <cc:parameter name="failurexmlsplit" required="true" type="string"/>
             <cc:parameter default="'summaryloginfo'" name="logfilexmlsplit" required="true" type="string"/>
-            <cc:parameter name="process_type"/>
-            <cc:parameter default="0" documentation="Count of Failed records. Used to confirm if a failed transaction file needs to be created" name="record-failedcount" required="false"/>
-            <cc:parameter default="true" name="log-summarydata" required="false"/>
+            <cc:parameter name="process.type"/>
+            <cc:parameter default="0" documentation="Count of Failed records. Used to confirm if a failed transaction file needs to be created" name="record.counter.failed" required="false"/>
+            <cc:parameter default="true" name="log.summarydata" required="false"/>
         </cc:local-in>
-        <cc:async-mediation id="resetmessagetosource">
-            <cc:steps>
-                <cc:copy id="CopyInputtoMessage" input="variable" input-variable="sourcelinedata.xml"/>
-            </cc:steps>
-        </cc:async-mediation>
-        <cc:local-out id="call_store_msg_return_msg_err" execute-when="intsys.getAttribute('logerrorinformation') == true" routes-response-to="resetmessagetosource" endpoint="vm://standard_logging/store_msg_return_msg">
-            <cc:set name="upload.filename" value="'errorinformation.xml'"/>
-            <cc:set name="document.deliver" value="'false'"/>
-            <cc:set name="output.filename" value="'noOutputFilenameProvided.xml'"/>
-            <cc:set name="store.filename" value="'Logging_Output.txt'"/>
-        </cc:local-out>
-        <cc:async-mediation id="processlineoutput" routes-to="call_store_msg_return_msg_err">
-            <cc:steps>
-                <cc:eval id="findstats">
-                    <cc:expression>props['transaction.status'] = vars['error.record'].xpath(&quot;//errorstatus&quot;)</cc:expression>
-                    <cc:expression>props['error.reason'] = vars['error.record'].xpath(&quot;//errorreason&quot;)</cc:expression>
-                    <cc:expression>props['errormessage.detail']=vars['error.record'].xpath(&quot;//errordetails&quot;)</cc:expression>
-                    <cc:expression>props['workday.transaction.id']=''</cc:expression>
-                    <cc:expression>props['transaction.id']=vars['error.record'].xpath(&quot;//sourcetransactionid&quot;)</cc:expression>
-                    <cc:expression>props['additional.information']=vars['error.record'].xpath(&quot;//loginformation&quot;)</cc:expression>
-                    <cc:expression>props['summarysplit.value']=vars['error.record'].xpath(&quot;//summarysplitvalue&quot;)</cc:expression>
-                    <cc:expression>props['spendcategory.list']=vars['error.record'].xpath(&quot;//spendcategorylist&quot;)</cc:expression>
-                    <cc:expression>props['attachment.filename']=vars['error.record'].xpath(&quot;//attachmentfilename&quot;)</cc:expression>
-                </cc:eval>
-                <cc:copy id="copydataforstoring" output="variable" output-variable="upload.data" input="variable" input-variable="error.record"/>
-            </cc:steps>
-        </cc:async-mediation>
-        <cc:local-in id="checkerrorrecord" routes-to="processlineoutput" access="private" use-global-error-handlers="false">
-        </cc:local-in>
-        <cc:local-out id="CallLogConversionError" endpoint="vm://wcc/PutIntegrationMessage">
+        <cc:local-out id="call_log_err" endpoint="vm://wcc/PutIntegrationMessage">
             <cc:set name="is.message.severity" value="'ERROR'"/>
             <cc:set name="is.message.summary" value="'Error converting Text to XML for file: ' + props['sftp.filename']"/>
             <cc:set name="is.message.detail" value="context.errorMessage +' '+ context.errorComponentId"/>
         </cc:local-out>
-        <cc:async-mediation id="setneededpropertiesandvariables" routes-to="CallLogConversionError">
+        <cc:async-mediation id="set-props-and-var" routes-to="call_log_err">
             <cc:steps>
-                <cc:eval id="setprocessingdetails">
+                <cc:eval id="set-procs">
                     <cc:expression>props['transaction.id'] = ''</cc:expression>
                     <cc:expression>props['workday.transaction.id']=''</cc:expression>
                     <cc:expression>props['additional.information']=props['sftp.filename'] + ' failed to convert to xml. Please review and resubmit.'</cc:expression>
                     <cc:expression>props['transaction.status'] = 'failed'</cc:expression>
                     <cc:expression>props['total-record-count'] = 1</cc:expression>
                 </cc:eval>
-                <cc:write id="writegenericsourcelinedata" output="variable" output-variable="sourcelinedata.xml">
+                <cc:write id="write_var" output="variable" output-variable="sourcelinedata.xml">
                     <cc:message>
                         <cc:text>&lt;source_data>File Failed to Convert to XML&lt;/source_data></cc:text>
                     </cc:message>
                 </cc:write>
             </cc:steps>
         </cc:async-mediation>
-        <cc:local-in id="LogFileConversionError" routes-to="setneededpropertiesandvariables" access="public"/>
+        <cc:local-in id="log_file_conversion_err" routes-to="set-props-and-var" access="public"/>
         <cc:local-out id="send_err_msg" endpoint="vm://wcc/PutIntegrationMessage">
             <cc:set name="is.event.wid" value="lp.isSet() ? lp.getIntegrationEventWID() : null"/>
             <cc:set name="is.message.severity" value="props['severity']"/>
@@ -188,7 +157,6 @@
                 <cc:eval id="add-error-count">
                     <cc:expression>props['record.counter.failed']=((props['record.counter.failed'] == null)? 0:props['record.counter.failed'])+1</cc:expression>
                     <cc:expression>props['file.record.counter.failed'] = ((props['file.record.counter.failed'] == null)? 0:props['file.record.counter.failed']) + 1</cc:expression>
-                    <cc:expression>props['file.number.current'] = ((props['file.number.current'] == null)? 0:props['file.number.current']) + 1</cc:expression>
                     <cc:expression>props['error.message.detail']=(props['failed-on-import'] == true) ? context.errorMessage:props['error.message.detail']</cc:expression>
                     <cc:expression>props['error.reason']=(props['failed-on-import'] == true) ? 'Submit Web Service Call Failed':props['error.reason']</cc:expression>
                     <cc:expression>props['transaction.status']=(props['failed-on-import'] == true) ? 'failed':props['transaction.status']</cc:expression>
@@ -199,7 +167,8 @@
             <cc:parameter name="failed-on-import" type="boolean"/>
             <cc:parameter default="false" name="include-file" type="boolean"/>
             <cc:parameter default="''" name="error.message.detail.expanded" required="false" type="string"/>
-            <cc:parameter default="'WARNING'" name="severity" required="false"/><cc:parameter default="''" name="error.message.detail"/>
+            <cc:parameter default="'WARNING'" name="severity" required="false"/>
+            <cc:parameter default="''" name="error.message.detail"/>
         </cc:local-in>
         <cc:async-mediation id="incr_skip_cnt" continue-after-error="rewind" handle-downstream-errors="false">
             <cc:steps>
@@ -218,6 +187,14 @@
                     </cc:message>
                 </cc:write>
                 <cc:xslt id="create_transaction_record" output="variable" output-variable="processingdetails.xml" url="lib/transformations/create_summary_record.xsl"/>
+                <cc:eval id="clear-vars">
+                    <cc:expression>props['source.transaction.id'] = ''</cc:expression>
+                    <cc:expression>props['workday.transaction.id'] = ''</cc:expression>
+                    <cc:expression>props['record.status'] = ''</cc:expression>
+                    <cc:expression>props['additional.information'] = ''</cc:expression>
+                    <cc:expression>props['error.reason'] = ''</cc:expression>
+                    <cc:expression>props['error.message.detail'] = ''</cc:expression>
+                </cc:eval>
             </cc:steps>
         </cc:async-mediation>
         <cc:local-in id="create_transaction_log_record" routes-to="write_transaction_log" access="public">
@@ -232,7 +209,7 @@
             <cc:parameter name="additional.information" required="false"/>
             <cc:parameter default="0" name="transaction.amount" required="false"/>
             <cc:parameter name="error.reason" required="false"/>
-            <cc:parameter name="error.message.detail" required="false"/>
+            <cc:parameter name="error.message.detail" required="false"/><cc:parameter default="'unknown web service call'" name="web.service.call.name" required="true"/>
         </cc:local-in>
         <cc:local-out id="send_to_wd_zip" endpoint="vm://wcc/PutIntegrationMessage">
             <cc:set name="is.event.wid" value="lp.isSet() ? lp.getIntegrationEventWID() : null"/>
@@ -262,11 +239,11 @@
             <cc:set name="file.deliver" value="props['file.deliver']"/>
             <cc:set name="file.delivery.services" value="props['file.delivery.services']"/>
         </cc:local-out>
-        <cc:aggregator id="ZipFilesForTransfer" routes-to="call_store_consol_file" force-batch-on-last-message="false" force-batch-when="props['file.number.total'] == props['file.number.current']">
+        <cc:aggregator id="zip-for-transfer" routes-to="call_store_consol_file" force-batch-on-last-message="false" force-batch-when="props['file.number.total'] == props['file.number.current']">
             <cc:size-batch-strategy batch-size="-1"/>
             <cc:zip-file-collater output="variable" output-variable="consoltransactions.file" format="zip" message-entity-name="@{props['detail.filename']}"/>
         </cc:aggregator>
-        <cc:local-in id="zip_and_store_output" routes-to="ZipFilesForTransfer" access="private">
+        <cc:local-in id="zip_and_store_output" routes-to="zip-for-transfer" access="private">
             <cc:parameter name="detail.filename" required="true" type="string"/>
             <cc:parameter name="detail.message" required="false" type="string"/>
             <cc:parameter name="summary.filename" required="true"/>
@@ -276,7 +253,7 @@
             <cc:parameter name="file.number.total"/>
             <cc:parameter name="file.number.current"/>
         </cc:local-in>
-        <cc:local-out id="update_progress_bar" execute-when="props['percent-complete'] > 0 &amp;&amp; props['percent-complete'] &lt; 100 &amp;&amp; props['file-recordcount'] != props['record-totalcount']" routes-response-to="AsyncMediation0" endpoint="vm://wcc/PutIntegrationEvent">
+        <cc:local-out id="update_progress_bar" execute-when="props['percent-complete'] > 0 &amp;&amp; props['percent-complete'] &lt; 100 &amp;&amp; props['file-recordcount'] != props['record-totalcount']" routes-response-to="reset_msg" endpoint="vm://wcc/PutIntegrationEvent">
             <cc:set name="is.event.wid" value="lp.isSet() ? lp.getIntegrationEventWID() : null"/>
             <cc:set name="is.system.wid" value="lp.isSet() ? lp.getIntegrationSystemRefWID() : null"/>
             <cc:set name="is.response.msg" value="props['record-filecount'] + ' records processed of ' + props['record-totalcount'] + ' for file: ' + props['currentfile-name']"/>
@@ -285,7 +262,7 @@
         <cc:async-mediation id="setpercentcomplete" routes-to="update_progress_bar">
             <cc:steps>
                 <cc:eval id="setpercentcomplete">
-                    <cc:expression>props['percent-complete'] =new java.math.BigDecimal((props['record-filecount']/(props['record-totalcount'] == 0? 1 : props['record-totalcount']))*100)</cc:expression>
+                    <cc:expression>props['percent-complete']=new java.math.BigDecimal((props['record-filecount']/(props['record-totalcount'] == 0? 1 : props['record-totalcount']))*100)</cc:expression>
                 </cc:eval>
             </cc:steps>
         </cc:async-mediation>
@@ -311,33 +288,33 @@
             <cc:set name="is.response.msg" value="props['record-filecount'] + ' records processed of ' + props['record-totalcount'] + ' for file: ' + props['currentfile-name']"/>
             <cc:set name="is.percent.complete" value="10"/>
         </cc:local-out>
-        <cc:local-in id="RenderProcessingStatistics" routes-to="AsyncMediation" access="public" icon="local-in-RenderProcessingStatistics.png" use-global-error-handlers="false">
+        <cc:local-in id="RenderProcessingStatistics" routes-to="bckp_msg" access="public" icon="local-in-RenderProcessingStatistics.png" use-global-error-handlers="false">
             <cc:parameter default="'no filename passed'" name="currentfile-name" required="false"/>
             <cc:parameter default="-1" name="record-totalcount" required="false"/>
             <cc:parameter default="-99" name="record-filecount" required="false"/>
         </cc:local-in>
-        <cc:aggregator id="aggregate-errorrecords" allow-external-control="false" force-batch-on-last-message="false" force-batch-when="props['file-totalcount'] == props['file-currentnumber'] &amp;&amp; (props['record-totalcount'] == props['record-filecount'] || (props['record-totalcount'] == -1 &amp;&amp; util.isLastMessageInBatch()))">
+        <cc:aggregator id="agg-error-records" allow-external-control="false" force-batch-on-last-message="false" force-batch-when="props['file.number.total'] == props['file.number.current'] &amp;&amp; (props['record.count.total'] == props['record.counter'] || (props['record.count.total'] == -1 &amp;&amp; util.isLastMessageInBatch()))">
             <cc:size-batch-strategy batch-size="-1"/>
             <cc:xml-message-content-collater output="variable" output-mimetype="text/xml" output-variable="fullerrorrecorddata">
         <cc:header-text>&lt;errorrecords></cc:header-text>
         <cc:footer-text>&lt;/errorrecords></cc:footer-text>
       </cc:xml-message-content-collater>
         </cc:aggregator>
-        <cc:async-mediation id="copyerrorrecordtovar" routes-to="aggregate-errorrecords">
+        <cc:async-mediation id="cp-error-var" routes-to="agg-error-records">
             <cc:steps>
-                <cc:write id="WriteBlankXML">
+                <cc:write id="blank_msg">
                     <cc:message>
                         <cc:text>&lt;blankxml/></cc:text>
                     </cc:message>
                 </cc:write>
-                <cc:copy id="copyerrorrecordtomsg" input="variable" input-variable="error.record"/>
+                <cc:copy id="cp-err-msg" input="variable" input-variable="error.record"/>
             </cc:steps>
         </cc:async-mediation>
-        <cc:local-in id="aggregateerrorrecorddetails" routes-to="copyerrorrecordtovar" access="public">
-            <cc:parameter default="-1" name="record-totalcount" required="false"/>
-            <cc:parameter default="-99" name="record-filecount" required="false"/>
-            <cc:parameter default="-1" name="file-totalcount" required="false"/>
-            <cc:parameter default="-1" name="file-currentnumber" required="false"/>
+        <cc:local-in id="aggregate_error_record_details" routes-to="cp-error-var" access="public">
+            <cc:parameter default="-1" documentation="record.counter" name="record.count.total" required="false"/>
+            <cc:parameter default="-99" name="record.counter" required="false"/>
+            <cc:parameter default="-1" name="file.number.total" required="false"/>
+            <cc:parameter default="-1" name="file.number.current" required="false"/>
             <cc:out-parameter name="aggregation-complete-flag"/>
         </cc:local-in>
         <cc:async-mediation id="save_processing_rpt">
@@ -345,43 +322,46 @@
                 <cc:xslt id="create_output_html" output="variable" output-mimetype="text/xml" output-variable="processingsummary.log" input="message" url="lib/transformations/create_processing_html_output.xsl"/>
             </cc:steps>
         </cc:async-mediation>
-        <cc:aggregator id="agg-process-record" routes-to="save_processing_rpt" allow-external-control="false" force-batch-on-last-message="false" force-batch-when="(props['file.number.total'] == props['file.number.current'] &amp;&amp; (props['record.count.total'] == props['record.counter'] || (props['record.count.total'] == -1 &amp;&amp; util.isLastMessageInBatch()))) || props['force-close'] == 'yes'">
+        <cc:aggregator id="agg-process-record" routes-to="save_processing_rpt" allow-external-control="false" force-batch-on-last-message="false" force-batch-when="(props['file.number.total'] == props['file.number.current'] &amp;&amp; (props['record.count.total'] == props['record.counter'] || (props['record.count.total'] == -1 &amp;&amp; util.isLastMessageInBatch() &amp;&amp; props['web.service.calls.total'] == props['web.service.calls.counter'])) &amp;&amp; props['continue.loop'] == 'no') || props['force-close'] == 'yes'">
             <cc:size-batch-strategy batch-size="-1"/>
             <cc:xml-message-content-collater output="message" output-mimetype="text/plain">
         <cc:header-text>&lt;Process_Details></cc:header-text>
         <cc:footer-text>&lt;/Process_Details></cc:footer-text>
       </cc:xml-message-content-collater>
         </cc:aggregator>
-        <cc:async-mediation id="CopyInputParameterPD" routes-to="agg-process-record">
+        <cc:async-mediation id="cp-input-param" routes-to="agg-process-record">
             <cc:steps>
-                <cc:write id="WriteBlankXML">
+                <cc:write id="blank_msg">
                     <cc:message>
                         <cc:text>&lt;blankxml/></cc:text>
                     </cc:message>
                 </cc:write>
-                <cc:copy id="cp-proc-summary" input="variable" input-variable="processingdetails.xml"/>
+                <cc:copy id="cp-proc-sum" input="variable" input-variable="processingdetails.xml"/>
             </cc:steps>
         </cc:async-mediation>
-        <cc:local-in id="aggregateprocessingdetails" routes-to="CopyInputParameterPD" access="public">
+        <cc:local-in id="aggregate_processing_details" routes-to="cp-input-param" access="public">
             <cc:parameter name="summarylog.filename" required="true"/>
             <cc:parameter default="'html'" name="summary.log.file.extension"/>
             <cc:parameter default="-1" name="record.count.total" required="false"/>
             <cc:parameter default="-99" name="record.counter" required="false"/>
+            <cc:parameter default="-1" name="web.service.calls.counter" required="false"/>
+            <cc:parameter default="-1" name="web.service.calls.total" required="false"/>
             <cc:parameter default="-1" name="file.number.total" required="false"/>
             <cc:parameter default="-1" name="file.number.current" required="false"/>
             <cc:parameter default="'no'" name="force-close" required="false" type="string"/>
+            <cc:parameter default="'no'" name="continue.loop" required="true"/>
             <cc:out-parameter name="aggregation-complete-flag"/>
         </cc:local-in>
-        <cc:async-mediation id="cp-msg_to_failed-var" execute-steps-when="props['record-failedcount'] != 0">
+        <cc:async-mediation id="cp-msg_to_failed-var" execute-steps-when="props['file.record.counter.failed'] != 0">
             <cc:steps>
                 <cc:copy id="cp-msg-for-upload" output="variable" output-variable="tempfailedoutput.xml" input="variable" input-variable="failedrecords" append-to-output-element="true"/>
             </cc:steps>
         </cc:async-mediation>
-        <cc:aggregator id="agg-failed-record" routes-to="cp-msg_to_failed-var" collate-when="props['transactionstatus']=='failed'" force-batch-on-last-message="false" force-batch-when="(props['record-totalcount'] == props['record-filecount'] || (props['record-totalcount'] == -1 &amp;&amp; util.isLastMessageInBatch())) || props['force-close'] == 'yes'">
+        <cc:aggregator id="agg-failed-record" routes-to="cp-msg_to_failed-var" collate-when="props['record.status']=='failed'" force-batch-on-last-message="false" force-batch-when="(props['file.record.count.total'] == props['file.record.counter'] || (props['file.record.count.total'] == -1 &amp;&amp; util.isLastMessageInBatch())) || props['force-close'] == 'yes'">
             <cc:size-batch-strategy batch-size="-1"/>
             <cc:xml-message-content-collater output="variable" output-mimetype="text/xml" output-variable="failedrecords">
-        <cc:header-text>&lt;@{props['failedtransactionwrap']}@{props['failurenamespace']}>&lt;filename>@{props['failedfilename']}&lt;/filename></cc:header-text>
-        <cc:footer-text>&lt;/@{props['failedtransactionwrap']}></cc:footer-text>
+        <cc:header-text>&lt;@{props['failedtransaction.wrap']}@{props['failedtransaction.namespace']}>&lt;filename>@{props['file.failedrecords.name']}&lt;/filename></cc:header-text>
+        <cc:footer-text>&lt;/@{props['failedtransaction.wrap']}></cc:footer-text>
       </cc:xml-message-content-collater>
         </cc:aggregator>
         <cc:async-mediation id="aggr_failed_info" routes-to="agg-failed-record">
@@ -391,39 +371,34 @@
                         <cc:text>&lt;blankxml/></cc:text>
                     </cc:message>
                 </cc:write>
-                <cc:eval id="set_filename">
-                    <cc:expression>props['failedfilename']=props['processtype']+'_failedtransaction_'+props['sourcefilename']+'_file'+props['file-currentnumber']+'.xml'</cc:expression>
-                </cc:eval>
                 <cc:copy id="cp_source" output-mimetype="text/xml" input="variable" input-variable="sourcelinedata.xml"/>
             </cc:steps>
         </cc:async-mediation>
-        <cc:local-in id="aggregatefailedtransaction" routes-to="aggr_failed_info" access="public" use-global-error-handlers="false">
-            <cc:parameter default="'imported'" documentation="Only Records with a failed value will be summarized." name="transactionstatus" type="string"/>
-            <cc:parameter name="summaryheader" required="false" type="string"/>
-            <cc:parameter name="summaryfooter" required="false" type="string"/>
-            <cc:parameter default="'xml'" name="file_extension" type="string"/>
-            <cc:parameter name="processtype"/>
-            <cc:parameter name="failedtransactionwrap"/>
-            <cc:parameter default="''" name="failurenamespace" required="false" type="string"/>
-            <cc:parameter default="''" name="sourcefilename" required="false" type="string"/>
-            <cc:parameter default="0" name="file-currentnumber" required="false"/>
-            <cc:parameter default="-1" name="record-totalcount" required="false"/>
-            <cc:parameter default="-99" name="record-filecount" required="false"/>
-            <cc:parameter default="0" name="record-failedcount" required="true"/>
+        <cc:local-in id="aggregate_failed_transaction" routes-to="aggr_failed_info" access="public" use-global-error-handlers="false">
+            <cc:parameter default="'imported'" documentation="Only Records with a failed value will be summarized." name="record.status" type="string"/>
+            <cc:parameter name="process.type"/>
+            <cc:parameter name="failedtransaction.wrap" required="true"/>
+            <cc:parameter default="''" name="failedtransaction.namespace" required="false" type="string"/>
+            <cc:parameter default="''" name="file.sourcefile.name" required="false" type="string"/>
+            <cc:parameter default="0" name="file.number.current" required="false"/>
+            <cc:parameter default="-1" name="file.record.count.total" required="false"/>
+            <cc:parameter default="-99" name="file.record.counter" required="false"/>
+            <cc:parameter default="0" name="file.record.counter.failed" required="true"/>
+            <cc:parameter default="props['process.type']+'_failedtransaction_'+props['file.sourcefile.name']+'_file'+props['file.number.current']+'.xml'" name="file.failedrecords.name" required="true"/>
             <cc:parameter default="'no'" name="force-close" required="false" type="string"/>
         </cc:local-in>
         <cc:local-in id="parse_failures" routes-to="parseandstorefailures"/>
         <cc:local-in id="parse_summary" routes-to="store_summary_log"/>
-        <cc:local-out id="call_parse_failures" execute-when="props['record-failedcount'] != 0" routes-response-to="call_parse_summary" endpoint="vm://standard_logging/parse_failures"/>
-        <cc:local-out id="call_parse_summary" execute-when="props['log-summarydata']==true &amp;&amp; vars['processingsummary.log'] != null" endpoint="vm://standard_logging/parse_summary"/>
-        <cc:async-mediation id="AsyncMediation" routes-to="start_progress_bar">
+        <cc:local-out id="call_parse_failures" execute-when="props['record.counter.failed'] != 0" routes-response-to="call_parse_summary" endpoint="vm://standard_logging/parse_failures"/>
+        <cc:local-out id="call_parse_summary" execute-when="props['log.summarydata']==true &amp;&amp; vars['processingsummary.log'] != null" endpoint="vm://standard_logging/parse_summary"/>
+        <cc:async-mediation id="bckp_msg" routes-to="start_progress_bar">
             <cc:steps>
-                <cc:copy id="Copy" output="variable" output-variable="backup.var"/>
+                <cc:copy id="cp_msg_bckp" output="variable" output-variable="backup.var"/>
             </cc:steps>
         </cc:async-mediation>
-        <cc:async-mediation id="AsyncMediation0">
+        <cc:async-mediation id="reset_msg">
             <cc:steps>
-                <cc:copy id="Copy" input="variable" input-variable="backup.var"/>
+                <cc:copy id="cp_bckp" input="variable" input-variable="backup.var"/>
             </cc:steps>
         </cc:async-mediation>
     </cc:assembly>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wdnm:Diagram xmlns:wdnm="http://workday.com/studio/editors/notation">
+  <element href="assembly.xml#WorkdayAssembly"/>
+  <visualProperties>
+    <element href="assembly.xml#create_wd_web_service_call"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#xslt_get_web_service_xml"/>
+  </visualProperties>
+  <connections type="routesTo">
+    <source href="assembly.xml#create_wd_web_service_call"/>
+    <target href="assembly.xml#xslt_get_web_service_xml"/>
+  </connections>
+  <swimlanes bgColor="13621203" name="Get WS Call" alignment="MIDDLE">
+    <elements href="assembly.xml#create_wd_web_service_call"/>
+    <elements href="assembly.xml#xslt_get_web_service_xml"/>
+  </swimlanes>
+  <swimlanes x="11" y="25" bgColor="4108284" name="Set WS Calls" orientation="VERTICAL" elements="//@swimlanes.0" alignment="MIDDLE"/>
+</wdnm:Diagram>
