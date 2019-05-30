@@ -334,7 +334,9 @@
                 </xsl:variable>
                 <xsl:if test="string-length(fhcsi:override_payment_type) != 0">
                     <bsvc:Override_Payment_Type_Reference>
-                        <bsvc:ID bsvc:type=""></bsvc:ID>
+                        <bsvc:ID bsvc:type="Payment_Type_ID">
+                            <xsl:value-of select="fhcsi:override_payment_type"/>
+                        </bsvc:ID>
                     </bsvc:Override_Payment_Type_Reference>
                 </xsl:if>
                 <xsl:variable name="other_line_amounts">
