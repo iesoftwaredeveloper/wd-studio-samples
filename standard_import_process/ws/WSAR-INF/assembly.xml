@@ -56,7 +56,7 @@
             <cc:set name="file.number" value="props['file.number.current']"/>
             <cc:set name="file.record.counter" value="props['file.record.counter']"/>
             <cc:set name="file.name" value="props['sftp.filename']"/>
-            <cc:set name="source.transaction.id" value="props['record.counter']"/>
+            <cc:set name="source.transaction.id" value="props['record.counter'] + '-' + props['web.service.calls.counter']"/>
             <cc:set name="workday.transaction.id" value="props['workday.transaction.id']"/>
             <cc:set name="record.status" value="'imported'"/>
             <cc:set name="error.reason" value="''"/>
@@ -90,6 +90,7 @@
                     <cc:expression>props['workday.transaction.id'] = (props['web.service.put.workday.id.tag'] == null)? '' : vars['ws.put.msg'].xpath(props['web.service.put.workday.id.tag'], props['web.service.put.workday.id.namespace'])</cc:expression>
                     <cc:expression>props['workday.web.service.call'] = vars['ws.put.msg'].xpath(&quot;//env:Body/local-name(*[1])&quot;)</cc:expression>
                     <cc:expression>props['web.service.calls.counter'] = ((props['web.service.calls.counter'] == null)? 0:props['web.service.calls.counter']) + 1</cc:expression>
+                    <cc:expression>props['web.service.put.application'] = (vars['ws.put.msg'].xpath(&quot;//env:Body/@web_service_application&quot;)!= '')? vars['ws.put.msg'].xpath(&quot;//env:Body/@web_service_application&quot;) : props['web.service.put.application']</cc:expression>
                 </cc:eval>
             </cc:steps>
             <cc:send-error id="SendError" routes-to="call_process_Err_Msg"/>

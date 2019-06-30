@@ -12,11 +12,8 @@
     <value class="java.lang.Boolean" key="ICcFacetInstallDataModelProperties.MODULE_SERVICE_NAME_CUSTOM">false</value>
     <list key="IWsCloudAssemblyFacetInstallDataModelProperties.MEMBER_OF_CLOUD_COLLECTIONS">
         <value class="java.lang.String">revenue_invoice_imports</value>
-        <value class="java.lang.String">external_journal_entries</value>
-        <value class="java.lang.String">migration_to_region</value>
-        <value class="java.lang.String">supplier_invoice_imports</value>
-        <value class="java.lang.String">internal_audit_data_audits</value>
         <value class="java.lang.String">mass_sync_data</value>
+        <value class="java.lang.String">supplier_invoice_imports</value>
     </list>
     <value class="java.lang.Boolean" key="ICcFacetInstallDataModelProperties.MODULE_SERVICE_NAME_VERSION">false</value>
     <value class="java.lang.Boolean" key="ICcFacetInstallDataModelProperties.EXPORT_REFERENCED_WEBSERVICE_PROJECT_CLASSPATH">false</value>
