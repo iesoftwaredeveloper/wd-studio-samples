@@ -48,7 +48,7 @@
             <cc:parameter name="page.current"/>
             <cc:parameter name="page.total"/>
             <cc:parameter default="'Output Filename Not Set.txt'" name="output.filename" required="true"/>
-            <cc:parameter default="false" name="document.deliver" required="true"/>
+            <cc:parameter default="'false'" name="document.deliver" required="true"/>
             <cc:parameter name="document.delivery.services"/>
         </cc:local-in>
         <cc:async-mediation id="reset_counter_xml" execute-steps-when="props['webservice.application']=='RAAS' &amp;&amp; props['split.output.file']==true">

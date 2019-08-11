@@ -232,7 +232,7 @@
                     <cc:expression>props['single.instance.update.2.name'] = (props['web.service.put.update.single.instance.2'].length() == 0)? 'no': intsys.getAttribute(props['web.service.put.update.single.instance.2'])</cc:expression>
                     <cc:expression>props['single.instance.update.3.name'] = (props['web.service.put.update.single.instance.3'].length() == 0)? 'no': intsys.getAttribute(props['web.service.put.update.single.instance.3'])</cc:expression>
                     <cc:expression>props['update.data'] = intsys.getAttributeAsBoolean(props['web.service.put.update.data.attribute'], true)</cc:expression>
-                    <cc:expression>props['deliver.documents'] = intsys.getAttributeAsBoolean(props['output.file.deliver.documents.attribute'], true)</cc:expression>
+                    <cc:expression>props['deliver.documents'] = intsys.getAttribute(props['output.file.deliver.documents.attribute'])</cc:expression>
                 </cc:eval>
                 <cc:xslt id="set-report-filter" output="variable" output-variable="report.filter.xml" input="variable" input-variable="config.properties" url="lib/processing/set_report_filter_details.xsl"/>
                 <cc:eval id="set-report-props">

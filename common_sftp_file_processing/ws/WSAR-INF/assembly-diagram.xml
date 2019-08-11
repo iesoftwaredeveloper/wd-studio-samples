@@ -325,7 +325,7 @@
     <source href="assembly.xml#convert-excel-to-csv"/>
     <target href="assembly.xml#convert-txt-to-xml"/>
   </connections>
-  <swimlanes bgColor="12566463" name="Process External File" elements="//@swimlanes.21 //@swimlanes.45" alignment="MIDDLE"/>
+  <swimlanes bgColor="12566463" name="Process External File" elements="//@swimlanes.47 //@swimlanes.45" alignment="MIDDLE"/>
   <swimlanes bgColor="31221" name="Start File Processing" orientation="VERTICAL" elements="//@swimlanes.14 //@swimlanes.0" alignment="MIDDLE"/>
   <swimlanes bgColor="42495" name="Reset Processing Counters and Variables" alignment="MIDDLE">
     <elements href="assembly.xml#cp_to_msg"/>
@@ -372,11 +372,9 @@
     <elements href="assembly.xml#call_delete_SFTP_files"/>
     <elements href="assembly.xml#call_process_each_sftp_file"/>
   </swimlanes>
-  <swimlanes x="728" y="1444" bgColor="42495" name="Process Retrieved File" orientation="VERTICAL" alignment="MIDDLE">
+  <swimlanes x="728" y="1444" bgColor="42495" name="Process Retrieved File" alignment="MIDDLE">
     <elements href="assembly.xml#process_retrieval_file"/>
     <elements href="assembly.xml#set_file_data_var_retrieval"/>
-    <elements href="assembly.xml#call_log_filename"/>
-    <elements href="assembly.xml#call_convert-file-to-xml"/>
   </swimlanes>
   <swimlanes x="1145" y="1148" bgColor="42495" name="Process Retrieval" orientation="VERTICAL" alignment="MIDDLE">
     <elements href="assembly.xml#process_retrieved_file"/>
@@ -451,5 +449,10 @@
     <elements href="assembly.xml#convert-file-to-xml"/>
     <elements href="assembly.xml#convert-excel-to-csv"/>
     <elements href="assembly.xml#convert-txt-to-xml"/>
+  </swimlanes>
+  <swimlanes x="319" y="1404" bgColor="16443110" name="Swimlane" orientation="VERTICAL" elements="//@swimlanes.21 //@swimlanes.48"/>
+  <swimlanes x="287" y="1273" bgColor="42495" name="Swimlane">
+    <elements href="assembly.xml#call_log_filename"/>
+    <elements href="assembly.xml#call_convert-file-to-xml"/>
   </swimlanes>
 </wdnm:Diagram>
