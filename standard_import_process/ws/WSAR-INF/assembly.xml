@@ -118,7 +118,7 @@
         <cc:local-out id="call_create_wd_put_call" routes-response-to="call_store_msg_return_msg_put" endpoint="vm://@{props['web.service.put.create.ws.xml.endpoint']}">
             <cc:set name="web.service.create.ws.xml.filename" value="props['web.service.put.create.ws.xml.filename']"/>
         </cc:local-out>
-        <cc:local-out id="call_aggregateprocessingdetails" execute-when="props['web.service.summary.log'] == true &amp;&amp; props['web.service.calls.count'] != props['web.service.calls.total']" endpoint="vm://standard_logging/aggregate_processing_details">
+        <cc:local-out id="call_aggregateprocessingdetails" execute-when="props['web.service.summary.log'] == true &amp;&amp; props['web.service.calls.counter'] != props['web.service.calls.total']" endpoint="vm://standard_logging/aggregate_processing_details">
             <cc:set name="summarylog.filename" value="'Summary_Log_Information'"/>
             <cc:set name="summarylog.file.extension" value="'html'"/>
             <cc:set name="record.count.total" value="props['record.count.total']"/>
@@ -130,7 +130,7 @@
             <cc:set name="web.service.calls.counter" value="props['web.service.calls.counter']"/>
             <cc:set name="web.service.calls.total" value="props['web.service.calls.total']"/>
         </cc:local-out>
-        <cc:async-mediation id="set-ws-props" routes-to="split_ws_put">
+        <cc:async-mediation id="set-ws-props" routes-to="rtr-trans-to-import">
             <cc:steps>
                 <cc:eval id="set-import-stats">
                     <cc:expression>props['web.service.calls.total'] = parts[0].xpath(&quot;count(//env:Body)&quot;)</cc:expression>
@@ -142,6 +142,27 @@
             <cc:set name="is.message.severity" value="'INFO'"/>
             <cc:set name="is.message.summary" value="'Processed Web Service Call: ' + props['web.service.calls.counter'] + ' of ' + props['web.service.calls.total']"/>
             <cc:set name="is.message.storage.enabled" value="false"/>
+        </cc:local-out>
+        <cc:route id="rtr-trans-to-import">
+            <cc:mvel-strategy filter="false">
+                <cc:choose-route expression="props['web.service.calls.total'] != 0" route="import-trans"/>
+                <cc:choose-route expression="props['web.service.calls.total'] == 0" route="skip-transaction"/>
+            </cc:mvel-strategy>
+            <cc:sub-route name="import-trans" routes-to="split_ws_put"/>
+            <cc:sub-route name="skip-transaction" routes-to="call_create_transaction_log_record_skipped"/>
+        </cc:route>
+        <cc:local-out id="call_create_transaction_log_record_skipped" execute-when="props['web.service.summary.log'] == true" routes-response-to="call_aggregateprocessingdetails" endpoint="vm://standard_logging/create_transaction_log_record">
+            <cc:set name="record.counter" value="props['record.counter']"/>
+            <cc:set name="file.number" value="props['file.number.current']"/>
+            <cc:set name="file.record.counter" value="props['file.record.counter']"/>
+            <cc:set name="file.name" value="props['sftp.filename']"/>
+            <cc:set name="source.transaction.id" value="props['record.counter']"/>
+            <cc:set name="workday.transaction.id" value="'N/A'"/>
+            <cc:set name="record.status" value="'skipped'"/>
+            <cc:set name="error.reason" value="''"/>
+            <cc:set name="error.message.detail" value="''"/>
+            <cc:set name="additional.information" value="''"/>
+            <cc:set name="web.service.call.name" value="'N/A'"/>
         </cc:local-out>
     </cc:assembly>
 

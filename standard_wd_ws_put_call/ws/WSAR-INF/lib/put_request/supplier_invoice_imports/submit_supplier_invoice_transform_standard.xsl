@@ -60,18 +60,18 @@
     </xsl:variable> -->
     <!-- Variable populated within Workday Studio with all Supplier Contract Data for the current file -->
     <!-- <xsl:variable name="suppliercontract.details" select="document('mctx:vars/suppliercontractdetails.xml')"/> -->
-    <xsl:variable name="suppliercontract.details">
-        <xsl:call-template name="create_blank_xml"/>
-    </xsl:variable>
+    <xsl:variable name="suppliercontract.details" select="document('mctx:vars/supplier.contract.xml')"/>
+        <!-- <xsl:call-template name="create_blank_xml"/>
+    </xsl:variable>-->
     <!-- Variable populated within Workday Studio with all encoded Attachments for the current file -->
     <!-- <xsl:variable name="attachment.data" select="document('mctx:vars/attachment.data')"/> -->
     <xsl:variable name="attachment.data">
         <xsl:call-template name="create_blank_xml"/>
     </xsl:variable>
 
-    <xsl:function name="fhc:forceValue" as="xsd:decimal">
+    <xsl:function name="fhc:forceValue">
         <xsl:param name="inputdata"/>
-        <xsl:param name="defaultoutput" as="xsd:decimal"/>
+        <xsl:param name="defaultoutput"/>
         <xsl:choose>
             <xsl:when test="string-length(normalize-space($inputdata))">
                 <xsl:value-of select="normalize-space($inputdata)"/>
@@ -83,13 +83,9 @@
     </xsl:function>
 
     <xsl:template match="/">
-        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:bsvc="urn:com.workday/bsvc">
-            <soapenv:Header/>
-            <soapenv:Body>
-                <!--<xsl:apply-templates select="//fhcsi:supplier_invoice_data[fhcsi:invoice_type='d' or fhcsi:invoice_type='i' or fhcsi:invoice_type='c']"/>-->
-                <xsl:apply-templates select="//fhcsi:supplier_invoice_data" mode="#default"/>
-            </soapenv:Body>
-        </soapenv:Envelope>
+        <consolidated_wrap>
+            <xsl:apply-templates select="//fhcsi:supplier_invoice_data" mode="#default"/>
+        </consolidated_wrap>
     </xsl:template>
 
     <xsl:template match="fhcsi:supplier_invoice_data" mode="#default">
@@ -129,13 +125,28 @@
                 </xsl:otherwise>
             </xsl:choose>
         </xsl:variable>
+        <xsl:variable name="prepaid.invoice" select="fhc:forceValue(fhcsi:prepaid_invoice,'0')"/>
+        <xsl:variable name="prepaid.invoice.installments" select="fhc:forceValue(fhcsi:prepaid_details/fhcsi:installments,'0')"/>
         <xsl:variable name="invoice_type" select="document('')/*/fhc:invoice_type_lookup_map/fhc:invoice_type_lookup[@lkp_value = $lkp_invoice_type]/@invoice_type"/>
-        <xsl:if test="$invoice_type = 'invoice' or $invoice_type = 'invoice_adjustment' or $invoice_type = 'invoice_cw' ">
-            <xsl:apply-templates select="." mode="transaction">
-                <xsl:with-param name="invoice.type" select="$invoice_type"/>
-                <xsl:with-param name="po.number" select="$ponumber"/>
-                <xsl:with-param name="import.supplier.id" select="$import_supplier_id"/>
-            </xsl:apply-templates>
+        <xsl:if test="$invoice_type = 'invoice' or $invoice_type = 'invoice_adjustment' or $invoice_type = 'invoice_cw' or $invoice_type = 'invoice_low_volume'">
+            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:bsvc="urn:com.workday/bsvc">
+                <soapenv:Header/>
+                <soapenv:Body>
+                    <xsl:apply-templates select="." mode="transaction">
+                        <xsl:with-param name="invoice.type" select="$invoice_type"/>
+                        <xsl:with-param name="po.number" select="$ponumber"/>
+                        <xsl:with-param name="import.supplier.id" select="$import_supplier_id"/>
+                    </xsl:apply-templates>
+                </soapenv:Body>
+            </soapenv:Envelope>
+            <xsl:if test="xsd:string($prepaid.invoice) = '1' and xsd:string($prepaid.invoice.installments) = '1'">
+                <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:bsvc="urn:com.workday/bsvc">
+                    <soapenv:Header/>
+                    <soapenv:Body>
+                        <xsl:apply-templates select="." mode="prepaid_schedule"/>
+                    </soapenv:Body>
+                </soapenv:Envelope>
+            </xsl:if>
         </xsl:if>
     </xsl:template>
 
@@ -147,12 +158,8 @@
         <xsl:copy-of copy-namespaces="no" select="document('')/*/fhc:webservice_tags/webservice[@type = $invoice.type]"/>
         </xsl:variable>
         <xsl:element name="{$webservice_call_name//call}">
-            <xsl:attribute name="bsvc:version">
-                <xsl:value-of select="$web.service.version"/>
-            </xsl:attribute>
-            <xsl:attribute name="bsvc:Add_Only">
-                <xsl:value-of select="$web.service.add.only"/>
-            </xsl:attribute>
+            <xsl:attribute name="bsvc:version" select="$web.service.version"/>
+            <xsl:attribute name="bsvc:Add_Only" select="xsd:boolean($web.service.add.only)"/>
             <bsvc:Business_Process_Parameters>
                 <bsvc:Auto_Complete>
                     <xsl:value-of select="$web.service.auto.complete"/>
@@ -211,7 +218,7 @@
                     </xsl:choose>
                 </xsl:element>
                 <xsl:choose>
-                    <xsl:when test="$invoice.type = 'invoice' or $invoice.type = 'invoice_cw' ">
+                    <xsl:when test="$invoice.type = 'invoice' or $invoice.type = 'invoice_cw' or $invoice.type = 'invoice_low_volume'">
                         <bsvc:Control_Amount_Total>
                             <xsl:value-of select="format-number(fhcsi:invoice_total,'####.00')"/>
                         </bsvc:Control_Amount_Total>
@@ -282,7 +289,7 @@
                     </bsvc:ID>
                 </bsvc:Currency_Reference>
                 <xsl:choose>
-                    <xsl:when test="not(contains($import.supplier.id, 'SUP-'))">
+                    <xsl:when test="fhcsi:supplier_info/fhcsi:workday_supplier_id/@fhcsi:id_type = 'Contingent_Worker_ID'">
                         <bsvc:Contingent_Worker_Reference>
                             <bsvc:ID>
                                 <xsl:attribute name="bsvc:type">
@@ -296,7 +303,7 @@
                         <bsvc:Supplier_Reference>
                             <bsvc:ID>
                                 <xsl:attribute name="bsvc:type">
-                                    <xsl:value-of select="'Supplier_ID'"/>
+                                    <xsl:value-of select="fhcsi:supplier_info/fhcsi:workday_supplier_id/@fhcsi:id_type"/>
                                 </xsl:attribute>
                                 <xsl:value-of select="$import.supplier.id"/>
                             </bsvc:ID>
@@ -306,7 +313,7 @@
                 <bsvc:Suppliers_Invoice_Number>
                     <xsl:value-of select="fhcsi:supplier_invoice_number"/>
                 </bsvc:Suppliers_Invoice_Number>
-                <xsl:if test="string-length(fhcsi:external_po_number) !=0">
+                <xsl:if test="string-length(fhcsi:external_po_number) != 0">
                     <bsvc:External_PO_Number>
                         <xsl:value-of select="fhcsi:external_po_number"/>
                     </bsvc:External_PO_Number>
@@ -317,6 +324,19 @@
                             <xsl:value-of select="fhcsi:workday_contract_number"/>
                         </bsvc:ID>
                     </bsvc:Supplier_Contract_Reference>
+                </xsl:if>
+                <xsl:if test="$invoice.type = 'invoice' or $invoice.type = 'invoice_cw' or $invoice.type = 'invoice_low_volume'">
+                    <bsvc:Prepaid>
+                        <xsl:value-of select="fhc:forceValue(fhcsi:prepaid_invoice,0)"/>
+                    </bsvc:Prepaid>
+                </xsl:if>
+                <xsl:if test="fhc:forceValue(fhcsi:prepaid_invoice,0) != 0">
+                    <bsvc:Prepayment_Release_Type_Reference>
+                        <bsvc:ID>
+                            <xsl:attribute name="bsvc:type" select="fhcsi:prepayment_release_type/@fhcsi:id_type"/>
+                            <xsl:value-of select="fhcsi:prepayment_release_type"/>
+                        </bsvc:ID>
+                    </bsvc:Prepayment_Release_Type_Reference>
                 </xsl:if>
                 <xsl:variable name="imagefilename">
                     <xsl:value-of select="fhcsi:image_data/fhcsi:image_file"/>
@@ -360,6 +380,7 @@
                         <xsl:with-param name="line.instance" select="position()"/>
                     </xsl:apply-templates>
                 </xsl:for-each-group>
+                <xsl:apply-templates select="fhcsi:prepaid_details"/>
             </xsl:element>
         </xsl:element>
     </xsl:template>
@@ -444,6 +465,11 @@
                 <xsl:attribute name="po_line_found" select="$po.information//po_line_data/@po_line_found"/>
                 <xsl:copy-of select="$po.information"/>
             </po_info>-->
+            <xsl:if test="exists(fhcsi:line_id)">
+                <bsvc:Supplier_Invoice_Line_ID>
+                    <xsl:value-of select="fhcsi:line_id"/>
+                </bsvc:Supplier_Invoice_Line_ID>
+            </xsl:if>
             <xsl:if test="$headercompany != fhcsi:line_company_id and string-length(fhcsi:line_company_id) != 0">
                 <bsvc:Intercompany_Affiliate_Reference>
                     <bsvc:ID>
@@ -453,6 +479,7 @@
                 </bsvc:Intercompany_Affiliate_Reference>
             </xsl:if>
             <xsl:variable name="spendcategory.id" select="if (string-length(fhcsi:spend_category_id) = 0) then $po.information//po_line_data//bsvc:ID[@bsvc:type = 'Spend_Category_ID'] else fhcsi:spend_category_id"/>
+            <xsl:variable name="spendcategory.id.type" select="if (string-length(fhcsi:spend_category_id) = 0) then 'Spend_Category_ID' else fhcsi:spend_category_id/@fhcsi:type"/>
             <xsl:variable name="tax.applicability">
                 <spend_category>
                     <xsl:apply-templates select="$spendcategory.data//bsvc:Resource_Category_Data[bsvc:Resource_Category_ID=$spendcategory.id][1]"/>
@@ -532,7 +559,7 @@
                     <xsl:if test="string-length($spendcategory.id) != 0">
                         <bsvc:Spend_Category_Reference>
                             <bsvc:ID>
-                                <xsl:attribute name="bsvc:type" select="'Spend_Category_ID'"/>
+                                <xsl:attribute name="bsvc:type" select="$spendcategory.id.type"/>
                                 <xsl:value-of select="$spendcategory.id"/>
                             </bsvc:ID>
                         </bsvc:Spend_Category_Reference>
@@ -558,7 +585,7 @@
                     <xsl:if test="string-length($spendcategory.id) != 0">
                         <bsvc:Spend_Category_Reference>
                             <bsvc:ID>
-                                <xsl:attribute name="bsvc:type" select="'Spend_Category_ID'"/>
+                                <xsl:attribute name="bsvc:type" select="$spendcategory.id.type"/>
                                 <xsl:value-of select="$spendcategory.id"/>
                             </bsvc:ID>
                         </bsvc:Spend_Category_Reference>
@@ -578,7 +605,7 @@
                     <xsl:if test="string-length($spendcategory.id) != 0">
                         <bsvc:Spend_Category_Reference>
                             <bsvc:ID>
-                                <xsl:attribute name="bsvc:type" select="'Spend_Category_ID'"/>
+                                <xsl:attribute name="bsvc:type" select="$spendcategory.id.type"/>
                                 <xsl:value-of select="$spendcategory.id"/>
                             </bsvc:ID>
                         </bsvc:Spend_Category_Reference>
@@ -655,6 +682,9 @@
                     </bsvc:ID>
                 </bsvc:Worktags_Reference>
             </xsl:if>
+            <bsvc:Prepaid>
+                <xsl:value-of select="fhc:forceValue(fhcsi:prepaid_line,0)"/>
+            </bsvc:Prepaid>
         </bsvc:Invoice_Line_Replacement_Data>
     </xsl:template>
 
@@ -663,7 +693,8 @@
         <xsl:param name="headercompany"/>
         <xsl:param name="po.information"/>
 
-        <xsl:variable name="spend_category_id" select="if (string-length(fhcsi:spend_category_id) = 0) then $po.information//po_line_data//bsvc:ID[@bsvc:type = 'Spend_Category_ID'] else fhcsi:spend_category_id"/>
+        <xsl:variable name="spendcategory.id" select="if (string-length(fhcsi:spend_category_id) = 0) then $po.information//po_line_data//bsvc:ID[@bsvc:type = 'Spend_Category_ID'] else fhcsi:spend_category_id"/>
+        <xsl:variable name="spendcategory.id.type" select="if (string-length(fhcsi:spend_category_id) = 0) then 'Spend_Category_ID' else fhcsi:spend_category_id/@fhcsi:type"/>
         <bsvc:Invoice_Line_Replacement_Data>
             <xsl:if test="string-length(fhcsi:line_order) != 0">
                 <bsvc:Line_Order>
@@ -682,8 +713,9 @@
                 <xsl:value-of select="concat('Discount - ',replace(normalize-unicode(fhcsi:item_description,'NFC'),'\P{IsBasicLatin}',''))"/>
             </bsvc:Item_Description>
             <bsvc:Spend_Category_Reference>
-                <bsvc:ID bsvc:type="Spend_Category_ID">
-                    <xsl:value-of select="$spend_category_id"/>
+                <bsvc:ID>
+                    <xsl:attribute name="bsvc:type" select="$spendcategory.id.type"/>
+                    <xsl:value-of select="$spendcategory.id"/>
                 </bsvc:ID>
             </bsvc:Spend_Category_Reference>
             <bsvc:Quantity>
@@ -696,6 +728,9 @@
                 <xsl:value-of select="format-number(xsd:decimal($discount.line.total),'####.00')"/>
             </bsvc:Extended_Amount>
             <xsl:apply-templates select="$po.information//po_line_data//bsvc:Worktags_Reference"/>
+            <bsvc:Prepaid>
+                <xsl:value-of select="fhc:forceValue(fhcsi:prepaid_line,0)"/>
+            </bsvc:Prepaid>
         </bsvc:Invoice_Line_Replacement_Data>
     </xsl:template>
 
@@ -815,6 +850,108 @@
         </xsl:if>
     </xsl:template>
 
+    <xsl:template match="fhcsi:prepaid_details">
+        <bsvc:Supplier_Invoice_Prepaid_Amortization_Schedule>
+            <bsvc:Frequency_Reference>
+                <bsvc:ID>
+                    <xsl:attribute name="bsvc:type" select="fhcsi:frequency_id/@fhcsi:id_type"/>
+                    <xsl:value-of select="fhcsi:frequency_id"/>
+                </bsvc:ID>
+            </bsvc:Frequency_Reference>
+            <bsvc:Number_of_Installments>
+                <xsl:value-of select="fhcsi:installments"/>
+            </bsvc:Number_of_Installments>
+            <!-- <bsvc:Use_Invoice_Date>false</bsvc:Use_Invoice_Date> -->
+            <bsvc:From_Date>
+                <xsl:value-of select="fhcsi:from_date"/>
+            </bsvc:From_Date>
+            <bsvc:Include_All_Available_Prepaid_Lines>
+                <xsl:value-of select="fhcsi:include_all_lines"/>
+            </bsvc:Include_All_Available_Prepaid_Lines>
+            <!-- <bsvc:Prepaid_Supplier_Invoice_Lines>
+                    <bsvc:Supplier_Invoice_Line_ID>string</bsvc:Supplier_Invoice_Line_ID>
+                </bsvc:Prepaid_Supplier_Invoice_Lines> -->
+        </bsvc:Supplier_Invoice_Prepaid_Amortization_Schedule>
+    </xsl:template>
+
+    <xsl:template match="fhcsi:supplier_invoice_data" mode="prepaid_schedule">
+        <bsvc:Submit_Prepaid_Spend_Amortization_Schedule_Request>
+            <xsl:attribute name="bsvc:version" select="$web.service.version"/>
+            <bsvc:Supplier_Invoice_Reference>
+                <bsvc:ID bsvc:type="Supplier_Invoice_Reference_ID">
+                    <xsl:value-of select="fhcsi:invoice_prefix"/>
+                    <xsl:choose>
+                        <xsl:when test="$transaction.id.type.lookup = 'invoicenumber'">
+                            <xsl:value-of select="fhcsi:supplier_invoice_number"/>
+                        </xsl:when>
+                        <xsl:when test="$transaction.id.type.lookup = 'supplierid'">
+                            <xsl:value-of select=".//fhcsi:workday_supplier_id"/>
+                            <xsl:value-of select="'-'"/>
+                            <xsl:value-of select="fhcsi:workday_internal_invoice_number"/>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:value-of select="fhcsi:workday_internal_invoice_number"/>
+                        </xsl:otherwise>
+                    </xsl:choose>
+                </bsvc:ID>
+            </bsvc:Supplier_Invoice_Reference>
+            <bsvc:Business_Process_Parameters>
+                <bsvc:Auto_Complete>
+                    <xsl:value-of select="$web.service.auto.complete"/>
+                </bsvc:Auto_Complete>
+                <bsvc:Comment_Data>
+                    <bsvc:Comment>
+                        <xsl:choose>
+                            <xsl:when test="string-length(concat(fhcsi:comment,' Source Filename: ',$sftp.filename)) != 0">
+                                <xsl:value-of select="concat(fhcsi:comment,' Source Filename: ',$sftp.filename)"/>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:value-of select="concat($business.process.defaultcomment,' Source Filename: ',$sftp.filename)"/>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </bsvc:Comment>
+                </bsvc:Comment_Data>
+            </bsvc:Business_Process_Parameters>
+            <bsvc:Prepaid_Spend_Amortization_Schedule_Data>
+                <bsvc:Supplier_Invoice_ID>
+                    <xsl:value-of select="fhcsi:invoice_prefix"/>
+                    <xsl:choose>
+                        <xsl:when test="$transaction.id.type.lookup = 'invoicenumber'">
+                            <xsl:value-of select="fhcsi:supplier_invoice_number"/>
+                        </xsl:when>
+                        <xsl:when test="$transaction.id.type.lookup = 'supplierid'">
+                            <xsl:value-of select=".//fhcsi:workday_supplier_id"/>
+                            <xsl:value-of select="'-'"/>
+                            <xsl:value-of select="fhcsi:workday_internal_invoice_number"/>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:value-of select="fhcsi:workday_internal_invoice_number"/>
+                        </xsl:otherwise>
+                    </xsl:choose>
+                </bsvc:Supplier_Invoice_ID>
+                <bsvc:Prepaid_Spend_Amortization_Installment_Data>
+                    <bsvc:Accounting_Date>
+                        <xsl:value-of select="fhcsi:prepaid_details/fhcsi:from_date"/>
+                    </bsvc:Accounting_Date>
+                    <xsl:apply-templates select="fhcsi:invoice_line_data" mode="prepaid_schedule"/>
+                </bsvc:Prepaid_Spend_Amortization_Installment_Data>
+            </bsvc:Prepaid_Spend_Amortization_Schedule_Data>
+        </bsvc:Submit_Prepaid_Spend_Amortization_Schedule_Request>
+    </xsl:template>
+
+    <xsl:template match="fhcsi:invoice_line_data" mode="prepaid_schedule">
+        <bsvc:Prepaid_Spend_Amortization_Installment_Line_Data>
+            <bsvc:Supplier_Invoice_Line_Reference>
+              <bsvc:ID bsvc:type="Supplier_Invoice_Line_ID">
+                <xsl:value-of select="fhcsi:line_id"/>
+              </bsvc:ID>
+            </bsvc:Supplier_Invoice_Line_Reference>
+            <bsvc:Amount>
+                <xsl:value-of select="fhcsi:extended_amount"/>
+            </bsvc:Amount>
+        </bsvc:Prepaid_Spend_Amortization_Installment_Line_Data>
+    </xsl:template>
+    
     <xsl:template match="fhcsi:comment">
         <xsl:attribute name="bsvc:version" select="$web.service.version"/>
         <xsl:attribute name="bsvc:Add_Only" select="$web.service.add.only"/>
@@ -974,7 +1111,7 @@
                         <xsl:copy-of select="$po_data//bsvc:Goods_Lines_Replacement_Data[bsvc:Line_Number=$line.number]"/>
                     </xsl:when>
                     <xsl:when test="string-length(fhcsi:workday_line_contract_number) != 0">
-                        <xsl:copy-of select="$po_data//bsvc:Goods_Lines_Replacement_Data[bsvc:Line_Number=1]"/>
+                        <xsl:copy-of select="$po_data//bsvc:Goods_Lines_Replacement_Data[bsvc:Line_Number='1']"/>
                     </xsl:when>
                     <xsl:when test="count($po_data//bsvc:Goods_Line_Data[bsvc:Line_Number=$line.number]) != 0">
                         <xsl:copy-of select="$po_data//bsvc:Goods_Line_Data[bsvc:Line_Number=$line.number]"/>
@@ -985,14 +1122,14 @@
                     <xsl:when test="count($po_data//bsvc:Contingent_Worker_Line_Data[bsvc:Line_Number=$line.number]) != 0">
                         <xsl:copy-of select="$po_data//bsvc:Contingent_Worker_Line_Data[bsvc:Line_Number=$line.number]"/>
                     </xsl:when>
-                    <xsl:when test="count($po_data//bsvc:Service_Line_Data[bsvc:Line_Number=1]) != 0">
-                        <xsl:copy-of select="$po_data//bsvc:Service_Line_Data[bsvc:Line_Number=1]"/>
+                    <xsl:when test="count($po_data//bsvc:Service_Line_Data[bsvc:Line_Number='1']) != 0">
+                        <xsl:copy-of select="$po_data//bsvc:Service_Line_Data[bsvc:Line_Number='1']"/>
                     </xsl:when>
-                    <xsl:when test="count($po_data//bsvc:Contingent_Worker_Line_Data[bsvc:Line_Number=1]) != 0">
-                        <xsl:copy-of select="$po_data//bsvc:Contingent_Worker_Line_Data[bsvc:Line_Number=1]"/>
+                    <xsl:when test="count($po_data//bsvc:Contingent_Worker_Line_Data[bsvc:Line_Number='1']) != 0">
+                        <xsl:copy-of select="$po_data//bsvc:Contingent_Worker_Line_Data[bsvc:Line_Number='1']"/>
                     </xsl:when>
                     <xsl:otherwise>
-                        <xsl:copy-of select="$po_data//bsvc:Goods_Line_Data[bsvc:Line_Number=1]"/>
+                        <xsl:copy-of select="$po_data//bsvc:Goods_Line_Data[bsvc:Line_Number='1']"/>
                     </xsl:otherwise>
                 </xsl:choose>
             </po_line_data>
@@ -1066,6 +1203,14 @@
             <date>bsvc:Invoice_Date</date>
             <memo>bsvc:Memo</memo>
         </webservice>
+        <webservice type="invoice_low_volume">
+            <call>bsvc:Submit_Supplier_Invoice_Request</call>
+            <!--<call>bsvc:Import_Supplier_Invoice_Request</call>-->
+            <transaction>bsvc:Supplier_Invoice_Data</transaction>
+            <id>bsvc:Supplier_Invoice_ID</id>
+            <date>bsvc:Invoice_Date</date>
+            <memo>bsvc:Memo</memo>
+        </webservice>
         <webservice type="invoice_cw">
             <!--<call>bsvc:Submit_Supplier_Invoice_Request</call>-->
             <call>bsvc:Import_Supplier_Invoice_Request</call>
@@ -1090,6 +1235,7 @@
         <fhc:invoice_type_lookup lkp_value="c" invoice_type="invoice_adjustment"/>
         <fhc:invoice_type_lookup lkp_value="invoice_adjustment" invoice_type="invoice_adjustment"/>
         <fhc:invoice_type_lookup lkp_value="i" invoice_type="invoice"/>
+        <fhc:invoice_type_lookup lkp_value="invoice_low_volume" invoice_type="invoice_low_volume"/>
         <fhc:invoice_type_lookup lkp_value="INVOICE" invoice_type="invoice"/>
         <fhc:invoice_type_lookup lkp_value="contingent_worker" invoice_type="invoice_cw"/>
         <fhc:invoice_type_lookup lkp_value="Non PO Invoice" invoice_type="invoice"/>

@@ -9,6 +9,7 @@
     <xsl:param name="lp.source.filter.wid"/>
     <xsl:param name="lp.source.structure.filter.wid"/>
     <xsl:param name="lp.period.filter.wid"/>
+    <xsl:param name="lp.multi.instance.filter.1.wids"/>
     <xsl:param name="multi.instance.filter.1.wids"/>
     <xsl:param name="multi.instance.filter.2.wids"/>
     <xsl:param name="multi.instance.filter.3.wids"/>
@@ -48,6 +49,12 @@
                     </xsl:when>
                     <xsl:when test="@fhc:filtername = 'lp_period_wid'">
                         <xsl:value-of select="$lp.period.filter.wid"/>
+                    </xsl:when>
+                    <xsl:when test="@fhc:filtername = 'lp_multi_instance_1_wids'">
+                        <xsl:for-each select="tokenize($lp.multi.instance.filter.1.wids, ',')">
+                            <xsl:value-of select="normalize-space(.)"/>
+                            <xsl:value-of select="if (position() != last()) then '!' else ''"/>
+                        </xsl:for-each>
                     </xsl:when>
                     <xsl:otherwise>
                         <xsl:value-of select="$single.instance.filter.1.wids"/>

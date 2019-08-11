@@ -119,7 +119,8 @@
             <cc:set name="file.number.total" value="props['page.total']"/>
             <cc:set name="file.number.current" value="props['page.current']"/>
             <cc:set name="summary.log.file.extension" value="'html'"/>
-        <cc:set name="continue.loop" value="'no'"/></cc:local-out>
+            <cc:set name="continue.loop" value="'no'"/>
+        </cc:local-out>
         <cc:async-mediation id="file-counters" routes-to="split_response">
             <cc:steps>
                 <cc:eval id="reset-file-counters">
