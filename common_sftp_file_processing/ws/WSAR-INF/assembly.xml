@@ -340,9 +340,6 @@
         </cc:async-mediation>
         <cc:local-in id="convert-file-to-xml" routes-to="convert-excel-to-csv"/>
         <cc:local-out id="call_convert-file-to-xml" execute-when="props['convert.ToXML'] == true" routes-response-to="cp_to_msg" endpoint="vm://common_sftp_file_processing/convert-file-to-xml"/>
-        <cc:http-out id="HttpOut" endpoint="https://ecmc.addepar.com/api/v1/transactions/views/27581/results?portfolio_id=6034837&amp;portfolio_type=entity&amp;output_type=csv&amp;start_date=2019-05-14&amp;end_date=2019-06-14&amp;addepar_firm=567" http-method="POST">
-            <cc:https-properties/>
-        </cc:http-out>
     </cc:assembly>
 
 </beans>

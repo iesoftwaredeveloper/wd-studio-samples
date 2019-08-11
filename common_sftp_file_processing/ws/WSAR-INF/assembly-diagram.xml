@@ -157,9 +157,6 @@
   <visualProperties x="604" y="1237">
     <element href="assembly.xml#call_convert-file-to-xml"/>
   </visualProperties>
-  <visualProperties x="241" y="41">
-    <element href="assembly.xml#HttpOut"/>
-  </visualProperties>
   <connections type="routesTo">
     <source href="assembly.xml#process_retrieval_file"/>
     <target href="assembly.xml#set_file_data_var_retrieval"/>
