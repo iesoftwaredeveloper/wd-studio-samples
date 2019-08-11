@@ -118,7 +118,7 @@
         <cc:local-out id="call_create_wd_put_call" routes-response-to="call_store_msg_return_msg_put" endpoint="vm://@{props['web.service.put.create.ws.xml.endpoint']}">
             <cc:set name="web.service.create.ws.xml.filename" value="props['web.service.put.create.ws.xml.filename']"/>
         </cc:local-out>
-        <cc:local-out id="call_aggregateprocessingdetails" execute-when="props['web.service.summary.log'] == true &amp;&amp; props['web.service.calls.count'] != props['web.service.calls.total']" endpoint="vm://standard_logging/aggregate_processing_details">
+        <cc:local-out id="call_aggregateprocessingdetails" execute-when="props['web.service.summary.log'] == true &amp;&amp; props['web.service.calls.counter'] != props['web.service.calls.total']" endpoint="vm://standard_logging/aggregate_processing_details">
             <cc:set name="summarylog.filename" value="'Summary_Log_Information'"/>
             <cc:set name="summarylog.file.extension" value="'html'"/>
             <cc:set name="record.count.total" value="props['record.count.total']"/>
