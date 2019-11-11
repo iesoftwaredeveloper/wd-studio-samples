@@ -151,7 +151,7 @@
             <cc:set name="is.message.severity" value="props['severity']"/>
             <cc:set name="is.message.summary" value="'Error loading record: ' + props['record.counter'] + '. See Details for Error Reason.'"/>
             <cc:set name="is.message.detail" value="'Error Reason:  ' + props['error.message.detail'] + &quot;\n&quot; + props['error.message.detail.expanded']"/>
-        </cc:local-out>
+        <cc:set name="is.message.detail.richtext" value="true"/></cc:local-out>
         <cc:async-mediation id="incr_error_cnt" routes-to="send_err_msg">
             <cc:steps>
                 <cc:eval id="add-error-count">

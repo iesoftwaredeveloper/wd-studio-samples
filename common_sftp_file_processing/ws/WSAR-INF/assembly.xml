@@ -155,7 +155,7 @@
         </cc:splitter>
         <cc:async-mediation id="ProcessFile" routes-to="Unzip-Files-From-SFTP">
             <cc:steps>
-                <cc:eval id="Setup-Counters">
+                <cc:eval id="setup-counters">
                     <cc:expression>props['counter'] = 0</cc:expression>
                     <cc:expression>props['error-counter'] = 0</cc:expression>
                     <cc:expression>props['imported-counter'] = 0</cc:expression>

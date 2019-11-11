@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wdnm:Diagram xmlns:wdnm="http://workday.com/studio/editors/notation">
+  <element href="assembly.xml#WorkdayAssembly"/>
+  <visualProperties>
+    <element href="assembly.xml#put_external_web_serivce_call"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#call_store_msg_return_msg_source"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#call_lookup_and_conform"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#call_create_wd_put_call"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#call_store_msg_return_msg_put"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#call_split_ws_call"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#lookup_and_conform"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#bckp_msg"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#call_lkp_wd"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#call_conform_xml"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#return_bckp_msg"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#split_ws_call"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#set-ws-props"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#rtr-trans-to-import"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#split_ws_put"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#set-wd-id"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#call_process_Err_Msg"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#call_create_transaction_log_record_err"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#call_create_transaction_log_record_skipped"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#call_putIntMsg_put_log"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#call_create_transaction_log_record"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#call_aggregateprocessingdetails"/>
+  </visualProperties>
+  <visualProperties x="2106" y="444">
+    <element href="assembly.xml#http-rest-out"/>
+  </visualProperties>
+  <visualProperties x="2572" y="457">
+    <element href="assembly.xml#make-http-rest-binding-call"/>
+  </visualProperties>
+  <visualProperties x="576" y="914">
+    <element href="assembly.xml#set-headers"/>
+  </visualProperties>
+  <visualProperties x="2137" y="568">
+    <element href="assembly.xml#call_make-http-rest-binding-call"/>
+  </visualProperties>
+  <visualProperties x="735" y="944">
+    <element href="assembly.xml#call_store_msg_for_output_file"/>
+  </visualProperties>
+  <visualProperties x="853" y="947">
+    <element href="assembly.xml#convert-json-to-xml"/>
+  </visualProperties>
+  <connections type="routesTo">
+    <source href="assembly.xml#put_external_web_serivce_call"/>
+    <target href="assembly.xml#call_store_msg_return_msg_source"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_store_msg_return_msg_source"/>
+    <target href="assembly.xml#call_lookup_and_conform"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_lookup_and_conform"/>
+    <target href="assembly.xml#call_create_wd_put_call"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_create_wd_put_call"/>
+    <target href="assembly.xml#call_store_msg_return_msg_put"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_store_msg_return_msg_put"/>
+    <target href="assembly.xml#call_split_ws_call"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#lookup_and_conform"/>
+    <target href="assembly.xml#bckp_msg"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#bckp_msg"/>
+    <target href="assembly.xml#call_lkp_wd"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_lkp_wd"/>
+    <target href="assembly.xml#return_bckp_msg"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#return_bckp_msg"/>
+    <target href="assembly.xml#call_conform_xml"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#split_ws_call"/>
+    <target href="assembly.xml#set-ws-props"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#set-ws-props"/>
+    <target href="assembly.xml#rtr-trans-to-import"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#//@beans/@mixed.1/@route.0/@subRoute.0"/>
+    <target href="assembly.xml#split_ws_put"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#//@beans/@mixed.1/@route.0/@subRoute.1"/>
+    <target href="assembly.xml#call_create_transaction_log_record_skipped"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#//@beans/@mixed.1/@splitter.0/@subRoute.0"/>
+    <target href="assembly.xml#set-wd-id"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#//@beans/@mixed.1/@mixed.13/@mixed.3"/>
+    <target href="assembly.xml#call_process_Err_Msg"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_process_Err_Msg"/>
+    <target href="assembly.xml#call_create_transaction_log_record_err"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_create_transaction_log_record_err"/>
+    <target href="assembly.xml#call_aggregateprocessingdetails"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_create_transaction_log_record_skipped"/>
+    <target href="assembly.xml#call_aggregateprocessingdetails"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_putIntMsg_put_log"/>
+    <target href="assembly.xml#call_create_transaction_log_record"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_create_transaction_log_record"/>
+    <target href="assembly.xml#call_aggregateprocessingdetails"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#make-http-rest-binding-call"/>
+    <target href="assembly.xml#set-headers"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_make-http-rest-binding-call"/>
+    <target href="assembly.xml#call_putIntMsg_put_log"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#set-wd-id"/>
+    <target href="assembly.xml#call_make-http-rest-binding-call"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#http-rest-out"/>
+    <target href="assembly.xml#convert-json-to-xml"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#convert-json-to-xml"/>
+    <target href="assembly.xml#call_store_msg_for_output_file"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#set-headers"/>
+    <target href="assembly.xml#http-rest-out"/>
+  </connections>
+  <swimlanes bgColor="9498256" name="Local In">
+    <elements href="assembly.xml#put_external_web_serivce_call"/>
+    <elements href="assembly.xml#call_store_msg_return_msg_source"/>
+  </swimlanes>
+  <swimlanes bgColor="8454143" name="Call Sub Routine for Import" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#call_lookup_and_conform"/>
+    <elements href="assembly.xml#call_create_wd_put_call"/>
+    <elements href="assembly.xml#call_store_msg_return_msg_put"/>
+    <elements href="assembly.xml#call_split_ws_call"/>
+  </swimlanes>
+  <swimlanes bgColor="8454143" name="Backup and Lookup" alignment="MIDDLE">
+    <elements href="assembly.xml#lookup_and_conform"/>
+    <elements href="assembly.xml#bckp_msg"/>
+    <elements href="assembly.xml#call_lkp_wd"/>
+  </swimlanes>
+  <swimlanes bgColor="8454143" name="Conform XML" alignment="MIDDLE">
+    <elements href="assembly.xml#call_conform_xml"/>
+    <elements href="assembly.xml#return_bckp_msg"/>
+  </swimlanes>
+  <swimlanes bgColor="16443110" name="Backup and Conform" orientation="VERTICAL" elements="//@swimlanes.2 //@swimlanes.3" alignment="MIDDLE"/>
+  <swimlanes bgColor="9498256" name="Process Put Call" elements="//@swimlanes.1 //@swimlanes.4"/>
+  <swimlanes bgColor="12566463" name="Put Web Service Call" orientation="VERTICAL" elements="//@swimlanes.0 //@swimlanes.5" alignment="MIDDLE"/>
+  <swimlanes bgColor="8454143" name="Start Import" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#split_ws_call"/>
+    <elements href="assembly.xml#set-ws-props"/>
+  </swimlanes>
+  <swimlanes bgColor="9498256" name="Split Envelope WS Call" alignment="MIDDLE">
+    <elements href="#//@swimlanes.7"/>
+    <elements href="assembly.xml#rtr-trans-to-import"/>
+    <elements href="assembly.xml#split_ws_put"/>
+    <elements href="assembly.xml#set-wd-id"/>
+  </swimlanes>
+  <swimlanes bgColor="8454143" name="Error Processing" alignment="MIDDLE">
+    <elements href="assembly.xml#call_create_transaction_log_record_skipped"/>
+    <elements href="#//@swimlanes.20"/>
+  </swimlanes>
+  <swimlanes bgColor="42495" name="Swimlane" orientation="VERTICAL" elements="//@swimlanes.8 //@swimlanes.9" alignment="MIDDLE"/>
+  <swimlanes bgColor="8454143" name="Make Web Service Call" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#call_make-http-rest-binding-call"/>
+    <elements href="assembly.xml#call_putIntMsg_put_log"/>
+    <elements href="assembly.xml#call_create_transaction_log_record"/>
+  </swimlanes>
+  <swimlanes bgColor="9498256" name="End Processing" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="#//@swimlanes.11"/>
+    <elements href="assembly.xml#call_aggregateprocessingdetails"/>
+  </swimlanes>
+  <swimlanes bgColor="16443110" name="Import Workday Data" elements="//@swimlanes.10 //@swimlanes.12" alignment="MIDDLE"/>
+  <swimlanes bgColor="12566463" name="Split and Process" orientation="VERTICAL" elements="//@swimlanes.13 //@swimlanes.17" alignment="MIDDLE"/>
+  <swimlanes bgColor="42495" name="Put and Split Data" elements="//@swimlanes.6 //@swimlanes.14" alignment="MIDDLE"/>
+  <swimlanes x="66" y="106" bgColor="15128749" name="Standard Import Process" orientation="VERTICAL" elements="//@swimlanes.15" alignment="MIDDLE"/>
+  <swimlanes x="2498" y="711" name="Make HTTP Call" elements="//@swimlanes.18 //@swimlanes.19" alignment="MIDDLE"/>
+  <swimlanes x="116" y="927" name="Swimlane" alignment="MIDDLE">
+    <elements href="assembly.xml#make-http-rest-binding-call"/>
+    <elements href="assembly.xml#set-headers"/>
+    <elements href="assembly.xml#http-rest-out"/>
+  </swimlanes>
+  <swimlanes x="854" y="938" name="Swimlane" alignment="MIDDLE">
+    <elements href="assembly.xml#convert-json-to-xml"/>
+    <elements href="assembly.xml#call_store_msg_for_output_file"/>
+  </swimlanes>
+  <swimlanes x="1523" y="732" name="Error Records">
+    <elements href="assembly.xml#call_process_Err_Msg"/>
+    <elements href="assembly.xml#call_create_transaction_log_record_err"/>
+  </swimlanes>
+</wdnm:Diagram>

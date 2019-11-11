@@ -13,10 +13,10 @@
     <cc:assembly id="WorkdayAssembly" version="2019.6">
         <cc:workday-out-soap id="make_workday_soap_call" routes-response-to="call_putIntMsg_put_log" application="@{props['web.service.put.application']}" version="@{props['web.service.version']}"/>
         <cc:local-out id="call_store_msg_return_msg_put" execute-when="props['web.service.request.log'] == true" routes-response-to="call_split_ws_call" endpoint="vm://standard_logging/store_msg_return_msg">
-            <cc:set name="store.filename" value="'webservice_put_request.xml'"/>
+            <cc:set name="store.filename" value="props['process.type'].toLowerCase()+'_webservice_put_request_'+props['file.record.counter']+'.xml'"/>
         </cc:local-out>
         <cc:local-out id="call_store_msg_return_msg_source" execute-when="props['web.service.response.log'] == true" routes-response-to="call_lookup_and_conform" endpoint="vm://standard_logging/store_msg_return_msg">
-            <cc:set name="store.filename" value="'webservice_get_response.xml'"/>
+            <cc:set name="store.filename" value="props['process.type'].toLowerCase()+'_parsed_response_'+props['file.record.counter']+'.xml'"/>
         </cc:local-out>
         <cc:local-in id="put_workday_web_serivce_call" routes-to="call_store_msg_return_msg_source" access="public" icon="local-in-put_workday_web_serivce_call.png">
             <cc:parameter name="web.service.put.create.ws.xml.filename" required="true"/>

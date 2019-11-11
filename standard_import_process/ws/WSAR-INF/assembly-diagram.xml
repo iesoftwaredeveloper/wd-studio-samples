@@ -147,11 +147,11 @@
     <target href="assembly.xml#rtr-trans-to-import"/>
   </connections>
   <connections type="routesTo">
-    <source href="assembly.xml#//@beans/@mixed.1/@mixed.43/@subRoute.0"/>
+    <source href="assembly.xml#//@beans/@mixed.1/@route.0/@subRoute.0"/>
     <target href="assembly.xml#split_ws_put"/>
   </connections>
   <connections type="routesTo">
-    <source href="assembly.xml#//@beans/@mixed.1/@mixed.43/@subRoute.1"/>
+    <source href="assembly.xml#//@beans/@mixed.1/@route.0/@subRoute.1"/>
     <target href="assembly.xml#call_create_transaction_log_record_skipped"/>
   </connections>
   <connections type="routesResponseTo">
@@ -165,10 +165,9 @@
   </swimlanes>
   <swimlanes x="1427" y="6" bgColor="12566463" name="Split and Process" orientation="VERTICAL" elements="//@swimlanes.14" alignment="MIDDLE"/>
   <swimlanes x="851" y="248" bgColor="9498256" name="Process Put Call" elements="//@swimlanes.10 //@swimlanes.16"/>
-  <swimlanes x="867" y="192" bgColor="8454143" name="Error Processing" orientation="VERTICAL" alignment="MIDDLE">
+  <swimlanes x="867" y="192" bgColor="8454143" name="Error Processing" alignment="MIDDLE">
     <elements href="assembly.xml#call_process_Err_Msg"/>
     <elements href="assembly.xml#call_create_transaction_log_record_err"/>
-    <elements href="assembly.xml#call_create_transaction_log_record_skipped"/>
   </swimlanes>
   <swimlanes x="-47" y="46" bgColor="15128749" name="Standard Import Process" orientation="VERTICAL" elements="//@swimlanes.6" alignment="MIDDLE"/>
   <swimlanes x="420" y="732" bgColor="42495" name="Put and Split Data" elements="//@swimlanes.0 //@swimlanes.2" alignment="MIDDLE"/>
@@ -207,6 +206,10 @@
     <elements href="assembly.xml#return_bckp_msg"/>
   </swimlanes>
   <swimlanes x="796" y="582" bgColor="16443110" name="Import Workday Data" elements="//@swimlanes.15 //@swimlanes.7" alignment="MIDDLE"/>
-  <swimlanes x="725" y="362" bgColor="42495" name="Swimlane" orientation="VERTICAL" elements="//@swimlanes.9 //@swimlanes.4" alignment="MIDDLE"/>
+  <swimlanes x="725" y="362" bgColor="42495" name="Swimlane" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="#//@swimlanes.9"/>
+    <elements href="#//@swimlanes.4"/>
+    <elements href="assembly.xml#call_create_transaction_log_record_skipped"/>
+  </swimlanes>
   <swimlanes x="267" y="508" bgColor="16443110" name="Swimlane" orientation="VERTICAL" elements="//@swimlanes.11 //@swimlanes.13" alignment="MIDDLE"/>
 </wdnm:Diagram>

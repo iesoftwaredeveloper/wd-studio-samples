@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+     xmlns="http://www.springframework.org/schema/beans"
+     xmlns:beans="http://www.springframework.org/schema/beans"
+     xmlns:atom="http://www.w3.org/2005/Atom"
+     xmlns:cc="http://www.capeclear.com/assembly/10"
+     xmlns:cloud="urn:com.workday/esb/cloud/10.0"
+     xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+     xmlns:pi="urn:com.workday/picof"
+     xmlns:wd="urn:com.workday/bsvc"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ 
+	<cc:assembly id="WorkdayAssembly" version="2019.6">
+        <cc:local-out id="call_aggregateprocessingdetails" execute-when="props['web.service.summary.log'] == true &amp;&amp; props['web.service.calls.counter'] != props['web.service.calls.total']" endpoint="vm://standard_logging/aggregate_processing_details">
+            <cc:set name="summarylog.filename" value="'Summary_Log_Information'"/>
+            <cc:set name="summarylog.file.extension" value="'html'"/>
+            <cc:set name="record.count.total" value="props['record.count.total']"/>
+            <cc:set name="record.counter" value="props['record.counter'] "/>
+            <cc:set name="file.number.total" value="props['page.total']"/>
+            <cc:set name="file.number.current" value="props['page.current']"/>
+            <cc:set name="summary.log.file.extension" value="'html'"/>
+            <cc:set name="continue.loop" value="'yes'"/>
+            <cc:set name="web.service.calls.counter" value="props['web.service.calls.counter']"/>
+            <cc:set name="web.service.calls.total" value="props['web.service.calls.total']"/>
+        </cc:local-out>
+        <cc:local-out id="call_create_transaction_log_record" execute-when="props['web.service.summary.log'] == true" routes-response-to="call_aggregateprocessingdetails" endpoint="vm://standard_logging/create_transaction_log_record">
+            <cc:set name="record.counter" value="props['record.counter']"/>
+            <cc:set name="file.number" value="props['file.number.current']"/>
+            <cc:set name="file.record.counter" value="props['file.record.counter']"/>
+            <cc:set name="file.name" value="props['sftp.filename']"/>
+            <cc:set name="source.transaction.id" value="props['record.counter'] + '-' + props['web.service.calls.counter']"/>
+            <cc:set name="workday.transaction.id" value="props['workday.transaction.id']"/>
+            <cc:set name="record.status" value="'imported'"/>
+            <cc:set name="error.reason" value="''"/>
+            <cc:set name="error.message.detail" value="''"/>
+            <cc:set name="additional.information" value="''"/>
+            <cc:set name="web.service.call.name" value="props['workday.web.service.call']"/>
+        </cc:local-out>
+        <cc:local-out id="call_putIntMsg_put_log" execute-when="props['web.service.summary.log'] == true" routes-response-to="call_create_transaction_log_record" endpoint="vm://wcc/PutIntegrationMessage">
+            <cc:set name="is.message.severity" value="'INFO'"/>
+            <cc:set name="is.message.summary" value="'Processed Web Service Call: ' + props['web.service.calls.counter'] + ' of ' + props['web.service.calls.total']"/>
+            <cc:set name="is.message.storage.enabled" value="false"/>
+        </cc:local-out>
+        <cc:local-out id="call_create_transaction_log_record_skipped" execute-when="props['web.service.summary.log'] == true" routes-response-to="call_aggregateprocessingdetails" endpoint="vm://standard_logging/create_transaction_log_record">
+            <cc:set name="record.counter" value="props['record.counter']"/>
+            <cc:set name="file.number" value="props['file.number.current']"/>
+            <cc:set name="file.record.counter" value="props['file.record.counter']"/>
+            <cc:set name="file.name" value="props['sftp.filename']"/>
+            <cc:set name="source.transaction.id" value="props['record.counter']"/>
+            <cc:set name="workday.transaction.id" value="'N/A'"/>
+            <cc:set name="record.status" value="'skipped'"/>
+            <cc:set name="error.reason" value="''"/>
+            <cc:set name="error.message.detail" value="''"/>
+            <cc:set name="additional.information" value="''"/>
+            <cc:set name="web.service.call.name" value="'N/A'"/>
+        </cc:local-out>
+        <cc:local-out id="call_create_transaction_log_record_err" execute-when="props['web.service.summary.log'] == true" routes-response-to="call_aggregateprocessingdetails" endpoint="vm://standard_logging/create_transaction_log_record">
+            <cc:set name="record.counter" value="props['record.counter']"/>
+            <cc:set name="file.number" value="props['file.number.current']"/>
+            <cc:set name="file.record.counter" value="props['file.record.counter']"/>
+            <cc:set name="file.name" value="props['sftp.filename']"/>
+            <cc:set name="source.transaction.id" value="props['record.counter']"/>
+            <cc:set name="workday.transaction.id" value="props['workday.transaction.id']"/>
+            <cc:set name="record.status" value="'failed'"/>
+            <cc:set name="error.reason" value="'Error on Import'"/>
+            <cc:set name="error.message.detail" value="context.errorMessage"/>
+            <cc:set name="additional.information" value="''"/>
+            <cc:set name="web.service.call.name" value="props['workday.web.service.call']"/>
+        </cc:local-out>
+        <cc:local-out id="call_process_Err_Msg" routes-response-to="call_create_transaction_log_record_err" endpoint="vm://standard_logging/process_Err_Msg">
+            <cc:set name="failed-on-import" value="true"/>
+            <cc:set name="include-file" value="false"/>
+            <cc:set name="severity" value="'WARNING'"/>
+            <cc:set name="error.message.detail.expanded" value="context.errorMessage + ' ' + props['workday.transaction.id']"/>
+            <cc:set name="error.message.detail" value="'Submit Web Service Call Failure'"/>
+        </cc:local-out>
+        <cc:async-mediation id="set-wd-id" routes-to="call_make-http-rest-binding-call" handle-downstream-errors="false">
+            <cc:steps>
+                <cc:xml-to-json id="xml-to-json-convert" output="message" output-mimetype="application/json" input="message" schema="message" schema-url="lib/saviynt_getUser.xsd"/>
+                <cc:eval id="set-wd-tran-id">
+                    <cc:expression>props['workday.transaction.id'] = (props['web.service.put.workday.id.tag'] == null)? '' : vars['ws.put.msg'].xpath(props['web.service.put.workday.id.tag'], props['web.service.put.workday.id.namespace'])</cc:expression>
+                    <cc:expression>props['workday.web.service.call'] = vars['ws.put.msg'].xpath(&quot;//env:Body/local-name(*[1])&quot;)</cc:expression>
+                    <cc:expression>props['web.service.calls.counter'] = ((props['web.service.calls.counter'] == null)? 0:props['web.service.calls.counter']) + 1</cc:expression>
+                    <cc:expression>props['web.service.put.application'] = (vars['ws.put.msg'].xpath(&quot;//env:Body/@web_service_application&quot;)!= '')? vars['ws.put.msg'].xpath(&quot;//env:Body/@web_service_application&quot;) : props['web.service.put.application']</cc:expression>
+                </cc:eval>
+            </cc:steps>
+            <cc:send-error id="SendError" routes-to="call_process_Err_Msg"/>
+        </cc:async-mediation>
+        <cc:splitter id="split_ws_put" no-split-message-error="false">
+            <cc:sub-route name="make_ws_soap_call" routes-to="set-wd-id"/>
+            <cc:xml-stream-splitter xpath="//data"/>
+        </cc:splitter>
+        <cc:route id="rtr-trans-to-import">
+            <cc:mvel-strategy filter="false">
+                <cc:choose-route expression="props['web.service.calls.total'] != 0" route="import-trans"/>
+                <cc:choose-route expression="props['web.service.calls.total'] == 0" route="skip-transaction"/>
+            </cc:mvel-strategy>
+            <cc:sub-route name="import-trans" routes-to="split_ws_put"/>
+            <cc:sub-route name="skip-transaction" routes-to="call_create_transaction_log_record_skipped"/>
+        </cc:route>
+        <cc:async-mediation id="set-ws-props" routes-to="rtr-trans-to-import">
+            <cc:steps>
+                <cc:copy id="cp-var-to-msg" input="variable" input-variable="ws.put.msg"/>
+                <cc:eval id="set-import-stats">
+                    <cc:expression>props['web.service.calls.total'] = parts[0].xpath(&quot;count(//data)&quot;)</cc:expression>
+                    <cc:expression>props['web.service.calls.counter'] = 0 </cc:expression>
+                </cc:eval>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:local-in id="split_ws_call" routes-to="set-ws-props" icon="local-in-split_ws_call.png"/>
+        <cc:async-mediation id="return_bckp_msg" routes-to="call_conform_xml">
+            <cc:steps>
+                <cc:copy id="cp-bckp-msg" output="message" input="variable" input-variable="source.data"/>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:local-out id="call_conform_xml" store-message="none" execute-when="props['conform.XML'] == 'true'" endpoint="vm://@{props['conform.XML.subroutine']}">
+            <cc:set name="conform.XML.filename" value="props['conform.XML.filename']"/>
+        </cc:local-out>
+        <cc:local-out id="call_lkp_wd" store-message="none" execute-when="props['lookup.wd.data']=='true'" routes-response-to="return_bckp_msg" endpoint="vm://@{props['lookup.wd.data.subroutine']}">
+            <cc:set name="web.service.lookup.filename" value="props['lookup.wd.data.filename']"/>
+            <cc:set name="web.service.lookup.application" value="props['lookup.wd.data.application']"/>
+            <cc:set name="web.service.request.type" value="props['lookup.wd.data.request.type']"/>
+        </cc:local-out>
+        <cc:async-mediation id="bckp_msg" routes-to="call_lkp_wd">
+            <cc:steps>
+                <cc:copy id="cp-bckp-msg" output="variable" output-variable="source.data"/>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:local-in id="lookup_and_conform" routes-to="bckp_msg"/>
+        <cc:local-out id="call_split_ws_call" endpoint="vm://external_import_process/split_ws_call"/>
+        <cc:local-out id="call_store_msg_return_msg_put" execute-when="props['web.service.request.log'] == true" routes-response-to="call_split_ws_call" endpoint="vm://standard_logging/store_msg_return_msg">
+            <cc:set name="store.filename" value="props['process.type']+'webservice_put_request.xml'"/>
+        </cc:local-out>
+        <cc:local-out id="call_create_wd_put_call" routes-response-to="call_store_msg_return_msg_put" endpoint="vm://@{props['web.service.put.create.ws.xml.endpoint']}">
+            <cc:set name="web.service.create.ws.xml.filename" value="props['web.service.put.create.ws.xml.filename']"/>
+        </cc:local-out>
+        <cc:local-out id="call_lookup_and_conform" execute-when="props['lookup.wd.data']=='true' || props['conform.XML'] == 'true'" routes-response-to="call_create_wd_put_call" endpoint="vm://external_import_proces/lookup_and_conform"/>
+        <cc:local-out id="call_store_msg_return_msg_source" execute-when="props['web.service.response.log'] == true" routes-response-to="call_lookup_and_conform" endpoint="vm://standard_logging/store_msg_return_msg">
+            <cc:set name="store.filename" value="'webservice_get_response.xml'"/>
+        </cc:local-out>
+        <cc:local-in id="put_external_web_serivce_call" routes-to="call_store_msg_return_msg_source" access="public" icon="local-in-put_external_web_serivce_call.png">
+            <cc:parameter name="web.service.put.create.ws.xml.filename" required="true"/>
+            <cc:parameter name="web.service.put.create.ws.xml.endpoint" required="true"/>
+            <cc:parameter name="update.data"/>
+            <cc:parameter name="web.service.put.application"/>
+            <cc:parameter name="web.service.version"/>
+            <cc:parameter name="web.service.auto.complete"/>
+            <cc:parameter name="web.service.submit"/>
+            <cc:parameter name="web.service.add.only"/>
+            <cc:parameter name="multi.instance.update.1.wids" required="false"/>
+            <cc:parameter name="multi.instance.update.2.wids" required="false"/>
+            <cc:parameter name="multi.instance.update.3.wids" required="false"/>
+            <cc:parameter name="single.instance.update.1.wids" required="false"/>
+            <cc:parameter name="single.instance.update.2.wids" required="false"/>
+            <cc:parameter name="single.instance.update.3.wids" required="false"/>
+            <cc:parameter name="single.instance.update.1.name" required="false"/>
+            <cc:parameter name="single.instance.update.2.name" required="false"/>
+            <cc:parameter name="single.instance.update.3.name" required="false"/>
+            <cc:parameter default="'false'" name="lookup.wd.data" required="true"/>
+            <cc:parameter name="lookup.wd.data.subroutine" required="false"/>
+            <cc:parameter name="lookup.wd.data.filename" required="false"/>
+            <cc:parameter name="lookup.wd.data.request.type" required="false"/>
+            <cc:parameter name="lookup.wd.data.application" required="false"/>
+            <cc:parameter default="'false'" name="conform.XML" required="false"/>
+            <cc:parameter name="conform.XML.subroutine" required="false"/>
+            <cc:parameter name="conform.XML.filename" required="false"/>
+        </cc:local-in>
+        <cc:http-out id="http-rest-out" store-message="both" routes-response-to="convert-json-to-xml" endpoint="@{props['http.rest.endpoint']}" ignore-dynamic-endpoints="true" accept-gzip="true" auto-inproc="true" http-method="@{props['http.rest.method']}" streaming="false">
+        </cc:http-out>
+        <cc:local-in id="make-http-rest-binding-call" routes-to="set-headers" access="private"><cc:parameter default="'application/json'" name="http.header.content.type" required="true"/><cc:parameter name="http.header.authorization.token" required="true"/><cc:parameter name="http.rest.endpoint"/><cc:parameter default="'POST'" name="http.rest.method"/></cc:local-in>
+        <cc:async-mediation id="set-headers" routes-to="http-rest-out" handle-downstream-errors="true">
+            <cc:steps>
+                <cc:set-headers id="set-http-headers" output="message" output-mimetype="application/json" clear-all="true"><cc:remove-headers/><cc:add-headers>
+    <cc:add-header name="Authorization" value="Bearer @{props['http.header.authorization.token']}"/>
+    <cc:add-header name="Content-Type" value="@{props['http.header.content.type']}"/>
+    <cc:add-header name="User-Agent" value="@{props['http.header.user.agent']}"/>
+</cc:add-headers></cc:set-headers>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:local-out id="call_make-http-rest-binding-call" routes-response-to="call_putIntMsg_put_log" endpoint="vm://external_import_process/make-http-rest-binding-call"><cc:set name="http.header.content.type" value="'application/json'"/><cc:set name="http.rest.endpoint" value="intsys.getAttribute('Connection URL')+'/'+intsys.getAttribute('API Version')+'/'+props['web.service.put.application']"/><cc:set name="http.rest.method" value="'POST'"/><cc:set name="http.header.authorization.token" value="props['http.authorization.token']"/></cc:local-out>
+        <cc:local-out id="call_store_msg_for_output_file" endpoint="vm://standard_logging/store_msg_for_output_file"><cc:set name="output.filename" value="'noOutputFilenameProvided.txt'"/></cc:local-out>
+        <cc:async-mediation id="convert-json-to-xml" routes-to="call_store_msg_for_output_file">
+            <cc:steps>
+                <cc:json-to-xml id="JsonToXml" output="variable" output-mimetype="text/xml" output-variable="output.data"/>
+            </cc:steps>
+        </cc:async-mediation>
+	</cc:assembly>
+
+</beans>
