@@ -12,7 +12,6 @@
 
     <cc:assembly id="WorkdayAssembly" version="2019.6">
         <cc:local-out id="call_get_request_endpoint" store-message="none" routes-response-to="call_parse_and_store_logging_info" endpoint="vm://@{props['web.service.get.request.endpoint']}">
-            
             <cc:set name="report.extra.path" value="props['report.extra.path'] + props['report.filter']"/>
             <cc:set name="web.service.version" value="props['web.service.version']"/>
             <cc:set name="retrieval.labels" value="props['retrieval.file.labels']"/>
@@ -27,6 +26,12 @@
             <cc:set name="web.service.get.conform.xml.endpoint" value="props['web.service.get.conform.xml.endpoint']"/>
             <cc:set name="web.service.get.create.ws.xml.filename" value="props['web.service.get.create.ws.xml.filename']"/>
             <cc:set name="web.service.get.create.ws.xml.endpoint" value="props['web.service.get.create.ws.xml.endpoint']"/>
+            <cc:set name="set.authentication.token" value="props['web.service.put.external.api.set.authorization.token']"/>
+            <cc:set name="set.authentication.token.subroutine" value="props['web.service.put.external.api.set.authorization.token.subroutine']"/>
+            <cc:set name="set.headers" value="props['web.service.put.external.api.set.headers']"/>
+            <cc:set name="set.headers.subroutine" value="props['web.service.put.external.api.set.headers.subroutine']"/>
+            <cc:set name="set.url.extrapath" value="props['web.service.put.external.api.set.url.extrapath']"/>
+            <cc:set name="set.url.extrapath.subroutine" value="props['web.service.put.external.api.set.url.extrapath.subroutine']"/>
         </cc:local-out>
         <cc:async-mediation id="get_set_properties" routes-to="set-process-properties">
             <cc:steps>
@@ -53,7 +58,7 @@
         </cc:local-in>
         <cc:local-out id="call_process_xml_data" store-message="none" routes-response-to="put_log_processing_stats" endpoint="vm://@{props['web.service.put.request.endpoint']}">
             <cc:set name="web.service.put.create.ws.xml.filename" value="props['web.service.put.create.ws.xml.filename']"/>
-            <cc:set name="web.service.put.create.ws.xml.endpoint" value="props['web.service.put.create.ws.xml.endpoint']"/>
+            <cc:set name="web.service.put.create.ws.xml.endpoint" value="props['web.service.put.create.ws.xml.subroutine']"/>
             <cc:set name="update.data" value="props['update.data']"/>
             <cc:set name="web.service.put.application" value="props['web.service.put.application']"/>
             <cc:set name="web.service.version" value="props['web.service.version']"/>
@@ -70,7 +75,7 @@
             <cc:set name="web.service.add.only" value="props['web.service.add.only']"/>
             <cc:set name="web.service.submit" value="props['web.service.submit']"/>
             <cc:set name="lookup.wd.data" value="props['web.service.put.lookup.wd.data']"/>
-            <cc:set name="lookup.wd.data.subroutine" value="props['web.service.put.lookup.wd.data.endpoint']"/>
+            <cc:set name="lookup.wd.data.subroutine" value="props['web.service.put.lookup.wd.data.subroutine']"/>
             <cc:set name="lookup.wd.data.filename" value="props['web.service.put.lookup.wd.data.filename']"/>
             <cc:set name="lookup.wd.data.request.type" value="props['web.service.put.lookup.wd.data.request.type']"/>
             <cc:set name="lookup.wd.data.application" value="props['web.service.put.lookup.wd.data.application']"/>
@@ -187,12 +192,12 @@
                     <cc:expression>props['web.service.put.request.filename'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:sub_process/fhc:filename&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.put.request.endpoint'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:sub_process/fhc:endpoint&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.put.create.ws.xml.filename'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:sub_process/fhc:sub_process[@fhc:subprocess_name = 'create_ws_xml']/fhc:filename&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
-                    <cc:expression>props['web.service.put.create.ws.xml.endpoint'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:sub_process/fhc:sub_process[@fhc:subprocess_name = 'create_ws_xml']/fhc:endpoint&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
+                    <cc:expression>props['web.service.put.create.ws.xml.subroutine'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:sub_process/fhc:sub_process[@fhc:subprocess_name = 'create_ws_xml']/fhc:endpoint&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.put.lookup.wd.data'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:sub_process/fhc:sub_process[@fhc:subprocess_name = 'lookup_wd_data']/@fhc:execute_subprocess&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.put.lookup.wd.data.application'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:sub_process/fhc:sub_process[@fhc:subprocess_name = 'lookup_wd_data']/fhc:application&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.put.lookup.wd.data.request.type'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:sub_process/fhc:sub_process[@fhc:subprocess_name = 'lookup_wd_data']/fhc:sub_type&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.put.lookup.wd.data.filename'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:sub_process/fhc:sub_process[@fhc:subprocess_name = 'lookup_wd_data']/fhc:filename&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
-                    <cc:expression>props['web.service.put.lookup.wd.data.endpoint'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:sub_process/fhc:sub_process[@fhc:subprocess_name = 'lookup_wd_data']/fhc:endpoint&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
+                    <cc:expression>props['web.service.put.lookup.wd.data.subroutine'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:sub_process/fhc:sub_process[@fhc:subprocess_name = 'lookup_wd_data']/fhc:endpoint&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.put.update.multi.instance.1'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:update_attributes/fhc:multi_instance_updates/fhc:update_attribute[1]&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.put.update.multi.instance.2'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:update_attributes/fhc:multi_instance_updates/fhc:update_attribute[2]&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.put.update.multi.instance.3'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:update_attributes/fhc:multi_instance_updates/fhc:update_attribute[3]&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
@@ -205,6 +210,26 @@
                     <cc:expression>props['web.service.put.workday.id.tag'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:workday_transaction_id_data/fhc:tag&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.put.workday.id.namespace'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:workday_transaction_id_data/@fhc:namespace&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                 </cc:eval>
+                <cc:eval id="set-process-props-external-api">
+                    <cc:expression>props['web.service.put.external.api.url.attribute'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:external_api_attributes/fhc:external_http/fhc:url_attribute&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
+                    <cc:expression>props['web.service.put.external.api.authentication.type'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:external_api_attributes/fhc:external_http/fhc:http_authentication/@fhc:property_type&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
+                    <cc:expression>props['web.service.put.external.api.authentication.refresh.token.attribute'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:external_api_attributes/fhc:external_http/fhc:http_authentication/fhc:refresh_token_attribute&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
+                    <cc:expression>props['web.service.put.external.api.http.rest.method'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:external_api_attributes/fhc:external_http/fhc:rest_method&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
+                    <cc:expression>props['web.service.put.external.api.http.content.type'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:external_api_attributes/fhc:external_http/fhc:content_type&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
+                    <cc:expression>props['web.service.put.external.api.http.user.agent'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:external_api_attributes/fhc:external_http/fhc:user_agent&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
+                    <cc:expression>props['web.service.put.external.api.version.attribute'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:external_api_attributes/fhc:api_version_attribute&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
+                    <cc:expression>props['web.service.put.external.api.set.headers'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:external_api_attributes/fhc:sub_process[@fhc:subprocess_name = 'set_headers']/@fhc:execute_subprocess&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
+                    <cc:expression>props['web.service.put.external.api.set.headers.filename'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:external_api_attributes/fhc:sub_process[@fhc:subprocess_name = 'set_headers']/fhc:filename&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
+                    <cc:expression>props['web.service.put.external.api.set.headers.subroutine'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:external_api_attributes/fhc:sub_process[@fhc:subprocess_name = 'set_headers']/fhc:endpoint&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
+                    <cc:expression>props['web.service.put.external.api.set.authorization.token'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:external_api_attributes/fhc:sub_process[@fhc:subprocess_name = 'set_authentication']/@fhc:execute_subprocess&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
+                    <cc:expression>props['web.service.put.external.api.set.authorization.token.subroutine'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:external_api_attributes/fhc:sub_process[@fhc:subprocess_name = 'set_authentication']/fhc:endpoint&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
+                    <cc:expression>props['web.service.put.external.api.set.url.extrapath'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:external_api_attributes/fhc:sub_process[@fhc:subprocess_name = 'set_url_extrapath']/@fhc:execute_subprocess&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
+                    <cc:expression>props['web.service.put.external.api.set.url.extrapath.subroutine'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:external_api_attributes/fhc:sub_process[@fhc:subprocess_name = 'set_url_extrapath']/fhc:endpoint&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
+                </cc:eval>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:async-mediation id="set-attributes" routes-to="call_log_configuration_html">
+            <cc:steps>
                 <cc:eval id="set-output-props">
                     <cc:expression>props['output.transform.xml.filename'] = vars['config.properties'].xpath(&quot;//fhc:output_information/fhc:filename&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['output.aggregation.data.type'] = vars['config.properties'].xpath(&quot;//fhc:output_information/@fhc:aggregation_data_type&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
@@ -212,10 +237,6 @@
                     <cc:expression>props['output.file.sequencer'] = vars['config.properties'].xpath(&quot;//fhc:output_information/fhc:output_file/fhc:sequencer&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['output.file.deliver.documents.attribute']= vars['config.properties'].xpath(&quot;//fhc:output_information/fhc:output_file/fhc:deliver_documents_attribute&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                 </cc:eval>
-            </cc:steps>
-        </cc:async-mediation>
-        <cc:async-mediation id="set-attributes" routes-to="call_log_configuration_html">
-            <cc:steps>
                 <cc:eval id="set-attribute-values">
                     <cc:expression>props['multi.instance.filter.1.wids'] = (props['web.service.get.filter.multi.instance.1'].length() == 0)? 'no': intsys.getAttributeReferenceDataList(props['web.service.get.filter.multi.instance.1'], 'WID').toString().replace(&quot;[&quot;,&quot;&quot;).replace(&quot;]&quot;,&quot;&quot;)</cc:expression>
                     <cc:expression>props['multi.instance.filter.2.wids'] = (props['web.service.get.filter.multi.instance.2'].length() == 0)? 'no': intsys.getAttributeReferenceDataList(props['web.service.get.filter.multi.instance.2'], 'WID').toString().replace(&quot;[&quot;,&quot;&quot;).replace(&quot;]&quot;,&quot;&quot;)</cc:expression>
@@ -234,6 +255,8 @@
                     <cc:expression>props['single.instance.update.3.name'] = (props['web.service.put.update.single.instance.3'].length() == 0)? 'no': intsys.getAttribute(props['web.service.put.update.single.instance.3'])</cc:expression>
                     <cc:expression>props['update.data'] = intsys.getAttributeAsBoolean(props['web.service.put.update.data.attribute'], true)</cc:expression>
                     <cc:expression>props['deliver.documents'] = intsys.getAttribute(props['output.file.deliver.documents.attribute'])</cc:expression>
+                    <cc:expression>props['web.service.put.external.api.url']  = intsys.getAttribute(props['web.service.put.external.api.url.attribute'])</cc:expression>
+                    <cc:expression>props['web.service.put.external.api.version'] = intsys.getAttribute(props['web.service.put.external.api.version.attribute'])</cc:expression>
                 </cc:eval>
                 <cc:xslt id="set-report-filter" output="variable" output-variable="report.filter.xml" input="variable" input-variable="config.properties" url="lib/processing/set_report_filter_details.xsl"/>
                 <cc:eval id="set-report-props">
