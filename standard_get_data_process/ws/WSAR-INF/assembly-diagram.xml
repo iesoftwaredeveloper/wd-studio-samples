@@ -61,6 +61,9 @@
   <visualProperties>
     <element href="assembly.xml#xslt_get_web_service_xml"/>
   </visualProperties>
+  <visualProperties x="2144" y="488">
+    <element href="assembly.xml#call_get_lookup_data_get"/>
+  </visualProperties>
   <connections type="routesTo">
     <source href="assembly.xml#get_workday_paged_web_service_call"/>
     <target href="assembly.xml#call_create_wd_get_call"/>
@@ -106,10 +109,6 @@
     <target href="assembly.xml#call_store_msg_return_msg_rsp"/>
   </connections>
   <connections type="routesResponseTo">
-    <source href="assembly.xml#call_store_msg_return_msg_rsp"/>
-    <target href="assembly.xml#call_conform_get_data"/>
-  </connections>
-  <connections type="routesResponseTo">
     <source href="assembly.xml#call_conform_get_data"/>
     <target href="assembly.xml#call_get_response_endpoint"/>
   </connections>
@@ -124,6 +123,14 @@
   <connections type="routesTo">
     <source href="assembly.xml#create_standard_wd_web_service_call"/>
     <target href="assembly.xml#xslt_get_web_service_xml"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_store_msg_return_msg_rsp"/>
+    <target href="assembly.xml#call_get_lookup_data_get"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_get_lookup_data_get"/>
+    <target href="assembly.xml#call_conform_get_data"/>
   </connections>
   <swimlanes bgColor="8454143" name="Local-in Paged WS" orientation="VERTICAL" alignment="MIDDLE">
     <elements href="assembly.xml#get_workday_paged_web_service_call"/>
@@ -158,8 +165,9 @@
   <swimlanes bgColor="8454143" name="Local-in Group Determine" alignment="MIDDLE">
     <elements href="assembly.xml#determine_endpoint"/>
     <elements href="assembly.xml#call_store_msg_return_msg_rsp"/>
+    <elements href="assembly.xml#call_get_lookup_data_get"/>
   </swimlanes>
-  <swimlanes bgColor="8454143" name="Group Data and Process Rsp" alignment="MIDDLE">
+  <swimlanes bgColor="8454143" name="Group Data and Process Rsp" orientation="VERTICAL" alignment="MIDDLE">
     <elements href="assembly.xml#call_conform_get_data"/>
     <elements href="assembly.xml#call_get_response_endpoint"/>
   </swimlanes>

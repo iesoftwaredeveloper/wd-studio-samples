@@ -2,8 +2,9 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     xmlns:bsvc="urn:com.workday/bsvc"
+    xmlns:wd="urn:com.workday/bsvc"
     xmlns:intsys="java:com.workday.esb.intsys.xpath.ParsedIntegrationSystemFunctions"
-    exclude-result-prefixes="xs intsys" version="2.0">
+    exclude-result-prefixes="xs intsys wd" version="2.0">
     <xsl:output method="xml" version="1.0" indent="yes" omit-xml-declaration="yes"/>
     
     <!-- Filter Parameters -->
@@ -15,6 +16,7 @@
     <xsl:param name="single.instance.filter.3.wids"/>
     <xsl:param name="worker.wid"/>
     <!-- Standard Web Service Parameters -->
+    <xsl:param name="web.service.lookup.request.type"/>
     <xsl:param name="web.service.get.request.type"/>
     <xsl:param name="web.service.version"/>
     <xsl:param name="web.service.count"/>
@@ -76,6 +78,19 @@
                 <bsvc:Get_Workers_Request>
                     <xsl:attribute name="bsvc:version" select="$web.service.version"/>
                     <xsl:choose>
+                        <xsl:when test="$web.service.lookup.request.type = 'manager_list_username_only'">
+                            <xsl:variable name="ee_list" select="distinct-values(//wd:Manager_as_of_last_detected_manager_change_Reference)"/>
+                            <xsl:for-each-group select="//wd:Manager_as_of_last_detected_manager_change_Reference" group-by="wd:ID[@wd:type='Employee_ID']">
+                                <bsvc:Request_References>
+                                    <xsl:attribute name="bsvc:Skip_Non_Existing_Instances" select="1"/>
+                                    <bsvc:Worker_Reference>
+                                        <bsvc:ID bsvc:type="Employee_ID">
+                                            <xsl:value-of select="normalize-space(current-grouping-key())"/>
+                                        </bsvc:ID>
+                                    </bsvc:Worker_Reference>
+                                </bsvc:Request_References>
+                            </xsl:for-each-group>
+                        </xsl:when>
                         <xsl:when test="$web.service.get.request.type = 'employee_id_list'">
                             <bsvc:Request_References>
                                 <xsl:attribute name="bsvc:Skip_Non_Existing_Instances" select="1"/>
@@ -163,118 +178,240 @@
                         </bsvc:Count>
                     </bsvc:Response_Filter>
                     <bsvc:Response_Group>
-                        <bsvc:Include_Reference>
-                            <xsl:value-of select="$web.service.include.reference"/>
-                        </bsvc:Include_Reference>
-                        <bsvc:Include_Personal_Information>
-                            <xsl:value-of select="$include.personal.information"/>
-                        </bsvc:Include_Personal_Information>
-                        <bsvc:Include_Employment_Information>
-                            <xsl:value-of select="$include.employment.information"/>
-                        </bsvc:Include_Employment_Information>
-                        <bsvc:Include_Compensation>
-                            <xsl:value-of select="$include.compensation"/>
-                        </bsvc:Include_Compensation>
-                        <bsvc:Include_Organizations>
-                            <xsl:value-of select="$include.organizations"/>
-                        </bsvc:Include_Organizations>
-                        <bsvc:Exclude_Organization_Support_Role_Data>
-                            <xsl:value-of select="$exclude.organization.support.role.data"/>
-                        </bsvc:Exclude_Organization_Support_Role_Data>
-                        <bsvc:Exclude_Location_Hierarchies>
-                            <xsl:value-of select="$exclude.location.hierarchies"/>
-                        </bsvc:Exclude_Location_Hierarchies>
-                        <bsvc:Exclude_Cost_Centers>
-                            <xsl:value-of select="$exclude.cost.centers"/>
-                        </bsvc:Exclude_Cost_Centers>
-                        <bsvc:Exclude_Cost_Center_Hierarchies>
-                            <xsl:value-of select="$exclude.cost.center.hierarchies"/>
-                        </bsvc:Exclude_Cost_Center_Hierarchies>
-                        <bsvc:Exclude_Companies>
-                            <xsl:value-of select="$exclude.companies"/>
-                        </bsvc:Exclude_Companies>
-                        <bsvc:Exclude_Company_Hierarchies>
-                            <xsl:value-of select="$exclude.company.hierarchies"/>
-                        </bsvc:Exclude_Company_Hierarchies>
-                        <bsvc:Exclude_Matrix_Organizations>
-                            <xsl:value-of select="$exclude.matrix.organizations"/>
-                        </bsvc:Exclude_Matrix_Organizations>
-                        <bsvc:Exclude_Pay_Groups>
-                            <xsl:value-of select="$exclude.pay.groups"/>
-                        </bsvc:Exclude_Pay_Groups>
-                        <bsvc:Exclude_Regions>
-                            <xsl:value-of select="$exclude.regions"/>
-                        </bsvc:Exclude_Regions>
-                        <bsvc:Exclude_Region_Hierarchies>
-                            <xsl:value-of select="$exclude.region.hierarchies"/>
-                        </bsvc:Exclude_Region_Hierarchies>
-                        <bsvc:Exclude_Supervisory_Organizations>
-                            <xsl:value-of select="$exclude.supervisory.organizations"/>
-                        </bsvc:Exclude_Supervisory_Organizations>
-                        <bsvc:Exclude_Teams>
-                            <xsl:value-of select="$exclude.teams"/>
-                        </bsvc:Exclude_Teams>
-                        <bsvc:Exclude_Custom_Organizations>
-                            <xsl:value-of select="$exclude.custom.organizations"/>
-                        </bsvc:Exclude_Custom_Organizations>
-                        <bsvc:Include_Roles>
-                            <xsl:value-of select="$include.roles"/>
-                        </bsvc:Include_Roles>
-                        <bsvc:Include_Management_Chain_Data>
-                            <xsl:value-of select="$include.management.chain.data"/>
-                        </bsvc:Include_Management_Chain_Data>
-                        <bsvc:Include_Benefit_Enrollments>
-                            <xsl:value-of select="$include.benefit.enrollments"/>
-                        </bsvc:Include_Benefit_Enrollments>
-                        <bsvc:Include_Benefit_Eligibility>
-                            <xsl:value-of select="$include.benefit.eligibility"/>
-                        </bsvc:Include_Benefit_Eligibility>
-                        <bsvc:Include_Related_Persons>
-                            <xsl:value-of select="$include.related.persons"/>
-                        </bsvc:Include_Related_Persons>
-                        <bsvc:Include_Qualifications>
-                            <xsl:value-of select="$include.qualifications"/>
-                        </bsvc:Include_Qualifications>
-                        <bsvc:Include_Employee_Review>
-                            <xsl:value-of select="$include.employee.review"/>
-                        </bsvc:Include_Employee_Review>
-                        <bsvc:Include_Goals>
-                            <xsl:value-of select="$include.goals"/>
-                        </bsvc:Include_Goals>
-                        <bsvc:Include_Photo>
-                            <xsl:value-of select="$include.photo"/>
-                        </bsvc:Include_Photo>
-                        <bsvc:Include_Worker_Documents>
-                            <xsl:value-of select="$include.worker.documents"/>
-                        </bsvc:Include_Worker_Documents>
-                        <bsvc:Include_Transaction_Log_Data>
-                            <xsl:value-of select="$include.transaction.log.data"/>
-                        </bsvc:Include_Transaction_Log_Data>
-                        <bsvc:Include_Succession_Profile>
-                            <xsl:value-of select="$include.succession.profile"/>
-                        </bsvc:Include_Succession_Profile>
-                        <bsvc:Include_Talent_Assessment>
-                            <xsl:value-of select="$include.talent.assessment"/>
-                        </bsvc:Include_Talent_Assessment>
-                        <bsvc:Include_Employee_Contract_Data>
-                            <xsl:value-of select="$include.employee.contract.data"/>
-                        </bsvc:Include_Employee_Contract_Data>
-                        <bsvc:Include_Feedback_Received>
-                            <xsl:value-of select="$include.feedback.received"/>
-                        </bsvc:Include_Feedback_Received>
-                        <bsvc:Include_User_Account>
-                            <xsl:value-of select="$include.user.account"/>
-                        </bsvc:Include_User_Account>
-                        <bsvc:Include_Career>
-                            <xsl:value-of select="$include.career"/>
-                        </bsvc:Include_Career>
-                        <bsvc:Include_Account_Provisioning>
-                            <xsl:value-of select="$include.account.provisioning"/>
-                        </bsvc:Include_Account_Provisioning>
+                        <xsl:choose>
+                            <xsl:when test="contains($web.service.lookup.request.type, 'username_only')">
+                                <xsl:call-template name="response_group_username_only"/>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:call-template name="response_group"/>
+                            </xsl:otherwise>
+                        </xsl:choose>
                     </bsvc:Response_Group>
                 </bsvc:Get_Workers_Request>
             </soapenv:Body>
         </soapenv:Envelope>
+    </xsl:template>
+    
+    <xsl:template name="response_group">
+        <bsvc:Include_Reference>
+            <xsl:value-of select="$web.service.include.reference"/>
+        </bsvc:Include_Reference>
+        <bsvc:Include_Personal_Information>
+            <xsl:value-of select="$include.personal.information"/>
+        </bsvc:Include_Personal_Information>
+        <bsvc:Include_Employment_Information>
+            <xsl:value-of select="$include.employment.information"/>
+        </bsvc:Include_Employment_Information>
+        <bsvc:Include_Compensation>
+            <xsl:value-of select="$include.compensation"/>
+        </bsvc:Include_Compensation>
+        <bsvc:Include_Organizations>
+            <xsl:value-of select="$include.organizations"/>
+        </bsvc:Include_Organizations>
+        <bsvc:Exclude_Organization_Support_Role_Data>
+            <xsl:value-of select="$exclude.organization.support.role.data"/>
+        </bsvc:Exclude_Organization_Support_Role_Data>
+        <bsvc:Exclude_Location_Hierarchies>
+            <xsl:value-of select="$exclude.location.hierarchies"/>
+        </bsvc:Exclude_Location_Hierarchies>
+        <bsvc:Exclude_Cost_Centers>
+            <xsl:value-of select="$exclude.cost.centers"/>
+        </bsvc:Exclude_Cost_Centers>
+        <bsvc:Exclude_Cost_Center_Hierarchies>
+            <xsl:value-of select="$exclude.cost.center.hierarchies"/>
+        </bsvc:Exclude_Cost_Center_Hierarchies>
+        <bsvc:Exclude_Companies>
+            <xsl:value-of select="$exclude.companies"/>
+        </bsvc:Exclude_Companies>
+        <bsvc:Exclude_Company_Hierarchies>
+            <xsl:value-of select="$exclude.company.hierarchies"/>
+        </bsvc:Exclude_Company_Hierarchies>
+        <bsvc:Exclude_Matrix_Organizations>
+            <xsl:value-of select="$exclude.matrix.organizations"/>
+        </bsvc:Exclude_Matrix_Organizations>
+        <bsvc:Exclude_Pay_Groups>
+            <xsl:value-of select="$exclude.pay.groups"/>
+        </bsvc:Exclude_Pay_Groups>
+        <bsvc:Exclude_Regions>
+            <xsl:value-of select="$exclude.regions"/>
+        </bsvc:Exclude_Regions>
+        <bsvc:Exclude_Region_Hierarchies>
+            <xsl:value-of select="$exclude.region.hierarchies"/>
+        </bsvc:Exclude_Region_Hierarchies>
+        <bsvc:Exclude_Supervisory_Organizations>
+            <xsl:value-of select="$exclude.supervisory.organizations"/>
+        </bsvc:Exclude_Supervisory_Organizations>
+        <bsvc:Exclude_Teams>
+            <xsl:value-of select="$exclude.teams"/>
+        </bsvc:Exclude_Teams>
+        <bsvc:Exclude_Custom_Organizations>
+            <xsl:value-of select="$exclude.custom.organizations"/>
+        </bsvc:Exclude_Custom_Organizations>
+        <bsvc:Include_Roles>
+            <xsl:value-of select="$include.roles"/>
+        </bsvc:Include_Roles>
+        <bsvc:Include_Management_Chain_Data>
+            <xsl:value-of select="$include.management.chain.data"/>
+        </bsvc:Include_Management_Chain_Data>
+        <bsvc:Include_Benefit_Enrollments>
+            <xsl:value-of select="$include.benefit.enrollments"/>
+        </bsvc:Include_Benefit_Enrollments>
+        <bsvc:Include_Benefit_Eligibility>
+            <xsl:value-of select="$include.benefit.eligibility"/>
+        </bsvc:Include_Benefit_Eligibility>
+        <bsvc:Include_Related_Persons>
+            <xsl:value-of select="$include.related.persons"/>
+        </bsvc:Include_Related_Persons>
+        <bsvc:Include_Qualifications>
+            <xsl:value-of select="$include.qualifications"/>
+        </bsvc:Include_Qualifications>
+        <bsvc:Include_Employee_Review>
+            <xsl:value-of select="$include.employee.review"/>
+        </bsvc:Include_Employee_Review>
+        <bsvc:Include_Goals>
+            <xsl:value-of select="$include.goals"/>
+        </bsvc:Include_Goals>
+        <bsvc:Include_Photo>
+            <xsl:value-of select="$include.photo"/>
+        </bsvc:Include_Photo>
+        <bsvc:Include_Worker_Documents>
+            <xsl:value-of select="$include.worker.documents"/>
+        </bsvc:Include_Worker_Documents>
+        <bsvc:Include_Transaction_Log_Data>
+            <xsl:value-of select="$include.transaction.log.data"/>
+        </bsvc:Include_Transaction_Log_Data>
+        <bsvc:Include_Succession_Profile>
+            <xsl:value-of select="$include.succession.profile"/>
+        </bsvc:Include_Succession_Profile>
+        <bsvc:Include_Talent_Assessment>
+            <xsl:value-of select="$include.talent.assessment"/>
+        </bsvc:Include_Talent_Assessment>
+        <bsvc:Include_Employee_Contract_Data>
+            <xsl:value-of select="$include.employee.contract.data"/>
+        </bsvc:Include_Employee_Contract_Data>
+        <bsvc:Include_Feedback_Received>
+            <xsl:value-of select="$include.feedback.received"/>
+        </bsvc:Include_Feedback_Received>
+        <bsvc:Include_User_Account>
+            <xsl:value-of select="$include.user.account"/>
+        </bsvc:Include_User_Account>
+        <bsvc:Include_Career>
+            <xsl:value-of select="$include.career"/>
+        </bsvc:Include_Career>
+        <bsvc:Include_Account_Provisioning>
+            <xsl:value-of select="$include.account.provisioning"/>
+        </bsvc:Include_Account_Provisioning>
+    </xsl:template>
+    
+    <xsl:template name="response_group_username_only">
+        <bsvc:Include_Reference>
+            <xsl:value-of select="$web.service.include.reference"/>
+        </bsvc:Include_Reference>
+        <bsvc:Include_Personal_Information>
+            <xsl:value-of select="false()"/>
+        </bsvc:Include_Personal_Information>
+        <bsvc:Include_Employment_Information>
+            <xsl:value-of select="false()"/>
+        </bsvc:Include_Employment_Information>
+        <bsvc:Include_Compensation>
+            <xsl:value-of select="false()"/>
+        </bsvc:Include_Compensation>
+        <bsvc:Include_Organizations>
+            <xsl:value-of select="false()"/>
+        </bsvc:Include_Organizations>
+        <bsvc:Exclude_Organization_Support_Role_Data>
+            <xsl:value-of select="true()"/>
+        </bsvc:Exclude_Organization_Support_Role_Data>
+        <bsvc:Exclude_Location_Hierarchies>
+            <xsl:value-of select="true()"/>
+        </bsvc:Exclude_Location_Hierarchies>
+        <bsvc:Exclude_Cost_Centers>
+            <xsl:value-of select="true()"/>
+        </bsvc:Exclude_Cost_Centers>
+        <bsvc:Exclude_Cost_Center_Hierarchies>
+            <xsl:value-of select="true()"/>
+        </bsvc:Exclude_Cost_Center_Hierarchies>
+        <bsvc:Exclude_Companies>
+            <xsl:value-of select="true()"/>
+        </bsvc:Exclude_Companies>
+        <bsvc:Exclude_Company_Hierarchies>
+            <xsl:value-of select="true()"/>
+        </bsvc:Exclude_Company_Hierarchies>
+        <bsvc:Exclude_Matrix_Organizations>
+            <xsl:value-of select="true()"/>
+        </bsvc:Exclude_Matrix_Organizations>
+        <bsvc:Exclude_Pay_Groups>
+            <xsl:value-of select="true()"/>
+        </bsvc:Exclude_Pay_Groups>
+        <bsvc:Exclude_Regions>
+            <xsl:value-of select="true()"/>
+        </bsvc:Exclude_Regions>
+        <bsvc:Exclude_Region_Hierarchies>
+            <xsl:value-of select="true()"/>
+        </bsvc:Exclude_Region_Hierarchies>
+        <bsvc:Exclude_Supervisory_Organizations>
+            <xsl:value-of select="true()"/>
+        </bsvc:Exclude_Supervisory_Organizations>
+        <bsvc:Exclude_Teams>
+            <xsl:value-of select="true()"/>
+        </bsvc:Exclude_Teams>
+        <bsvc:Exclude_Custom_Organizations>
+            <xsl:value-of select="true()"/>
+        </bsvc:Exclude_Custom_Organizations>
+        <bsvc:Include_Roles>
+            <xsl:value-of select="false()"/>
+        </bsvc:Include_Roles>
+        <bsvc:Include_Management_Chain_Data>
+            <xsl:value-of select="false()"/>
+        </bsvc:Include_Management_Chain_Data>
+        <bsvc:Include_Benefit_Enrollments>
+            <xsl:value-of select="false()"/>
+        </bsvc:Include_Benefit_Enrollments>
+        <bsvc:Include_Benefit_Eligibility>
+            <xsl:value-of select="false()"/>
+        </bsvc:Include_Benefit_Eligibility>
+        <bsvc:Include_Related_Persons>
+            <xsl:value-of select="false()"/>
+        </bsvc:Include_Related_Persons>
+        <bsvc:Include_Qualifications>
+            <xsl:value-of select="false()"/>
+        </bsvc:Include_Qualifications>
+        <bsvc:Include_Employee_Review>
+            <xsl:value-of select="false()"/>
+        </bsvc:Include_Employee_Review>
+        <bsvc:Include_Goals>
+            <xsl:value-of select="false()"/>
+        </bsvc:Include_Goals>
+        <bsvc:Include_Photo>
+            <xsl:value-of select="false()"/>
+        </bsvc:Include_Photo>
+        <bsvc:Include_Worker_Documents>
+            <xsl:value-of select="false()"/>
+        </bsvc:Include_Worker_Documents>
+        <bsvc:Include_Transaction_Log_Data>
+            <xsl:value-of select="false()"/>
+        </bsvc:Include_Transaction_Log_Data>
+        <bsvc:Include_Succession_Profile>
+            <xsl:value-of select="false()"/>
+        </bsvc:Include_Succession_Profile>
+        <bsvc:Include_Talent_Assessment>
+            <xsl:value-of select="false()"/>
+        </bsvc:Include_Talent_Assessment>
+        <bsvc:Include_Employee_Contract_Data>
+            <xsl:value-of select="false()"/>
+        </bsvc:Include_Employee_Contract_Data>
+        <bsvc:Include_Feedback_Received>
+            <xsl:value-of select="false()"/>
+        </bsvc:Include_Feedback_Received>
+        <bsvc:Include_User_Account>
+            <xsl:value-of select="true()"/>
+        </bsvc:Include_User_Account>
+        <bsvc:Include_Career>
+            <xsl:value-of select="false()"/>
+        </bsvc:Include_Career>
+        <bsvc:Include_Account_Provisioning>
+            <xsl:value-of select="false()"/>
+        </bsvc:Include_Account_Provisioning>
     </xsl:template>
 
 </xsl:stylesheet>

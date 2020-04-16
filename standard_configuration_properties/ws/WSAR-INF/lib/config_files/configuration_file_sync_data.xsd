@@ -120,7 +120,10 @@
     <xs:element name="user_agent" type="xs:string"/>
     <xs:element name="content_type" type="xs:string"/>
     <xs:element name="refresh_token_attribute" type="xs:string"/>
+    <xs:element name="username_attribute" type="xs:string"/>
+    <xs:element name="password_attribute" type="xs:string"/>
     <xs:element name="api_version_attribute" type="xs:string"/>
+    <xs:element name="convert_response_json_to_xml" type="xs:string"/>
 
     <!-- Attributes -->
     <xs:attribute name="process_name" type="xs:string"/>
@@ -153,12 +156,15 @@
             <xs:element ref="fhc:external_http"/>
             <xs:element maxOccurs="unbounded" minOccurs="0" ref="fhc:sub_process"/>
             <xs:element maxOccurs="1" minOccurs="0" ref="fhc:api_version_attribute"/>
+            <xs:element maxOccurs="1" minOccurs="0" ref="fhc:convert_response_json_to_xml"/>
         </xs:choice>
     </xs:complexType>
     <!-- Attributes for Sub Processes -->
     <xs:complexType name="authentication">
         <xs:choice maxOccurs="unbounded">
             <xs:element ref="fhc:refresh_token_attribute"/>
+            <xs:element ref="fhc:username_attribute"/>
+            <xs:element ref="fhc:password_attribute"/>
         </xs:choice>
         <xs:attribute ref="fhc:property_type"/>
     </xs:complexType>

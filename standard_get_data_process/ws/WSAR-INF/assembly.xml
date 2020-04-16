@@ -17,29 +17,31 @@
             <cc:set name="record.count.total" value="props['is.paged.get.total.results']"/>
         </cc:local-out>
         <cc:local-out id="call_conform_get_data" execute-when="props['web.service.get.conform.xml'] == 'true'" routes-response-to="call_get_response_endpoint" endpoint="vm://@{props['web.service.get.conform.xml.endpoint']}"><cc:set name="web.service.get.conform.xml.filename" value="props['web.service.get.conform.xml.filename']"/></cc:local-out>
-        <cc:local-out id="call_store_msg_return_msg_rsp" execute-when="props['web.service.response.log'] == true" routes-response-to="call_conform_get_data" endpoint="vm://standard_logging/store_msg_return_msg">
-            <cc:set name="store.filename" value="props['process.type'].toLowerCase() + '_webservice_get_response_full.xml'"/>
+        <cc:local-out id="call_store_msg_return_msg_rsp" execute-when="props['web.service.response.log'] == true" routes-response-to="call_get_lookup_data_get" endpoint="vm://standard_logging/store_msg_return_msg">
+            <cc:set name="store.filename" value="props['running.process'].toLowerCase().replace(' ','_') + '_webservice_get_response_full.xml'"/>
         </cc:local-out>
-        <cc:local-in id="determine_endpoint" routes-to="call_store_msg_return_msg_rsp" access="public"/>
+        <cc:local-in id="determine_endpoint" routes-to="call_store_msg_return_msg_rsp" access="public" icon="local-in-determine_endpoint.png"/>
         <cc:async-mediation id="copy_to_variable">
             <cc:steps>
                 <cc:copy id="cp_to_lkp_var" output="variable" output-variable="lookup.wd.data.xml"/>
+                <cc:copy id="reset_msg" input="variable" input-variable="msg.bckp"/>
             </cc:steps>
         </cc:async-mediation>
         <cc:workday-out-soap id="get_workday_data_call" routes-response-to="call_store_msg_return_msg_get_lkp_rsp" application="@{props['web.service.lookup.application']}" version="@{props['web.service.version']}"/>
         <cc:local-out id="call_store_msg_return_msg_get_lkp" execute-when="props['web.service.request.log'] == true" routes-response-to="get_workday_data_call" endpoint="vm://standard_logging/store_msg_return_msg">
-            <cc:set name="store.filename" value="'lookup_data_webservice_get_request.xml'"/>
+            <cc:set name="store.filename" value="props['running.process'].toLowerCase().replace(' ','_')+'_lookup_data_webservice_get_request.xml'"/>
         </cc:local-out>
         <cc:async-mediation id="xslt_get_web_service_xml_lkp" routes-to="call_store_msg_return_msg_get_lkp" handle-downstream-errors="true">
             <cc:steps>
-                <cc:xslt id="create_ws_request" url="@{props['web.service.lookup.filename']}"/>
+                <cc:copy id="bckp_msg" output="variable" output-variable="msg.bckp"/>
+                <cc:xslt id="create_ws_request" input="variable" input-variable="msg.bckp" url="@{props['web.service.lookup.filename']}"/>
             </cc:steps>
             <cc:send-error id="SendError" routes-to="copy_to_variable"/>
         </cc:async-mediation>
         <cc:local-in id="get_workday_lookup_data" routes-to="xslt_get_web_service_xml_lkp" access="public">
             <cc:parameter name="web.service.lookup.filename" required="true"/>
             <cc:parameter name="web.service.lookup.application" required="true"/>
-            <cc:parameter default="'default'" name="web.service.request.type" required="false"/>
+            <cc:parameter default="''" name="web.service.lookup.request.type" required="false"/>
         </cc:local-in>
         <cc:local-out id="call_determine_endpoint" endpoint="vm://standard_get_data_process/determine_endpoint"/>
         <cc:workday-out-rest id="make_workday_raas_call" routes-response-to="call_determine_endpoint" extra-path="@{props['report.extra.path']}"/>
@@ -70,7 +72,7 @@
             <cc:set name="is.paged.get.process.endpoint" value="'vm://standard_get_data_process/determine_endpoint'"/>
         </cc:local-out>
         <cc:local-out id="call_store_msg_return_msg_get" execute-when="props['web.service.request.log'] == true" routes-response-to="get_paging_results_from_get" endpoint="vm://standard_logging/store_msg_return_msg">
-            <cc:set name="store.filename" value="props['running.process'] + '_webservice_get_request.xml'"/>
+            <cc:set name="store.filename" value="props['running.process'].toLowerCase().replace(' ','_') + '_webservice_get_request.xml'"/>
         </cc:local-out>
         <cc:local-out id="call_create_wd_get_call" routes-response-to="call_store_msg_return_msg_get" endpoint="vm://@{props['web.service.get.create.ws.xml.endpoint']}">
             <cc:set name="web.service.create.ws.xml.filename" value="props['web.service.get.create.ws.xml.filename']"/>
@@ -84,9 +86,14 @@
             <cc:parameter default="'false'" name="web.service.get.conform.xml" required="true"/>
             <cc:parameter name="web.service.get.create.ws.xml.filename"/>
             <cc:parameter name="web.service.get.create.ws.xml.endpoint"/>
+            <cc:parameter default="'false'" name="web.service.get.lookup.wd.data" required="true"/>
+            <cc:parameter name="web.service.get.lookup.wd.data.application"/>
+            <cc:parameter name="web.service.get.lookup.wd.data.request.type"/>
+            <cc:parameter name="web.service.get.lookup.wd.data.filename"/>
+            <cc:parameter name="web.service.get.lookup.wd.data.subroutine"/>
         </cc:local-in>
         <cc:local-out id="call_store_msg_return_msg_get_lkp_rsp" execute-when="props['web.service.response.log'] == true" routes-response-to="copy_to_variable" endpoint="vm://standard_logging/store_msg_return_msg">
-            <cc:set name="store.filename" value="'lookup_data_webservice_get_response.xml'"/>
+            <cc:set name="store.filename" value="props['running.process'].toLowerCase().replace(' ','_')+'_lookup_data_webservice_get_response.xml'"/>
         </cc:local-out>
         <cc:async-mediation id="xslt_get_web_service_xml">
             <cc:steps>
@@ -96,6 +103,11 @@
         <cc:local-in id="create_standard_wd_web_service_call" routes-to="xslt_get_web_service_xml" access="public" icon="local-in-create_wd_web_service_call.png">
             <cc:parameter name="web.service.create.ws.xml.filename"/>
         </cc:local-in>
+        <cc:local-out id="call_get_lookup_data_get" execute-when="props['web.service.get.lookup.wd.data'] == 'true'" routes-response-to="call_conform_get_data" endpoint="vm://@{props['web.service.get.lookup.wd.data.subroutine']}">
+            <cc:set name="web.service.lookup.filename" value="props['web.service.get.lookup.wd.data.filename']"/>
+            <cc:set name="web.service.lookup.application" value="props['web.service.get.lookup.wd.data.application']"/>
+            <cc:set name="web.service.lookup.request.type" value="props['web.service.get.lookup.wd.data.request.type']"/>
+        </cc:local-out>
     </cc:assembly>
 
 </beans>

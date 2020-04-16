@@ -6,7 +6,8 @@
     exclude-result-prefixes="xs intsys" version="2.0">
     <xsl:output method="xml" version="1.0" indent="yes" omit-xml-declaration="yes"/>
 
-    <xsl:param name="web.service.request.type" select="'default'"/>
+    <xsl:param name="web.service.get.request.type"/>
+    <xsl:param name="web.service.lookup.request.type"/>
     <xsl:param name="multi.instance.filter.1.wids"/>
     <xsl:param name="multi.instance.filter.2.wids"/>
     <xsl:param name="multi.instance.filter.3.wids"/>
@@ -28,6 +29,7 @@
     <xsl:param name="job.req.include.attachments"/>
     <xsl:param name="job.req.include.roles"/>
     <xsl:param name="job.req.include.organizations"/>
+    <xsl:param name="job.req.include.requisition.compensation"/>
 
     <xsl:template match="/">
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:bsvc="urn:com.workday/bsvc">
@@ -41,8 +43,14 @@
             <soapenv:Body>
                 <bsvc:Get_Job_Requisitions_Request>
                     <xsl:attribute name="bsvc:version" select="$web.service.version"/>
-                    <bsvc:Request_Criteria>
-                        <xsl:if test="$web.service.request.type = 'default'">
+                    <xsl:choose>
+                        <xsl:when test="$web.service.lookup.request.type = 'job_req_list'">
+                            <bsvc:Request_References bsvc:Skip_Non_Existing_Instances="false">
+                                <xsl:apply-templates select="//jobs[1]/data/requisition_id"/>
+                            </bsvc:Request_References>
+                        </xsl:when>
+                        <xsl:when test="$web.service.get.request.type = 'default'">
+                            <bsvc:Request_Criteria>
                             <xsl:if test="$multi.instance.filter.1.wids != 'no'">
                                 <xsl:for-each select="tokenize($multi.instance.filter.1.wids,',')">
                                     <bsvc:Job_Requisition_Status_Reference>
@@ -52,31 +60,39 @@
                                     </bsvc:Job_Requisition_Status_Reference>
                                 </xsl:for-each>
                             </xsl:if>
-                        </xsl:if>
-                        <xsl:if test="$web.service.request.type = 'transaction_log'">
-                            <bsvc:Transaction_Log_Criteria_Data>
-                                <bsvc:Transaction_Date_Range_Data>
-                                    <bsvc:Updated_From>
-                                        <xsl:value-of select="$web.service.start.date"/>
-                                    </bsvc:Updated_From>
-                                    <bsvc:Updated_Through>
-                                        <xsl:value-of select="$web.service.end.date"/>
-                                    </bsvc:Updated_Through>
-                                    <!--<bsvc:Effective_From>2018-11-01T05:36:46+00:00</bsvc:Effective_From>
-                                    <bsvc:Effective_Through>2013-05-22T01:02:49+00:00</bsvc:Effective_Through>-->
-                                </bsvc:Transaction_Date_Range_Data>
-                                <!--<bsvc:Transaction_Type_References>
-                                    <bsvc:Transaction_Type_Reference bsvc:Descriptor="string">
-                                        <bsvc:ID bsvc:type="string">string</bsvc:ID>
-                                    </bsvc:Transaction_Type_Reference>
-                                </bsvc:Transaction_Type_References>-->
-                                <bsvc:Subscriber_Reference bsvc:Descriptor="string">
-                                    <bsvc:ID bsvc:type="WID">
-                                        <xsl:value-of select="$is.system.wid"/>
-                                    </bsvc:ID>
-                                </bsvc:Subscriber_Reference>
-                            </bsvc:Transaction_Log_Criteria_Data>
-                        </xsl:if>
+                            </bsvc:Request_Criteria>
+                        </xsl:when>
+                        <xsl:when test="$web.service.get.request.type = 'transaction_log'">
+                            <bsvc:Request_Criteria>
+                                <bsvc:Transaction_Log_Criteria_Data>
+                                    <bsvc:Transaction_Date_Range_Data>
+                                        <bsvc:Updated_From>
+                                            <xsl:value-of select="$web.service.start.date"/>
+                                        </bsvc:Updated_From>
+                                        <bsvc:Updated_Through>
+                                            <xsl:value-of select="$web.service.end.date"/>
+                                        </bsvc:Updated_Through>
+                                        <!--<bsvc:Effective_From>2018-11-01T05:36:46+00:00</bsvc:Effective_From>
+                                <bsvc:Effective_Through>2013-05-22T01:02:49+00:00</bsvc:Effective_Through>-->
+                                    </bsvc:Transaction_Date_Range_Data>
+                                    <!--<bsvc:Transaction_Type_References>
+                                <bsvc:Transaction_Type_Reference bsvc:Descriptor="string">
+                                    <bsvc:ID bsvc:type="string">string</bsvc:ID>
+                                </bsvc:Transaction_Type_Reference>
+                            </bsvc:Transaction_Type_References>-->
+                                    <bsvc:Subscriber_Reference>
+                                        <bsvc:ID bsvc:type="WID">
+                                            <xsl:value-of select="$is.system.wid"/>
+                                        </bsvc:ID>
+                                    </bsvc:Subscriber_Reference>
+                                </bsvc:Transaction_Log_Criteria_Data>
+                            </bsvc:Request_Criteria>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <bsvc:Request_Criteria/>
+                        </xsl:otherwise>
+                    </xsl:choose>
+
                         <!--<bsvc:Job_Requisition_Status_Reference bsvc:Descriptor="string">
                             <bsvc:ID bsvc:type="string">string</bsvc:ID>
                         </bsvc:Job_Requisition_Status_Reference>
@@ -94,8 +110,13 @@
                         <bsvc:Additional_Locations_Reference bsvc:Descriptor="string">
                             <bsvc:ID bsvc:type="string">string</bsvc:ID>
                         </bsvc:Additional_Locations_Reference>-->
-                    </bsvc:Request_Criteria>
+                    
                     <bsvc:Response_Filter>
+                        <xsl:if test="$web.service.lookup.request.type = 'job_req_list'">
+                            <bsvc:As_Of_Effective_Date>
+                                <xsl:value-of select="//offer/starts_at"/>
+                            </bsvc:As_Of_Effective_Date>
+                        </xsl:if>
                         <bsvc:Count>
                             <xsl:value-of select="$web.service.count"/>
                         </bsvc:Count>
@@ -122,10 +143,21 @@
                         <bsvc:Include_Roles>
                             <xsl:value-of select="$job.req.include.roles"/>
                         </bsvc:Include_Roles>
+                        <bsvc:Include_Requisition_Compensation>
+                            <xsl:value-of select="$job.req.include.requisition.compensation"/>
+                        </bsvc:Include_Requisition_Compensation>
                     </bsvc:Response_Group>
                 </bsvc:Get_Job_Requisitions_Request>
             </soapenv:Body>
         </soapenv:Envelope>
+    </xsl:template>
+    
+    <xsl:template match="requisition_id">
+        <bsvc:Job_Requisition_Reference>
+            <bsvc:ID bsvc:type="Job_Requisition_ID">
+                <xsl:value-of select="normalize-space(.)"/>
+            </bsvc:ID>
+        </bsvc:Job_Requisition_Reference>
     </xsl:template>
 
 </xsl:stylesheet>

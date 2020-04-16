@@ -49,6 +49,11 @@
     <xsl:param name="web.service.get.conform.xml"/>
     <xsl:param name="web.service.get.conform.xml.filename"/>
     <xsl:param name="web.service.get.conform.xml.endpoint"/>
+    <xsl:param name="web.service.get.lookup.wd.data"/>
+    <xsl:param name="web.service.get.lookup.wd.data.application"/>
+    <xsl:param name="web.service.get.lookup.wd.data.request.type"/>
+    <xsl:param name="web.service.get.lookup.wd.data.filename"/>
+    <xsl:param name="web.service.get.lookup.wd.data.subroutine"/>
     <xsl:param name="web.service.get.filter.multi.instance.1"/>
     <xsl:param name="web.service.get.filter.multi.instance.2"/>
     <xsl:param name="web.service.get.filter.multi.instance.3"/>
@@ -60,6 +65,21 @@
     <xsl:param name="xml.split.tag"/>
     <xsl:param name="report.alias"/>
     <xsl:param name="retrieval.file.labels"/>
+    <!-- External API Properties -->
+    <xsl:param name="web.service.get.external.api.url.attribute"/>
+    <xsl:param name="web.service.get.external.api.authentication.type"/>
+    <xsl:param name="web.service.get.external.api.authentication.refresh.token.attribute"/>
+    <xsl:param name="web.service.get.external.api.http.rest.method"/>
+    <xsl:param name="web.service.get.external.api.http.content.type"/>
+    <xsl:param name="web.service.get.external.api.http.user.agent"/>
+    <xsl:param name="web.service.get.external.api.version.attribute"/>
+    <xsl:param name="web.service.get.external.api.set.headers"/>
+    <xsl:param name="web.service.get.external.api.set.headers.filename"/>
+    <xsl:param name="web.service.get.external.api.set.headers.subroutine"/>
+    <xsl:param name="web.service.get.external.api.set.authorization.token"/>
+    <xsl:param name="web.service.get.external.api.set.authorization.token.subroutine"/>
+    <xsl:param name="web.service.get.external.api.set.url.extrapath"/>
+    <xsl:param name="web.service.get.external.api.set.url.extrapath.subroutine"/>
     <!-- PUT Properties -->
     <xsl:param name="web.service.put.application"/>
     <xsl:param name="web.service.put.request.filename"/>
@@ -267,6 +287,41 @@
                         <td>web.service.get.conform.xml.endpoint</td>
                         <td>
                             <xsl:value-of select="$web.service.get.conform.xml.endpoint"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>set-process-props-get</td>
+                        <td>web.service.get.lookup.wd.data</td>
+                        <td>
+                            <xsl:value-of select="$web.service.get.lookup.wd.data"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>set-process-props-get</td>
+                        <td>web.service.get.lookup.wd.data.application</td>
+                        <td>
+                            <xsl:value-of select="$web.service.get.lookup.wd.data.application"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>set-process-props-get</td>
+                        <td>web.service.get.lookup.wd.data.request.type</td>
+                        <td>
+                            <xsl:value-of select="$web.service.get.lookup.wd.data.request.type"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>set-process-props-get</td>
+                        <td>web.service.get.lookup.wd.data.filename</td>
+                        <td>
+                            <xsl:value-of select="$web.service.get.lookup.wd.data.filename"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>set-process-props-get</td>
+                        <td>web.service.get.lookup.wd.data.subroutine</td>
+                        <td>
+                            <xsl:value-of select="$web.service.get.lookup.wd.data.subroutine"/>
                         </td>
                     </tr>
                     <tr>
@@ -513,9 +568,13 @@
                     </tr>
                 </table>
                 <br/>
+                <xsl:variable name="set.get.external.api.label" select="'set-process-props-get-external-api'"/>
                 <table>
                     <tr>
-                        <th colspan="3" id="primary_header">set-process-props-external-api information</th>
+                        <th colspan="3" id="primary_header">
+                            <xsl:value-of select="$set.get.external.api.label"/>
+                            <xsl:value-of select="' information'"/>
+                        </th>
                     </tr>
                     <tr>
                         <th>Property Set</th>
@@ -523,98 +582,211 @@
                         <th>Property Value</th>
                     </tr>
                     <tr>
-                        <td>set-process-props-external-api</td>
+                        <td><xsl:value-of select="$set.get.external.api.label"/></td>
+                        <td>web.service.get.external.api.url.attribute</td>
+                        <td>
+                            <xsl:value-of select="$web.service.get.external.api.url.attribute"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><xsl:value-of select="$set.get.external.api.label"/></td>
+                        <td>web.service.get.external.api.authentication.type</td>
+                        <td>
+                            <xsl:value-of select="$web.service.get.external.api.authentication.type"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><xsl:value-of select="$set.get.external.api.label"/></td>
+                        <td>web.service.get.external.api.authentication.refresh.token.attribute</td>
+                        <td>
+                            <xsl:value-of select="$web.service.get.external.api.authentication.refresh.token.attribute"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><xsl:value-of select="$set.get.external.api.label"/></td>
+                        <td>web.service.get.external.api.http.rest.method</td>
+                        <td>
+                            <xsl:value-of select="$web.service.get.external.api.http.rest.method"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><xsl:value-of select="$set.get.external.api.label"/></td>
+                        <td>web.service.get.external.api.http.rcontent.type</td>
+                        <td>
+                            <xsl:value-of select="$web.service.get.external.api.http.content.type"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><xsl:value-of select="$set.get.external.api.label"/></td>
+                        <td>web.service.get.external.api.http.user.agent</td>
+                        <td>
+                            <xsl:value-of select="$web.service.get.external.api.http.user.agent"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><xsl:value-of select="$set.get.external.api.label"/></td>
+                        <td>web.service.get.external.api.version.attribute</td>
+                        <td>
+                            <xsl:value-of select="$web.service.get.external.api.version.attribute"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><xsl:value-of select="$set.get.external.api.label"/></td>
+                        <td>web.service.get.external.api.set.headers</td>
+                        <td>
+                            <xsl:value-of select="$web.service.get.external.api.set.headers"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><xsl:value-of select="$set.get.external.api.label"/></td>
+                        <td>web.service.get.external.api.set.headers.filename</td>
+                        <td>
+                            <xsl:value-of select="$web.service.get.external.api.set.headers.filename"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><xsl:value-of select="$set.get.external.api.label"/></td>
+                        <td>web.service.get.external.api.set.headers.subroutine</td>
+                        <td>
+                            <xsl:value-of select="$web.service.get.external.api.set.headers.subroutine"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><xsl:value-of select="$set.get.external.api.label"/></td>
+                        <td>web.service.get.external.api.set.authorization.token</td>
+                        <td>
+                            <xsl:value-of select="$web.service.get.external.api.set.authorization.token"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><xsl:value-of select="$set.get.external.api.label"/></td>
+                        <td>web.service.get.external.api.set.authorization.token.subroutine</td>
+                        <td>
+                            <xsl:value-of select="$web.service.get.external.api.set.authorization.token.subroutine"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><xsl:value-of select="$set.get.external.api.label"/></td>
+                        <td>web.service.get.external.api.set.url.extrapath</td>
+                        <td>
+                            <xsl:value-of select="$web.service.get.external.api.set.url.extrapath"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><xsl:value-of select="$set.get.external.api.label"/></td>
+                        <td>web.service.get.external.api.set.url.extrapath.subroutine</td>
+                        <td>
+                            <xsl:value-of select="$web.service.get.external.api.set.url.extrapath.subroutine"/>
+                        </td>
+                    </tr>
+                </table>
+                <br/>
+                <xsl:variable name="set.put.external.api.label" select="'set-process-props-put-external-api'"/>
+                <table>
+                    <tr>
+                        <th colspan="3" id="primary_header">
+                            <xsl:value-of select="$set.put.external.api.label"/>
+                            <xsl:value-of select="' information'"/>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>Property Set</th>
+                        <th>Property Name</th>
+                        <th>Property Value</th>
+                    </tr>
+                    <tr>
+                        <td><xsl:value-of select="$set.put.external.api.label"/></td>
                         <td>web.service.put.external.api.url.attribute</td>
                         <td>
                             <xsl:value-of select="$web.service.put.external.api.url.attribute"/>
                         </td>
                     </tr>
                     <tr>
-                        <td>set-process-props-external-api</td>
+                        <td><xsl:value-of select="$set.put.external.api.label"/></td>
                         <td>web.service.put.external.api.authentication.type</td>
                         <td>
                             <xsl:value-of select="$web.service.put.external.api.authentication.type"/>
                         </td>
                     </tr>
                     <tr>
-                        <td>set-process-props-external-api</td>
+                        <td><xsl:value-of select="$set.put.external.api.label"/></td>
                         <td>web.service.put.external.api.authentication.refresh.token.attribute</td>
                         <td>
                             <xsl:value-of select="$web.service.put.external.api.authentication.refresh.token.attribute"/>
                         </td>
                     </tr>
                     <tr>
-                        <td>set-process-props-external-api</td>
+                        <td><xsl:value-of select="$set.put.external.api.label"/></td>
                         <td>web.service.put.external.api.http.rest.method</td>
                         <td>
                             <xsl:value-of select="$web.service.put.external.api.http.rest.method"/>
                         </td>
                     </tr>
                     <tr>
-                        <td>set-process-props-external-api</td>
+                        <td><xsl:value-of select="$set.put.external.api.label"/></td>
                         <td>web.service.put.external.api.http.rcontent.type</td>
                         <td>
                             <xsl:value-of select="$web.service.put.external.api.http.content.type"/>
                         </td>
                     </tr>
                     <tr>
-                        <td>set-process-props-external-api</td>
+                        <td><xsl:value-of select="$set.put.external.api.label"/></td>
                         <td>web.service.put.external.api.http.user.agent</td>
                         <td>
                             <xsl:value-of select="$web.service.put.external.api.http.user.agent"/>
                         </td>
                     </tr>
                     <tr>
-                        <td>set-process-props-external-api</td>
+                        <td><xsl:value-of select="$set.put.external.api.label"/></td>
                         <td>web.service.put.external.api.version.attribute</td>
                         <td>
                             <xsl:value-of select="$web.service.put.external.api.version.attribute"/>
                         </td>
                     </tr>
                     <tr>
-                        <td>set-process-props-external-api</td>
+                        <td><xsl:value-of select="$set.put.external.api.label"/></td>
                         <td>web.service.put.external.api.set.headers</td>
                         <td>
                             <xsl:value-of select="$web.service.put.external.api.set.headers"/>
                         </td>
                     </tr>
                     <tr>
-                        <td>set-process-props-external-api</td>
+                        <td><xsl:value-of select="$set.put.external.api.label"/></td>
                         <td>web.service.put.external.api.set.headers.filename</td>
                         <td>
                             <xsl:value-of select="$web.service.put.external.api.set.headers.filename"/>
                         </td>
                     </tr>
                     <tr>
-                        <td>set-process-props-external-api</td>
+                        <td><xsl:value-of select="$set.put.external.api.label"/></td>
                         <td>web.service.put.external.api.set.headers.subroutine</td>
                         <td>
                             <xsl:value-of select="$web.service.put.external.api.set.headers.subroutine"/>
                         </td>
                     </tr>
                     <tr>
-                        <td>set-process-props-external-api</td>
+                        <td><xsl:value-of select="$set.put.external.api.label"/></td>
                         <td>web.service.put.external.api.set.authorization.token</td>
                         <td>
                             <xsl:value-of select="$web.service.put.external.api.set.authorization.token"/>
                         </td>
                     </tr>
                     <tr>
-                        <td>set-process-props-external-api</td>
+                        <td><xsl:value-of select="$set.put.external.api.label"/></td>
                         <td>web.service.put.external.api.set.authorization.token.subroutine</td>
                         <td>
                             <xsl:value-of select="$web.service.put.external.api.set.authorization.token.subroutine"/>
                         </td>
                     </tr>
                     <tr>
-                        <td>set-process-props-external-api</td>
+                        <td><xsl:value-of select="$set.put.external.api.label"/></td>
                         <td>web.service.put.external.api.set.url.extrapath</td>
                         <td>
                             <xsl:value-of select="$web.service.put.external.api.set.url.extrapath"/>
                         </td>
                     </tr>
                     <tr>
-                        <td>set-process-props-external-api</td>
+                        <td><xsl:value-of select="$set.put.external.api.label"/></td>
                         <td>web.service.put.external.api.set.url.extrapath.subroutine</td>
                         <td>
                             <xsl:value-of select="$web.service.put.external.api.set.url.extrapath.subroutine"/>

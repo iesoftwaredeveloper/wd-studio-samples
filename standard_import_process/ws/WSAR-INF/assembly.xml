@@ -15,7 +15,7 @@
         <cc:local-out id="call_store_msg_return_msg_put" execute-when="props['web.service.request.log'] == true" routes-response-to="call_split_ws_call" endpoint="vm://standard_logging/store_msg_return_msg">
             <cc:set name="store.filename" value="props['process.type'].toLowerCase()+'_webservice_put_request_'+props['file.record.counter']+'.xml'"/>
         </cc:local-out>
-        <cc:local-out id="call_store_msg_return_msg_source" execute-when="props['web.service.response.log'] == true" routes-response-to="call_lookup_and_conform" endpoint="vm://standard_logging/store_msg_return_msg">
+        <cc:local-out id="call_store_msg_return_msg_source" execute-when="props['web.service.response.log'] == true" routes-response-to="bckp_msg" endpoint="vm://standard_logging/store_msg_return_msg">
             <cc:set name="store.filename" value="props['process.type'].toLowerCase()+'_parsed_response_'+props['file.record.counter']+'.xml'"/>
         </cc:local-out>
         <cc:local-in id="put_workday_web_serivce_call" routes-to="call_store_msg_return_msg_source" access="public" icon="local-in-put_workday_web_serivce_call.png">
@@ -61,7 +61,7 @@
             <cc:set name="record.status" value="'imported'"/>
             <cc:set name="error.reason" value="''"/>
             <cc:set name="error.message.detail" value="''"/>
-            <cc:set name="additional.information" value="''"/>
+            <cc:set name="additional.information" value="props['additional.information']"/>
             <cc:set name="web.service.call.name" value="props['workday.web.service.call']"/>
         </cc:local-out>
         <cc:local-out id="call_process_Err_Msg" routes-response-to="call_create_transaction_log_record_err" endpoint="vm://standard_logging/process_Err_Msg">
@@ -81,7 +81,7 @@
             <cc:set name="record.status" value="'failed'"/>
             <cc:set name="error.reason" value="'Error on Import'"/>
             <cc:set name="error.message.detail" value="context.errorMessage"/>
-            <cc:set name="additional.information" value="''"/>
+            <cc:set name="additional.information" value="props['additional.information']"/>
         <cc:set name="web.service.call.name" value="props['workday.web.service.call']"/></cc:local-out>
         <cc:async-mediation id="set-wd-id" routes-to="make_workday_soap_call" handle-downstream-errors="true">
             <cc:steps>
@@ -98,9 +98,9 @@
         <cc:local-out id="call_lkp_wd" store-message="none" execute-when="props['lookup.wd.data']=='true'" routes-response-to="return_bckp_msg" endpoint="vm://@{props['lookup.wd.data.subroutine']}">
             <cc:set name="web.service.lookup.filename" value="props['lookup.wd.data.filename']"/>
             <cc:set name="web.service.lookup.application" value="props['lookup.wd.data.application']"/>
-            <cc:set name="web.service.request.type" value="props['lookup.wd.data.request.type']"/>
+            <cc:set name="web.service.lookup.request.type" value="props['lookup.wd.data.request.type']"/>
         </cc:local-out>
-        <cc:async-mediation id="bckp_msg" routes-to="call_lkp_wd">
+        <cc:async-mediation id="bckp_msg" routes-to="call_lookup_and_conform">
             <cc:steps>
                 <cc:copy id="cp-bckp-msg" output="variable" output-variable="source.data"/>
             </cc:steps>
@@ -113,7 +113,7 @@
                 <cc:copy id="cp-bckp-msg" output="message" input="variable" input-variable="source.data"/>
             </cc:steps>
         </cc:async-mediation>
-        <cc:local-in id="lookup_and_conform" routes-to="bckp_msg"/>
+        <cc:local-in id="lookup_and_conform" routes-to="call_lkp_wd"/>
         <cc:local-out id="call_lookup_and_conform" execute-when="props['lookup.wd.data']=='true' || props['conform.XML'] == 'true'" routes-response-to="call_create_wd_put_call" endpoint="vm://standard_import_process/lookup_and_conform"/>
         <cc:local-out id="call_create_wd_put_call" routes-response-to="call_store_msg_return_msg_put" endpoint="vm://@{props['web.service.put.create.ws.xml.endpoint']}">
             <cc:set name="web.service.create.ws.xml.filename" value="props['web.service.put.create.ws.xml.filename']"/>
@@ -161,7 +161,7 @@
             <cc:set name="record.status" value="'skipped'"/>
             <cc:set name="error.reason" value="''"/>
             <cc:set name="error.message.detail" value="''"/>
-            <cc:set name="additional.information" value="''"/>
+            <cc:set name="additional.information" value="props['additional.information']"/>
             <cc:set name="web.service.call.name" value="'N/A'"/>
         </cc:local-out>
     </cc:assembly>

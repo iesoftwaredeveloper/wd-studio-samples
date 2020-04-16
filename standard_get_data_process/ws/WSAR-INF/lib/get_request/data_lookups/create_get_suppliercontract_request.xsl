@@ -65,13 +65,13 @@
                         <xsl:when test="$web.service.request.type = 'per_supplier'">
                             <bsvc:Request_Criteria>
                                 <xsl:for-each select="distinct-values($suppliercontract.list//tfxc:record[position() != 1]//node()[name() != ''][fhcf:get-column-position('idnumber1')])">
-	                                <xsl:if test="normalize-space(.) != ''">
-	                                   <bsvc:Supplier_Reference>
-	                                       <bsvc:ID bsvc:type="Supplier_ID">
-	                                            <xsl:value-of select="normalize-space(.)"/>
-	                                       </bsvc:ID>
-	                                   </bsvc:Supplier_Reference>
-	                               </xsl:if>
+                                    <xsl:if test="normalize-space(.) != ''">
+                                       <bsvc:Supplier_Reference>
+                                           <bsvc:ID bsvc:type="Supplier_ID">
+                                                <xsl:value-of select="normalize-space(.)"/>
+                                           </bsvc:ID>
+                                       </bsvc:Supplier_Reference>
+                                   </xsl:if>
                                 </xsl:for-each>
                             </bsvc:Request_Criteria>
                         </xsl:when>

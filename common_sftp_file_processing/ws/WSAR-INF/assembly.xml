@@ -80,8 +80,8 @@
             <cc:set name="is.message.severity" value="'INFO'"/>
             <cc:set name="is.message.summary" value="'Files deleted matching: ' + props['sftp.directory'] + '/' + props['sftp.filename']"/>
         </cc:local-out>
-        <cc:sftp-out id="Delete-Files-From-SFTP-Out" routes-response-to="call_log_msg_delete_file" endpoint="@{props['sftp.endpoint']}@{props['sftp.directory']}" input-file-pattern="@{props['sftp.filename']}" method="mdelete" password="@{props['sftp.password']}" username="@{props['sftp.username']}"/>
-        <cc:local-in id="delete_SFTP_files" routes-to="Delete-Files-From-SFTP-Out" access="public">
+        <cc:sftp-out id="sFTP-delete" routes-response-to="call_log_msg_delete_file" endpoint="@{props['sftp.endpoint']}@{props['sftp.directory']}" input-file-pattern="@{props['sftp.filename']}" method="mdelete" password="@{props['sftp.password']}" username="@{props['sftp.username']}"/>
+        <cc:local-in id="delete_SFTP_files" routes-to="sFTP-delete" access="public">
             <cc:parameter name="sftp.endpoint"/>
             <cc:parameter name="sftp.directory"/>
             <cc:parameter name="sftp.filename"/>
@@ -96,8 +96,8 @@
             <cc:set name="sftp.directory" value="props['sftp.directory']"/>
             <cc:set name="displayfilelist" value="false"/>
         </cc:local-out>
-        <cc:sftp-out id="Get-File-From-SFTP-Out" endpoint="@{props['sftp.endpoint']}@{props['sftp.directory']}" input-file-pattern="@{props['sftp.filename']}" method="@{props['sftp.method']}" output-file-pattern="${INFILE}" password="@{props['sftp.password']}" username="@{props['sftp.username']}"/>
-        <cc:local-out id="call_log_filename_get" execute-when="props['displayfilelist'] == true" routes-response-to="Get-File-From-SFTP-Out" endpoint="vm://wcc/PutIntegrationMessage">
+        <cc:sftp-out id="sFTP-mget_get" endpoint="@{props['sftp.endpoint']}@{props['sftp.directory']}" input-file-pattern="@{props['sftp.filename']}" method="@{props['sftp.method']}" output-file-pattern="${INFILE}" password="@{props['sftp.password']}" username="@{props['sftp.username']}"/>
+        <cc:local-out id="call_log_filename_get" execute-when="props['displayfilelist'] == true" routes-response-to="sFTP-mget_get" endpoint="vm://wcc/PutIntegrationMessage">
             <cc:set name="is.message.severity" value="'INFO'"/>
             <cc:set name="is.message.summary" value="'Processing File: ' + props['sftp.filename']"/>
         </cc:local-out>
@@ -149,11 +149,11 @@
             <cc:set name="sftp.filename" value="parts[0].xpath(&quot;//filenametoprocess&quot;)"/>
             <cc:set name="summary-transaction-created" value="false"/>
         </cc:local-out>
-        <cc:splitter id="Unzip-Files-From-SFTP" no-split-message-error="false">
-            <cc:sub-route name="ProcessEachFile" routes-to="call_process_sftp_file"/>
+        <cc:splitter id="unzip-files-from-sFTP" no-split-message-error="false">
+            <cc:sub-route name="process-each-file" routes-to="call_process_sftp_file"/>
             <cc:xml-stream-splitter xpath="//filenametoprocess"/>
         </cc:splitter>
-        <cc:async-mediation id="ProcessFile" routes-to="Unzip-Files-From-SFTP">
+        <cc:async-mediation id="setup-counters-for-files" routes-to="unzip-files-from-sFTP">
             <cc:steps>
                 <cc:eval id="setup-counters">
                     <cc:expression>props['counter'] = 0</cc:expression>
@@ -167,7 +167,7 @@
                 <cc:copy id="filestoprocess" input="variable" input-variable="filestoprocess"/>
             </cc:steps>
         </cc:async-mediation>
-        <cc:local-in id="process_filestoprocess_var" routes-to="ProcessFile"/>
+        <cc:local-in id="process_filestoprocess_var" routes-to="setup-counters-for-files"/>
         <cc:local-out id="call_process_filestoprocess_var" execute-when="vars['filestoprocess'].xpath('//filecount') != 0" routes-response-to="put_integration_message_nofile" endpoint="vm://common_sftp_file_processing/process_filestoprocess_var"/>
         <cc:local-out id="call_get_sftp_file_list_proc" routes-response-to="call_process_filestoprocess_var" endpoint="vm://common_sftp_file_processing/get_sftp_file_list">
             <cc:set name="sftp.username" value="props['sftp.username']"/>
@@ -328,9 +328,9 @@
             <cc:set name="conform.XML.filename" value="props['conform.XML.filename']"/>
         </cc:local-out>
         <cc:local-out id="call_store_msg_return_msg_file" execute-when="props['web.service.response.log'] == true" routes-response-to="call_process_file_subRoutine" endpoint="vm://standard_logging/store_msg_return_msg">
-            <cc:set name="store.filename" value="props['running.process'] + '_convert_to_xml_data.xml'"/>
+            <cc:set name="store.filename" value="props['running.process'].toLowerCase() + '_convert_to_xml_data.xml'"/>
         </cc:local-out>
-        <cc:async-mediation id="convert-excel-to-csv" routes-to="convert-txt-to-xml" execute-steps-when="props['convert.ToXML.delimiter'] == 'EXCEL'">
+        <cc:async-mediation id="convert-excel-to-csv" routes-to="convert-txt-to-xml" execute-steps-when="props['convert.ToXML.delimiter'].toLowerCase() == 'excel'">
             <cc:steps>
                 <cc:text-excel id="excel-to-text" output="variable" output-variable="file.data" input="variable" input-variable="file.data" excelstyle="sheet" style="excel2text"/>
                 <cc:eval id="reset-delim">
@@ -338,8 +338,17 @@
                 </cc:eval>
             </cc:steps>
         </cc:async-mediation>
-        <cc:local-in id="convert-file-to-xml" routes-to="convert-excel-to-csv"/>
+        <cc:local-in id="convert-file-to-xml" routes-to="call_convert-file-to-xml_json"/>
         <cc:local-out id="call_convert-file-to-xml" execute-when="props['convert.ToXML'] == true" routes-response-to="cp_to_msg" endpoint="vm://common_sftp_file_processing/convert-file-to-xml"/>
+        <cc:async-mediation id="convert-json-to-xml">
+            <cc:steps>
+                <cc:json-to-xml id="json-to-xml" output="variable" output-variable="file.data" input="variable" input-variable="file.data"/>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:local-in id="convert-file-to-xml_json" routes-to="convert-json-to-xml"/>
+        <cc:local-in id="convert-file-to-xml_txt" routes-to="convert-excel-to-csv"/>
+        <cc:local-out id="call_convert-file-to-xml_json" execute-when="props['convert.ToXML.delimiter'].toLowerCase() == 'json'" routes-response-to="call_convert-file-to-xml_txt" endpoint="vm://common_sftp_file_processing/convert-file-to-xml_json"/>
+        <cc:local-out id="call_convert-file-to-xml_txt" execute-when="props['convert.ToXML.delimiter'].toLowerCase() != 'json'" endpoint="vm://common_sftp_file_processing/convert-file-to-xml_txt"/>
     </cc:assembly>
 
 </beans>

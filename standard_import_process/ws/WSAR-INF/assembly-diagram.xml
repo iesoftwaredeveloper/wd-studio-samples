@@ -94,18 +94,6 @@
     <source href="assembly.xml#set-wd-id"/>
     <target href="assembly.xml#make_workday_soap_call"/>
   </connections>
-  <connections type="routesTo">
-    <source href="assembly.xml#bckp_msg"/>
-    <target href="assembly.xml#call_lkp_wd"/>
-  </connections>
-  <connections type="routesTo">
-    <source href="assembly.xml#lookup_and_conform"/>
-    <target href="assembly.xml#bckp_msg"/>
-  </connections>
-  <connections type="routesResponseTo">
-    <source href="assembly.xml#call_store_msg_return_msg_source"/>
-    <target href="assembly.xml#call_lookup_and_conform"/>
-  </connections>
   <connections type="routesResponseTo">
     <source href="assembly.xml#call_lkp_wd"/>
     <target href="assembly.xml#return_bckp_msg"/>
@@ -158,6 +146,18 @@
     <source href="assembly.xml#call_create_transaction_log_record_skipped"/>
     <target href="assembly.xml#call_aggregateprocessingdetails"/>
   </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_store_msg_return_msg_source"/>
+    <target href="assembly.xml#bckp_msg"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#lookup_and_conform"/>
+    <target href="assembly.xml#call_lkp_wd"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#bckp_msg"/>
+    <target href="assembly.xml#call_lookup_and_conform"/>
+  </connections>
   <swimlanes x="18" y="-13" bgColor="12566463" name="Put Web Service Call" orientation="VERTICAL" elements="//@swimlanes.1 //@swimlanes.3" alignment="MIDDLE"/>
   <swimlanes x="26" y="141" bgColor="9498256" name="Local In">
     <elements href="assembly.xml#put_workday_web_serivce_call"/>
@@ -187,6 +187,7 @@
     <elements href="assembly.xml#set-wd-id"/>
   </swimlanes>
   <swimlanes x="225" y="326" bgColor="8454143" name="Call Sub Routine for Import" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#bckp_msg"/>
     <elements href="assembly.xml#call_lookup_and_conform"/>
     <elements href="assembly.xml#call_create_wd_put_call"/>
     <elements href="assembly.xml#call_store_msg_return_msg_put"/>
@@ -194,7 +195,6 @@
   </swimlanes>
   <swimlanes x="84" y="316" bgColor="8454143" name="Backup and Lookup" alignment="MIDDLE">
     <elements href="assembly.xml#lookup_and_conform"/>
-    <elements href="assembly.xml#bckp_msg"/>
     <elements href="assembly.xml#call_lkp_wd"/>
   </swimlanes>
   <swimlanes x="608" y="372" bgColor="8454143" name="Start Import" orientation="VERTICAL" alignment="MIDDLE">

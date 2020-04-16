@@ -28,7 +28,7 @@
             <cc:set name="file.number" value="props['file.number.current']"/>
             <cc:set name="file.record.counter" value="props['file.record.counter']"/>
             <cc:set name="file.name" value="props['sftp.filename']"/>
-            <cc:set name="source.transaction.id" value="props['record.counter'] + '-' + props['web.service.calls.counter']"/>
+            <cc:set name="source.transaction.id" value="props['source.transaction.id'] + ' {' + props['record.counter'] + '-' + props['web.service.calls.counter'] + '}'"/>
             <cc:set name="workday.transaction.id" value="props['workday.transaction.id']"/>
             <cc:set name="record.status" value="'imported'"/>
             <cc:set name="error.reason" value="''"/>
@@ -74,13 +74,21 @@
             <cc:set name="error.message.detail.expanded" value="context.errorMessage + ' ' + props['workday.transaction.id']"/>
             <cc:set name="error.message.detail" value="'Submit Web Service Call Failure'"/>
         </cc:local-out>
-        <cc:async-mediation id="set-wd-id" routes-to="call_make-http-rest-binding-call" handle-downstream-errors="false">
+        <cc:async-mediation id="set-wd-id" routes-to="call_make-http-rest-binding-call" handle-downstream-errors="true">
             <cc:steps>
+                <cc:copy id="cp-to-var" output="variable" output-variable="ws.put.split.source"/>
+                <cc:eval id="clear_props">
+                    <cc:expression>props['workday.transaction.id'] = ''</cc:expression>
+                </cc:eval>
                 <cc:eval id="set-tranaction-id">
-                    <cc:expression>props['workday.transaction.id'] = (props['web.service.put.workday.id.tag'] == null)? '' : vars['ws.put.msg'].xpath(props['web.service.put.workday.id.tag'], props['web.service.put.workday.id.namespace'])</cc:expression>
-                    <cc:expression>props['workday.web.service.call'] = vars['ws.put.msg'].xpath(&quot;//env:Body/local-name(*[1])&quot;)</cc:expression>
+                    <cc:expression>props['workday.transaction.id'] = (props['web.service.put.workday.id.tag'] == null)? '' : vars['ws.put.split.source'].xpath(&quot;//&quot;+props['web.service.put.workday.id.tag'], props['web.service.put.workday.id.namespace'])</cc:expression>
+                    <cc:expression>props['workday.web.service.call'] = vars['ws.put.split.source'].xpath(&quot;//&quot;+props['web.service.put.xml.split.tag']+&quot;/@web_service_call&quot;, props['web.service.put.xml.split.namespace'])</cc:expression>
                     <cc:expression>props['web.service.calls.counter'] = ((props['web.service.calls.counter'] == null)? 0:props['web.service.calls.counter']) + 1</cc:expression>
-                    <cc:expression>props['web.service.put.application'] = (vars['ws.put.msg'].xpath(&quot;//&quot;+props['web.service.put.xml.split.tag']+&quot;/@web_service_application&quot;, props['web.service.put.xml.split.namespace'])!= '')? vars['ws.put.msg'].xpath(&quot;//&quot;+props['web.service.put.xml.split.tag']+&quot;/@web_service_application&quot;, props['web.service.put.xml.split.namespace']) : props['web.service.put.application']</cc:expression>
+                    <cc:expression>props['web.service.put.application'] = (vars['ws.put.split.source'].xpath(&quot;//&quot;+props['web.service.put.xml.split.tag']+&quot;/@web_service_application&quot;, props['web.service.put.xml.split.namespace'])!= '')? vars['ws.put.split.source'].xpath(&quot;//&quot;+props['web.service.put.xml.split.tag']+&quot;/@web_service_application&quot;, props['web.service.put.xml.split.namespace']) : props['web.service.put.application']</cc:expression>
+                    <cc:expression>props['web.service.put.external.api.http.rest.method'] = (vars['ws.put.split.source'].xpath(&quot;//&quot;+props['web.service.put.xml.split.tag']+&quot;/@http_method&quot;, props['web.service.put.xml.split.namespace'])!= '')? vars['ws.put.split.source'].xpath(&quot;//&quot;+props['web.service.put.xml.split.tag']+&quot;/@http_method&quot;, props['web.service.put.xml.split.namespace']) : props['web.service.put.external.api.http.rest.method']</cc:expression>
+                    <cc:expression>props['web.service.put.application'] = (props['web.service.put.application'].contains('external_id')) ? props['web.service.put.application'].replace('external_id',props['external.transaction.id']) : props['web.service.put.application'] </cc:expression>
+                    <cc:expression>props['x.http.method.override'] = (vars['ws.put.split.source'].xpath(&quot;//&quot;+props['web.service.put.xml.split.tag']+&quot;/@x_http_override_method&quot;, props['web.service.put.xml.split.namespace'])!= '')?vars['ws.put.split.source'].xpath(&quot;//&quot;+props['web.service.put.xml.split.tag']+&quot;/@x_http_override_method&quot;, props['web.service.put.xml.split.namespace']):''</cc:expression>
+                    <cc:expression>props['source.transaction.id'] = (props['web.service.put.workday.id.tag'] == null)? '' : vars['ws.put.split.source'].xpath(&quot;//&quot;+props['web.service.put.workday.id.tag'], props['web.service.put.workday.id.namespace']) </cc:expression>
                 </cc:eval>
             </cc:steps>
             <cc:send-error id="SendError" routes-to="call_process_Err_Msg"/>
@@ -101,8 +109,9 @@
             <cc:steps>
                 <cc:copy id="cp-var-to-msg" input="variable" input-variable="ws.put.msg"/>
                 <cc:eval id="set-import-stats">
-                    <cc:expression>props['web.service.calls.total'] = parts[0].xpath(&quot;count(//&quot;+props['web.service.put.xml.split.tag']+&quot;)&quot;)</cc:expression>
+                    <cc:expression>props['web.service.calls.total'] = parts[0].xpath(&quot;count(//&quot;+props['web.service.put.xml.split.tag']+&quot;)&quot;, props['web.service.put.xml.split.namespace'])</cc:expression>
                     <cc:expression>props['web.service.calls.counter'] = 0 </cc:expression>
+                    <cc:expression>props['external.transaction.id'] = ''</cc:expression>
                 </cc:eval>
             </cc:steps>
         </cc:async-mediation>
@@ -110,7 +119,7 @@
         <cc:local-out id="call_lkp_additional_data" store-message="none" execute-when="props['lookup.wd.data']=='true'" routes-response-to="call_create_wd_put_call" endpoint="vm://@{props['lookup.wd.data.subroutine']}">
             <cc:set name="web.service.lookup.filename" value="props['lookup.wd.data.filename']"/>
             <cc:set name="web.service.lookup.application" value="props['lookup.wd.data.application']"/>
-            <cc:set name="web.service.request.type" value="props['lookup.wd.data.request.type']"/>
+            <cc:set name="web.service.lookup.request.type" value="props['lookup.wd.data.request.type']"/>
             <cc:set name="http.header.user.agent" value="props['web.service.put.external.api.http.user.agent']"/>
             <cc:set name="http.rest.endpoint" value="props['web.service.put.external.api.url']"/>
             <cc:set name="web.service.put.external.api.version" value="props['web.service.put.external.api.version']"/>
@@ -122,15 +131,15 @@
         </cc:async-mediation>
         <cc:local-out id="call_split_ws_call" endpoint="vm://external_import_process/split_ws_call"/>
         <cc:local-out id="call_store_msg_return_msg_put" execute-when="props['web.service.request.log'] == true" routes-response-to="call_split_ws_call" endpoint="vm://standard_logging/store_msg_return_msg">
-            <cc:set name="store.filename" value="props['process.type']+'webservice_put_request.xml'"/>
+            <cc:set name="store.filename" value="props['running.process'].toLowerCase().replace(' ','_')+'_webservice_put_request.xml'"/>
         </cc:local-out>
         <cc:local-out id="call_create_wd_put_call" routes-response-to="call_store_msg_return_msg_put" endpoint="vm://@{props['web.service.put.create.ws.xml.endpoint']}">
             <cc:set name="web.service.create.ws.xml.filename" value="props['web.service.put.create.ws.xml.filename']"/>
         </cc:local-out>
         <cc:local-out id="call_store_msg_return_msg_source" execute-when="props['web.service.response.log'] == true" routes-response-to="bckp_msg" endpoint="vm://standard_logging/store_msg_return_msg">
-            <cc:set name="store.filename" value="'webservice_get_response.xml'"/>
+            <cc:set name="store.filename" value="props['running.process'].toLowerCase().replace(' ','_')+'_source_data.xml'"/>
         </cc:local-out>
-        <cc:local-in id="put_external_web_serivce_call" routes-to="call_store_msg_return_msg_source" access="public" icon="local-in-put_external_web_serivce_call.png">
+        <cc:local-in id="put_external_web_serivce_call" routes-to="call_conform_xml" access="public" icon="local-in-put_external_web_serivce_call.png">
             <cc:parameter name="web.service.put.create.ws.xml.filename" required="true"/>
             <cc:parameter name="web.service.put.create.ws.xml.endpoint" required="true"/>
             <cc:parameter name="update.data"/>
@@ -159,12 +168,16 @@
             <cc:parameter name="set.headers.subroutine" required="false"/>
             <cc:parameter default="'false'" name="set.url.extrapath" required="true"/>
             <cc:parameter name="set.url.extrapath.subroutine"/>
+            <cc:parameter default="'false'" name="conform.XML" required="true"/>
+            <cc:parameter name="conform.XML.filename" required="false"/>
+            <cc:parameter name="conform.XML.subroutine" required="false"/>
         </cc:local-in>
-        <cc:http-out id="http-rest-out" store-message="both" routes-response-to="convert-json-to-xml" endpoint="@{props['http.rest.endpoint']}@{props['http.external.api.url.extrapath']}" ignore-dynamic-endpoints="true" accept-gzip="true" auto-inproc="true" http-method="@{props['http.rest.method']}" streaming="false">
+        <cc:http-out id="http-rest-out" store-message="both" execute-when="props['update.data'] == true" routes-response-to="convert-json-to-xml" endpoint="@{props['http.rest.endpoint']}@{props['http.external.api.url.extrapath']}" ignore-dynamic-endpoints="true" accept-gzip="true" auto-inproc="true" http-method="@{props['http.rest.method']}" streaming="false">
         </cc:http-out>
         <cc:local-in id="make-http-rest-binding-call" routes-to="call_set_url_extrapath" access="private">
-            <cc:parameter default="'application/json'" name="http.header.content.type" required="true"/>
             <cc:parameter name="http.header.authorization.token" required="true"/>
+            <cc:parameter default="'application/json'" name="http.header.content.type" required="true"/>
+            <cc:parameter default="'Workday'" name="http.header.user.agent" required="false"/>
             <cc:parameter name="http.rest.endpoint"/>
             <cc:parameter default="'POST'" name="http.rest.method"/>
             <cc:parameter default="'false'" name="web.service.put.external.api.set.headers" required="true"/>
@@ -172,9 +185,11 @@
             <cc:parameter name="web.service.put.external.api.set.headers.filename"/>
             <cc:parameter default="'false'" name="web.service.put.external.api.set.endpoint.url" required="true"/>
             <cc:parameter name="web.service.put.external.api.set.endpoint.url.subroutine" required="false"/>
+            <cc:parameter default="'false'" name="web.service.put.external.api.convert.response.json.to.xml" required="false"/>
         </cc:local-in>
         <cc:local-out id="call_make-http-rest-binding-call" routes-response-to="call_putIntMsg_put_log" endpoint="vm://external_import_process/make-http-rest-binding-call">
             <cc:set name="http.header.content.type" value="props['web.service.put.external.api.http.content.type']"/>
+            <cc:set name="http.header.user.agent" value="props['web.service.put.external.api.http.user.agent']"/>
             <cc:set name="http.header.authorization.token" value="props['http.authorization.token']"/>
             <cc:set name="http.rest.endpoint" value="props['web.service.put.external.api.url']"/>
             <cc:set name="http.rest.method" value="props['web.service.put.external.api.http.rest.method']"/>
@@ -183,25 +198,24 @@
             <cc:set name="web.service.put.external.api.set.headers.subroutine" value="props['web.service.put.external.api.set.headers.subroutine']"/>
             <cc:set name="web.service.put.external.api.set.url.extrapath" value="props['web.service.put.external.api.set.url.extrapath']"/>
             <cc:set name="web.service.put.external.api.set.url.extrapath.subroutine" value="props['web.service.put.external.api.set.url.extrapath.subroutine']"/>
+            <cc:set name="web.service.put.external.api.convert.response.json.to.xml" value="props['web.service.put.external.api.convert.response.json.to.xml']"/>
         </cc:local-out>
-        <cc:local-out id="call_store_msg_for_output_file" endpoint="vm://standard_logging/store_msg_for_output_file">
-            <cc:set name="output.filename" value="'noOutputFilenameProvided.txt'"/>
-        </cc:local-out>
-        <cc:async-mediation id="convert-json-to-xml" routes-to="call_store_msg_for_output_file">
+        <cc:async-mediation id="convert-json-to-xml" routes-to="call_store_msg_return_msg_api_rsp" execute-steps-when="props['web.service.put.external.api.convert.response.json.to.xml'] == true">
             <cc:steps>
-                <cc:json-to-xml id="JsonToXml" output="variable" output-mimetype="text/xml" output-variable="output.data"/>
+                <cc:json-to-xml id="json-to-xml-rsp" output="message" output-mimetype="text/xml"/>
             </cc:steps>
         </cc:async-mediation>
         <cc:local-out id="call_set_authentication_token" execute-when="props['set.authentication.token']=='true'" routes-response-to="call_lkp_additional_data" endpoint="vm://@{props['set.authentication.token.subroutine']}">
             <cc:set name="http.header.user.agent" value="props['http.header.user.agent']"/>
             <cc:set name="http.refresh.token.attribute" value="props['web.service.put.external.api.authentication.refresh.token.attribute']"/>
             <cc:set name="http.rest.endpoint" value="props['web.service.put.external.api.url']"/>
-        </cc:local-out>
-        <cc:local-out id="call_set_headers" store-message="none" routes-response-to="convert-json-to-xml" endpoint="vm://@{props['web.service.put.external.api.set.headers.subroutine']}">
-            <cc:set name="http.header.user.agent" value="props['http.header.content.type']"/>
+        <cc:set name="http.username.attribute" value="props['web.service.put.external.api.authentication.usesrname.attribute']"/><cc:set name="http.password.attribute" value="props['web.service.put.external.api.authentication.password.attribute']"/></cc:local-out>
+        <cc:local-out id="call_set_headers" store-message="none" routes-response-to="http-rest-out" endpoint="vm://@{props['web.service.put.external.api.set.headers.subroutine']}">
+            <cc:set name="http.header.user.agent" value="props['http.header.user.agent']"/>
             <cc:set name="http.header.authorization.token" value="props['http.authorization.token']"/>
             <cc:set name="http.header.content.type" value="props['web.service.put.external.api.http.content.type']"/>
             <cc:set name="external.api.convert.to.text.filename" value="props['web.service.put.external.api.set.headers.filename']"/>
+            <cc:set name="external.api.convert.to.json" value="'true'"/>
         </cc:local-out>
         <cc:local-in id="set_url_extrapath" routes-to="set_external_url_extrapath" access="private">
             <cc:parameter name="web.service.put.application"/>
@@ -227,6 +241,20 @@
             <cc:set name="web.service.put.external.api.set.url.extrapath" value="'false'"/>
             <cc:set name="web.service.put.external.api.set.url.extrapath.subroutine"/>
         </cc:local-out>
-	</cc:assembly>
+        <cc:async-mediation id="set-output-id">
+            <cc:steps>
+                <cc:eval id="set_rsp_id">
+                    <cc:expression>props['workday.transaction.id'] = parts[0].xpath(&quot;/root/data/id&quot;)</cc:expression>
+                    <cc:expression>props['external.transaction.id'] = parts[0].xpath(&quot;/root/data/id&quot;)</cc:expression>
+                </cc:eval>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:local-out id="call_store_msg_return_msg_api_rsp" execute-when="props['web.service.request.log'] == true" routes-response-to="set-output-id" endpoint="vm://standard_logging/store_msg_return_msg">
+            <cc:set name="store.filename" value="props['web.service.calls.counter']+'_'+ props['running.process'].toLowerCase() + '_external_api_response.xml'"/>
+        </cc:local-out>
+        <cc:local-out id="call_conform_xml" store-message="none" execute-when="props['conform.XML'] == 'true'" routes-response-to="call_store_msg_return_msg_source" endpoint="vm://@{props['conform.XML.subroutine']}">
+            <cc:set name="conform.XML.filename" value="props['conform.XML.filename']"/>
+        </cc:local-out>
+    </cc:assembly>
 
 </beans>
