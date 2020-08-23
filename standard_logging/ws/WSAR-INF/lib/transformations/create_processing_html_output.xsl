@@ -118,6 +118,10 @@
                                             <br/>
                                         </xsl:if>
                                     </xsl:for-each-group>
+                                    <xsl:if test="position() != last()">
+                                        <br/>
+                                        <br/>
+                                    </xsl:if>
                                 </xsl:for-each-group>
                             </body>
                         </html>
