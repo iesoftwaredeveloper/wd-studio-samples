@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wdnm:Diagram xmlns:wdnm="http://workday.com/studio/editors/notation">
+  <element href="assembly.xml#WorkdayAssembly"/>
+  <visualProperties>
+    <element href="assembly.xml#get_external_paging_result"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#call_set_authentication_token_get"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#make-http-rest-binding-call_get"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#call_set_url_extrapath_get"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#call_set_headers"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#http-rest-out"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#convert-json-to-xml_get_get"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#call_store_msg_return_msg_api_rsp_get"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#set-output-id"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#set_url_extrapath_get"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#set_external_url_extrapath_get"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#set_prop_xurl_get"/>
+  </visualProperties>
+  <visualProperties x="778" y="444">
+    <element href="assembly.xml#rtr_page_data"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#get_external_web_service_call"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#call_create_wd_get_call"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#call_store_msg_return_msg_get"/>
+  </visualProperties>
+  <visualProperties x="1333" y="637">
+    <element href="assembly.xml#call_make-http-rest-binding-call_get"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#call_get_external_paging_result"/>
+  </visualProperties>
+  <visualProperties x="1216" y="352">
+    <element href="assembly.xml#call_determine_endpoint"/>
+  </visualProperties>
+  <visualProperties x="296" y="367">
+    <element href="assembly.xml#setup-props"/>
+  </visualProperties>
+  <connections type="routesTo">
+    <source href="assembly.xml#make-http-rest-binding-call_get"/>
+    <target href="assembly.xml#call_set_url_extrapath_get"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_set_url_extrapath_get"/>
+    <target href="assembly.xml#call_set_headers"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_set_headers"/>
+    <target href="assembly.xml#http-rest-out"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#http-rest-out"/>
+    <target href="assembly.xml#convert-json-to-xml_get_get"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#convert-json-to-xml_get_get"/>
+    <target href="assembly.xml#call_store_msg_return_msg_api_rsp_get"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_store_msg_return_msg_api_rsp_get"/>
+    <target href="assembly.xml#set-output-id"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#set_url_extrapath_get"/>
+    <target href="assembly.xml#set_external_url_extrapath_get"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#set_external_url_extrapath_get"/>
+    <target href="assembly.xml#set_prop_xurl_get"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_create_wd_get_call"/>
+    <target href="assembly.xml#call_store_msg_return_msg_get"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#get_external_paging_result"/>
+    <target href="assembly.xml#call_set_authentication_token_get"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_set_authentication_token_get"/>
+    <target href="assembly.xml#call_create_wd_get_call"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#//@beans/@mixed.1/@route.0/@subRoute.0"/>
+    <target href="assembly.xml#call_get_external_paging_result"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_store_msg_return_msg_get"/>
+    <target href="assembly.xml#call_make-http-rest-binding-call_get"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#get_external_web_service_call"/>
+    <target href="assembly.xml#setup-props"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#setup-props"/>
+    <target href="assembly.xml#rtr_page_data"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_make-http-rest-binding-call_get"/>
+    <target href="assembly.xml#call_determine_endpoint"/>
+  </connections>
+  <swimlanes bgColor="16443110" name="External API Call Process" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#get_external_paging_result"/>
+    <elements href="assembly.xml#call_set_authentication_token_get"/>
+    <elements href="assembly.xml#call_create_wd_get_call"/>
+  </swimlanes>
+  <swimlanes bgColor="9498256" name="Local In" elements="//@swimlanes.12 //@swimlanes.0 //@swimlanes.13" alignment="MIDDLE"/>
+  <swimlanes bgColor="15066597" name="Make HTTP oAuth Call" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#make-http-rest-binding-call_get"/>
+    <elements href="assembly.xml#call_set_url_extrapath_get"/>
+    <elements href="assembly.xml#call_set_headers"/>
+    <elements href="assembly.xml#http-rest-out"/>
+  </swimlanes>
+  <swimlanes bgColor="15066597" name="Process API Response" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#convert-json-to-xml_get_get"/>
+    <elements href="assembly.xml#call_store_msg_return_msg_api_rsp_get"/>
+    <elements href="assembly.xml#set-output-id"/>
+  </swimlanes>
+  <swimlanes bgColor="8454143" name="HTTP API Call" elements="//@swimlanes.2 //@swimlanes.3" alignment="MIDDLE"/>
+  <swimlanes bgColor="15066597" name="Set URL Extrapath" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#set_url_extrapath_get"/>
+    <elements href="assembly.xml#set_external_url_extrapath_get"/>
+    <elements href="assembly.xml#set_prop_xurl_get"/>
+  </swimlanes>
+  <swimlanes bgColor="9498256" name="Make HTTP Call" elements="//@swimlanes.4 //@swimlanes.5" alignment="MIDDLE"/>
+  <swimlanes bgColor="12566463" name="Get Web Service Call" orientation="VERTICAL" elements="//@swimlanes.1 //@swimlanes.6" alignment="MIDDLE"/>
+  <swimlanes bgColor="42495" name="Put and Split Data" elements="//@swimlanes.7" alignment="MIDDLE"/>
+  <swimlanes x="94" y="31" bgColor="15128749" name="External Import Process" orientation="VERTICAL" elements="//@swimlanes.8" alignment="MIDDLE"/>
+  <swimlanes bgColor="8454143" name="Local-in Paged WS" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#get_external_web_service_call"/>
+    <elements href="assembly.xml#setup-props"/>
+  </swimlanes>
+  <swimlanes bgColor="8454143" name="Log and Call Sub Routine" alignment="MIDDLE">
+    <elements href="assembly.xml#rtr_page_data"/>
+    <elements href="assembly.xml#call_get_external_paging_result"/>
+  </swimlanes>
+  <swimlanes x="1514" y="423" bgColor="16443110" name="Get Web Service Call" elements="//@swimlanes.10 //@swimlanes.11" alignment="MIDDLE"/>
+  <swimlanes x="1090" y="322" bgColor="16443110" name="Get Data and Process" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#call_store_msg_return_msg_get"/>
+    <elements href="assembly.xml#call_make-http-rest-binding-call_get"/>
+    <elements href="assembly.xml#call_determine_endpoint"/>
+  </swimlanes>
+</wdnm:Diagram>

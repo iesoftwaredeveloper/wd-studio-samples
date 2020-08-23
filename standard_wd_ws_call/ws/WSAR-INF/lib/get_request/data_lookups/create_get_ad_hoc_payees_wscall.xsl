@@ -3,8 +3,7 @@
     xmlns:wd="urn:com.workday/bsvc"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     xmlns:tfxc="https://github.com/firehawk-consulting/firehawk/schemas/text_to_xml/transform_file_to_xml_unparsed.xsd"
-    xmlns:ecmc="https://ecmc.org/ad_hoc_payment_format"
-    exclude-result-prefixes="xs wd ecmc"
+    exclude-result-prefixes="xs wd"
     version="2.0">
 
     <xsl:param name="web.service.start.date"/>
@@ -56,7 +55,15 @@
                             </xsl:for-each>
                         </bsvc:Request_References>
                     </xsl:if>
-                    <bsvc:Request_Criteria/>
+                    <!--<bsvc:Request_References>
+                        <bsvc:Ad_Hoc_Payee_Reference>
+                            <bsvc:ID>
+                                <xsl:attribute name="bsvc:type" select="'Ad_hoc_Payee_ID'"/>
+                                <xsl:value-of select="'G821'"/>
+                            </bsvc:ID>
+                        </bsvc:Ad_Hoc_Payee_Reference>
+                    </bsvc:Request_References>-->
+                    <!--<bsvc:Request_Criteria/>-->
                     <bsvc:Response_Filter>
                         <bsvc:Count>
                             <xsl:value-of select="$web.service.count"/>
