@@ -24,7 +24,7 @@
     <xsl:param name="web.service.version"/>
     <xsl:param name="web.service.count"/>
 
-    <xsl:variable name="source.data" select="document('mctx:vars/source.data')"/>
+    <xsl:variable name="lookup.data" select="document('mctx:vars/file.data')"/>
 
     <xsl:template match="/">
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
@@ -37,21 +37,33 @@
                 </bsvc:Workday_Common_Header>
             </soapenv:Header>
             <soapenv:Body>
-                <bsvc:Get_Customer_Contracts_Request>
+                <bsvc:Get_Ad_Hoc_Payees_Request>
                     <xsl:attribute name="bsvc:version" select="$web.service.version"/>
                     <!-- <xsl:attribute name="web_service_version" select="$web.service.put.lookup.wd.data.request.type"/>
                     <xsl:attribute name="lookup_data_count" select="count($lookup.data//tfxc:col2)"/>-->
-                    <xsl:if test="$web.service.put.lookup.wd.data.request.type = 'contract_list'">
-                        <bsvc:Request_Criteria>
-                            <xsl:for-each select="$source.data//C_WDContract">
-                                <xsl:if test="string-length(normalize-space(.)) != 0 and normalize-space(.) != 'null'">
-                                        <bsvc:Customer_Contract_ID>
+                    <xsl:if test="$web.service.put.lookup.wd.data.request.type = 'payee_list'">
+                        <bsvc:Request_References>
+                            <xsl:for-each select="$lookup.data//tfxc:col2">
+                                <xsl:if test="string-length(normalize-space(.)) != 0">
+                                    <bsvc:Ad_Hoc_Payee_Reference>
+                                        <bsvc:ID>
+                                            <xsl:attribute name="bsvc:type" select="'Ad_hoc_Payee_ID'"/>
                                             <xsl:value-of select="normalize-space(.)"/>
-                                        </bsvc:Customer_Contract_ID>
+                                        </bsvc:ID>
+                                    </bsvc:Ad_Hoc_Payee_Reference>
                                 </xsl:if>
                             </xsl:for-each>
-                        </bsvc:Request_Criteria>
+                        </bsvc:Request_References>
                     </xsl:if>
+                    <!--<bsvc:Request_References>
+                        <bsvc:Ad_Hoc_Payee_Reference>
+                            <bsvc:ID>
+                                <xsl:attribute name="bsvc:type" select="'Ad_hoc_Payee_ID'"/>
+                                <xsl:value-of select="'G821'"/>
+                            </bsvc:ID>
+                        </bsvc:Ad_Hoc_Payee_Reference>
+                    </bsvc:Request_References>-->
+                    <!--<bsvc:Request_Criteria/>-->
                     <bsvc:Response_Filter>
                         <bsvc:Count>
                             <xsl:value-of select="$web.service.count"/>
@@ -61,9 +73,8 @@
                         <bsvc:Include_Reference>
                             <xsl:value-of select="$include.reference"/>
                         </bsvc:Include_Reference>
-                        <bsvc:Include_Customer_Contract_Data>true</bsvc:Include_Customer_Contract_Data>
                     </bsvc:Response_Group>
-                </bsvc:Get_Customer_Contracts_Request>
+                </bsvc:Get_Ad_Hoc_Payees_Request>
             </soapenv:Body>
         </soapenv:Envelope>
     </xsl:template>

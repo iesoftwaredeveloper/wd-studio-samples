@@ -64,6 +64,27 @@
   <visualProperties x="2144" y="488">
     <element href="assembly.xml#call_get_lookup_data_get"/>
   </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#get_workday_lookup_data_raas"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#bckp_msg"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#call_store_msg_return_msg_get_lkp_rsp_raas"/>
+  </visualProperties>
+  <visualProperties>
+    <element href="assembly.xml#copy_to_variable_raas"/>
+  </visualProperties>
+  <visualProperties x="2108" y="428">
+    <element href="assembly.xml#put_raas_call_msg_lkp"/>
+  </visualProperties>
+  <visualProperties x="2336" y="690">
+    <element href="assembly.xml#make_workday_raas_call_lkp"/>
+  </visualProperties>
+  <visualProperties x="40" y="40">
+    <element href="assembly.xml#call_create_wd_web_service_call"/>
+  </visualProperties>
   <connections type="routesTo">
     <source href="assembly.xml#get_workday_paged_web_service_call"/>
     <target href="assembly.xml#call_create_wd_get_call"/>
@@ -91,10 +112,6 @@
   <connections type="routesTo">
     <source href="assembly.xml#get_workday_lookup_data"/>
     <target href="assembly.xml#xslt_get_web_service_xml_lkp"/>
-  </connections>
-  <connections type="routesTo">
-    <source href="assembly.xml#xslt_get_web_service_xml_lkp"/>
-    <target href="assembly.xml#call_store_msg_return_msg_get_lkp"/>
   </connections>
   <connections type="routesTo">
     <source href="assembly.xml#//@beans/@mixed.1/@mixed.15/@mixed.3"/>
@@ -132,6 +149,38 @@
     <source href="assembly.xml#call_get_lookup_data_get"/>
     <target href="assembly.xml#call_conform_get_data"/>
   </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#get_workday_lookup_data_raas"/>
+    <target href="assembly.xml#bckp_msg"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#//@beans/@mixed.1/@mixed.47/@mixed.3"/>
+    <target href="assembly.xml#copy_to_variable_raas"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_store_msg_return_msg_get_lkp_rsp_raas"/>
+    <target href="assembly.xml#copy_to_variable_raas"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#bckp_msg"/>
+    <target href="assembly.xml#put_raas_call_msg_lkp"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#put_raas_call_msg_lkp"/>
+    <target href="assembly.xml#make_workday_raas_call_lkp"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#make_workday_raas_call_lkp"/>
+    <target href="assembly.xml#call_store_msg_return_msg_get_lkp_rsp_raas"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#xslt_get_web_service_xml_lkp"/>
+    <target href="assembly.xml#call_create_wd_web_service_call"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_create_wd_web_service_call"/>
+    <target href="assembly.xml#call_store_msg_return_msg_get_lkp"/>
+  </connections>
   <swimlanes bgColor="8454143" name="Local-in Paged WS" orientation="VERTICAL" alignment="MIDDLE">
     <elements href="assembly.xml#get_workday_paged_web_service_call"/>
     <elements href="assembly.xml#call_create_wd_get_call"/>
@@ -154,6 +203,7 @@
   <swimlanes bgColor="8454143" name="Local-in Lookup Data" alignment="MIDDLE">
     <elements href="assembly.xml#get_workday_lookup_data"/>
     <elements href="assembly.xml#xslt_get_web_service_xml_lkp"/>
+    <elements href="assembly.xml#call_create_wd_web_service_call"/>
   </swimlanes>
   <swimlanes bgColor="8454143" name="Get WD Data and Set Variable" orientation="VERTICAL" alignment="MIDDLE">
     <elements href="assembly.xml#call_store_msg_return_msg_get_lkp"/>
@@ -172,10 +222,21 @@
     <elements href="assembly.xml#call_get_response_endpoint"/>
   </swimlanes>
   <swimlanes bgColor="8454016" name="Process Response" elements="//@swimlanes.10 //@swimlanes.11" alignment="MIDDLE"/>
-  <swimlanes bgColor="12632256" name="Response Data Processing" orientation="VERTICAL" elements="//@swimlanes.9 //@swimlanes.12" alignment="MIDDLE"/>
+  <swimlanes bgColor="12632256" name="Response Data Processing" orientation="VERTICAL" elements="//@swimlanes.9 //@swimlanes.18 //@swimlanes.12" alignment="MIDDLE"/>
   <swimlanes x="8" y="5" bgColor="4108284" name="Get and Process Data" elements="//@swimlanes.6 //@swimlanes.13"/>
   <swimlanes bgColor="13621203" name="Get WS Call" alignment="MIDDLE">
     <elements href="assembly.xml#create_standard_wd_web_service_call"/>
     <elements href="assembly.xml#xslt_get_web_service_xml"/>
   </swimlanes>
+  <swimlanes bgColor="8454143" name="Local-in Lookup Data" alignment="MIDDLE">
+    <elements href="assembly.xml#get_workday_lookup_data_raas"/>
+    <elements href="assembly.xml#bckp_msg"/>
+  </swimlanes>
+  <swimlanes bgColor="8454143" name="Get WD Data and Set Variable" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#put_raas_call_msg_lkp"/>
+    <elements href="assembly.xml#make_workday_raas_call_lkp"/>
+    <elements href="assembly.xml#call_store_msg_return_msg_get_lkp_rsp_raas"/>
+    <elements href="assembly.xml#copy_to_variable_raas"/>
+  </swimlanes>
+  <swimlanes x="2438" y="358" bgColor="8454016" name="Get Workday Lookup Data" elements="//@swimlanes.16 //@swimlanes.17" alignment="MIDDLE"/>
 </wdnm:Diagram>

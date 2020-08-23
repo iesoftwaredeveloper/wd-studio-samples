@@ -19,6 +19,11 @@
         <cc:async-mediation id="store-file" routes-to="return-msg">
             <cc:steps>
                 <cc:copy id="cp-msg" output="variable" output-variable="input.msg"/>
+                <cc:write id="write-blankxml">
+                    <cc:message>
+                        <cc:text>&lt;blankxml/></cc:text>
+                    </cc:message>
+                </cc:write>
                 <cc:store id="store-file" output="variable" output-variable="upload.data" input="variable" input-variable="input.msg" title="@{props['store.filename']}"/>
             </cc:steps>
         </cc:async-mediation>
@@ -149,8 +154,8 @@
         <cc:local-out id="send_err_msg" endpoint="vm://wcc/PutIntegrationMessage">
             <cc:set name="is.event.wid" value="lp.isSet() ? lp.getIntegrationEventWID() : null"/>
             <cc:set name="is.message.severity" value="props['severity']"/>
-            <cc:set name="is.message.summary" value="'Error loading record: ' + props['record.counter'] + '. See Details for Error Reason.'"/>
-            <cc:set name="is.message.detail" value="'Error Reason:  ' + props['error.message.detail'] + &quot;\n&quot; + props['error.message.detail.expanded']"/>
+            <cc:set name="is.message.summary" value="props['validation.message'] + ((props['validation.message'] == '')? '' : &quot;\n&quot;) + 'Error loading record: ' + props['record.counter'] + '. See Details for Error Reason.'"/>
+            <cc:set name="is.message.detail" value="'Error Reason:  ' + props['error.message.detail'] + &quot;\n&quot; + &quot;\n&quot; + props['error.message.detail.expanded']"/>
         <cc:set name="is.message.detail.richtext" value="true"/></cc:local-out>
         <cc:async-mediation id="incr_error_cnt" routes-to="send_err_msg">
             <cc:steps>
@@ -168,7 +173,7 @@
             <cc:parameter default="false" name="include-file" type="boolean"/>
             <cc:parameter default="''" name="error.message.detail.expanded" required="false" type="string"/>
             <cc:parameter default="'WARNING'" name="severity" required="false"/>
-            <cc:parameter default="''" name="error.message.detail"/>
+            <cc:parameter default="''" name="error.message.detail"/><cc:parameter default="''" name="validation.message" required="false" type="string"/>
         </cc:local-in>
         <cc:async-mediation id="incr_skip_cnt" continue-after-error="rewind" handle-downstream-errors="false">
             <cc:steps>
@@ -262,7 +267,7 @@
         <cc:async-mediation id="setpercentcomplete" routes-to="update_progress_bar">
             <cc:steps>
                 <cc:eval id="setpercentcomplete">
-                    <cc:expression>props['percent-complete']=new java.math.BigDecimal((props['record-filecount']/(props['record-totalcount'] == 0? 1 : props['record-totalcount']))*100)</cc:expression>
+                    <cc:expression>props['percent-complete']=new java.math.BigDecimal((props['record-filecount']/((props['record-totalcount'] == 0) || (props['record-totalcount'] == -1)) ? ((props['record-filecount']*2) : props['record-totalcount']))*100)</cc:expression>
                 </cc:eval>
             </cc:steps>
         </cc:async-mediation>
@@ -273,7 +278,7 @@
         <cc:footer-text>&lt;/tempdata></cc:footer-text>
       </cc:xml-message-content-collater>
         </cc:aggregator>
-        <cc:async-mediation id="emptyvarforrender" routes-to="AggregatorRenderRecords">
+        <cc:async-mediation id="emptyvarforrender" routes-to="setpercentcomplete">
             <cc:steps>
                 <cc:write id="writeblankmessage">
                     <cc:message>
@@ -288,7 +293,7 @@
             <cc:set name="is.response.msg" value="props['record-filecount'] + ' records processed of ' + props['record-totalcount'] + ' for file: ' + props['currentfile-name']"/>
             <cc:set name="is.percent.complete" value="10"/>
         </cc:local-out>
-        <cc:local-in id="RenderProcessingStatistics" routes-to="bckp_msg" access="public" icon="local-in-RenderProcessingStatistics.png" use-global-error-handlers="false">
+        <cc:local-in id="render-processing-stats" routes-to="bckp_msg" access="public" icon="local-in-RenderProcessingStatistics.png" use-global-error-handlers="false">
             <cc:parameter default="'no filename passed'" name="currentfile-name" required="false"/>
             <cc:parameter default="-1" name="record-totalcount" required="false"/>
             <cc:parameter default="-99" name="record-filecount" required="false"/>

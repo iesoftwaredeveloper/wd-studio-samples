@@ -61,7 +61,7 @@
             <cc:parameter name="running.process" required="true"/>
             <cc:parameter default="'false'" name="set.get.worker.properties" required="false"/>
         </cc:local-in>
-        <cc:local-out id="call_process_xml_data" store-message="none" routes-response-to="put_log_processing_stats" endpoint="vm://@{props['web.service.put.request.endpoint']}">
+        <cc:local-out id="call_process_xml_data" store-message="none" routes-response-to="call_aggregateprocessingdetails" endpoint="vm://@{props['web.service.put.request.endpoint']}">
             <cc:set name="web.service.put.create.ws.xml.filename" value="props['web.service.put.create.ws.xml.filename']"/>
             <cc:set name="web.service.put.create.ws.xml.endpoint" value="props['web.service.put.create.ws.xml.subroutine']"/>
             <cc:set name="update.data" value="props['update.data']"/>
@@ -84,10 +84,10 @@
             <cc:set name="lookup.wd.data.filename" value="props['web.service.put.lookup.wd.data.filename']"/>
             <cc:set name="lookup.wd.data.request.type" value="props['web.service.put.lookup.wd.data.request.type']"/>
             <cc:set name="lookup.wd.data.application" value="props['web.service.put.lookup.wd.data.application']"/>
-            <cc:set name="conform.XML" value="props['conform.XML']"/>
-            <cc:set name="conform.XML.subroutine" value="props['conform.XML.subroutine']"/>
-            <cc:set name="conform.XML.filename" value="props['conform.XML.filename']"/>
-        </cc:local-out>
+            
+            
+            
+        <cc:set name="web.service.conform.xml.filename" value="props['web.service.put.conform.xml.filename']"/><cc:set name="web.service.put.conform.xml" value="props['web.service.put.conform.xml']"/><cc:set name="web.service.put.conform.xml.endpoint" value="props['web.service.put.conform.xml.endpoint']"/></cc:local-out>
         <cc:splitter id="split_response" no-split-message-error="false">
             <cc:sub-route name="process_xml" routes-to="record-counters"/>
             <cc:xml-stream-splitter namespaces="@{props['xml.split.namespace']}" xpath="//@{props['xml.split.tag']}"/>
@@ -96,9 +96,6 @@
             <cc:parameter default="-1" name="page.current" required="true"/>
             <cc:parameter default="-1" name="page.total" required="true"/>
             <cc:parameter default="-1" name="record.count.total" required="true"/>
-            <cc:parameter default="'false'" name="conform.XML" required="false"/>
-            <cc:parameter name="conform.XML.subroutine" required="false"/>
-            <cc:parameter name="conform.XML.filename" required="false"/>
         </cc:local-in>
         <cc:async-mediation id="set-ws-props" routes-to="set-worker-prop">
             <cc:steps>
@@ -112,7 +109,7 @@
                     <cc:expression>props['web.service.request.log'] = intsys.getAttributeAsBoolean('Log Web Service Request XML',true)</cc:expression>
                     <cc:expression>props['web.service.response.log'] = intsys.getAttributeAsBoolean('Log Web Service Response XML',true)</cc:expression>
                     <cc:expression>props['web.service.submit'] = intsys.getAttributeAsBoolean('Web Service Submit',true)</cc:expression>
-                    <cc:expression>props['web.service.effective.date'] = intsys.getAttribute('Web Service Effective Date')</cc:expression>
+                    <cc:expression>props['web.service.effective.date'] = (props['web.service.effective.date'] == null) ? intsys.getAttribute('Web Service Effective Date'):props['web.service.effective.date']</cc:expression>
                     <cc:expression>props['web.service.lock.transaction'] = intsys.getAttributeAsBoolean('Web Service Lock Transaction',true)</cc:expression>
                     <cc:expression>props['default.business.process.comment'] = intsys.getAttribute('Default Business Process Comment')</cc:expression>
                     <cc:expression>props['web.service.summary.log'] = intsys.getAttributeAsBoolean('Log Summary Import Results',true)</cc:expression>
@@ -132,7 +129,7 @@
             <cc:set name="summary.log.file.extension" value="'html'"/>
             <cc:set name="continue.loop" value="'no'"/>
         </cc:local-out>
-        <cc:async-mediation id="file-counters" routes-to="split_response">
+        <cc:async-mediation id="file-counters" routes-to="call_log_processing_msg_return_msg">
             <cc:steps>
                 <cc:eval id="reset-file-counters">
                     <cc:expression>props['file.number.current'] = ((props['file.number.current'] == null)? 0:props['file.number.current']) + 1</cc:expression>
@@ -160,9 +157,9 @@
             <cc:set name="record.counter.failed" value="props['record.counter.failed']"/>
             <cc:set name="log.summarydata" value="props['web.service.summary.log']"/>
         </cc:local-out>
-        <cc:local-out id="put_log_processing_stats" routes-response-to="call_aggregateprocessingdetails" endpoint="vm://wcc/PutIntegrationMessage">
+        <cc:local-out id="put_log_processing_stats" routes-response-to="return-msg" endpoint="vm://wcc/PutIntegrationMessage">
             <cc:set name="is.message.severity" value="'INFO'"/>
-            <cc:set name="is.message.summary" value="'Record ' + props['record.counter'] + ' of ' + props['record.count.total'] + ' for Page ' + props['page.current'] + ' of ' + props['page.total']"/>
+            <cc:set name="is.message.summary" value="'Record ' + (((props['record.counter'] == null)? 0:props['record.counter']) + 1) + ' of ' + props['record.count.total'] + ' for Page ' + props['page.current'] + ' of ' + props['page.total']"/>
             <cc:set name="is.message.storage.enabled" value="false"/>
         </cc:local-out>
         <cc:async-mediation id="set-process-properties" routes-to="set-attributes">
@@ -203,6 +200,9 @@
                     <cc:expression>props['web.service.put.request.endpoint'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:sub_process/fhc:endpoint&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.put.create.ws.xml.filename'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:sub_process/fhc:sub_process[@fhc:subprocess_name = 'create_ws_xml']/fhc:filename&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.put.create.ws.xml.subroutine'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:sub_process/fhc:sub_process[@fhc:subprocess_name = 'create_ws_xml']/fhc:endpoint&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
+                    <cc:expression>props['web.service.put.conform.xml'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:sub_process/fhc:sub_process[@fhc:subprocess_name = 'conform_xml']/@fhc:execute_subprocess&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
+                    <cc:expression>props['web.service.put.conform.xml.filename'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:sub_process/fhc:sub_process[@fhc:subprocess_name = 'conform_xml']/fhc:filename&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
+                    <cc:expression>props['web.service.put.conform.xml.endpoint'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:sub_process/fhc:sub_process[@fhc:subprocess_name = 'conform_xml']/fhc:endpoint&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.put.lookup.wd.data'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:sub_process/fhc:sub_process[@fhc:subprocess_name = 'lookup_wd_data']/@fhc:execute_subprocess&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.put.lookup.wd.data.application'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:sub_process/fhc:sub_process[@fhc:subprocess_name = 'lookup_wd_data']/fhc:application&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
                     <cc:expression>props['web.service.put.lookup.wd.data.request.type'] = vars['config.properties'].xpath(&quot;//fhc:web_service_information/fhc:put_ws_attributes/fhc:sub_process/fhc:sub_process[@fhc:subprocess_name = 'lookup_wd_data']/fhc:sub_type&quot;, &quot;fhc https://github.com/firehawk-consulting/firehawk/schemas/configuration_file_sync_data.xsd&quot;)</cc:expression>
@@ -274,6 +274,9 @@
                     <cc:expression>props['single.instance.filter.1.wids'] = (props['web.service.get.filter.single.instance.1'].length() == 0)? 'no': intsys.getAttributeReferenceData(props['web.service.get.filter.single.instance.1'], 'WID')</cc:expression>
                     <cc:expression>props['single.instance.filter.2.wids'] = (props['web.service.get.filter.single.instance.2'].length() == 0)? 'no': intsys.getAttributeReferenceData(props['web.service.get.filter.single.instance.2'], 'WID')</cc:expression>
                     <cc:expression>props['single.instance.filter.3.wids'] = (props['web.service.get.filter.single.instance.3'].length() == 0)? 'no': intsys.getAttributeReferenceData(props['web.service.get.filter.single.instance.3'], 'WID')</cc:expression>
+                    <cc:expression>props['single.instance.filter.1.name'] = (props['web.service.get.filter.single.instance.1'].length() == 0)? 'no': intsys.getAttribute(props['web.service.get.filter.single.instance.1'])</cc:expression>
+                    <cc:expression>props['single.instance.filter.2.name'] = (props['web.service.get.filter.single.instance.2'].length() == 0)? 'no': intsys.getAttribute(props['web.service.get.filter.single.instance.2'])</cc:expression>
+                    <cc:expression>props['single.instance.filter.3.name'] = (props['web.service.get.filter.single.instance.3'].length() == 0)? 'no': intsys.getAttribute(props['web.service.get.filter.single.instance.3'])</cc:expression>
                     <cc:expression>props['multi.instance.update.1.wids'] = (props['web.service.put.update.multi.instance.1'].length() == 0)? 'no': intsys.getAttributeReferenceDataList(props['web.service.put.update.multi.instance.1'], 'WID').toString().replace(&quot;[&quot;,&quot;&quot;).replace(&quot;]&quot;,&quot;&quot;)</cc:expression>
                     <cc:expression>props['multi.instance.update.2.wids'] = (props['web.service.put.update.multi.instance.2'].length() == 0)? 'no': intsys.getAttributeReferenceDataList(props['web.service.put.update.multi.instance.2'], 'WID').toString().replace(&quot;[&quot;,&quot;&quot;).replace(&quot;]&quot;,&quot;&quot;)</cc:expression>
                     <cc:expression>props['multi.instance.update.3.wids'] = (props['web.service.put.update.multi.instance.3'].length() == 0)? 'no': intsys.getAttributeReferenceDataList(props['web.service.put.update.multi.instance.3'], 'WID').toString().replace(&quot;[&quot;,&quot;&quot;).replace(&quot;]&quot;,&quot;&quot;)</cc:expression>
@@ -365,6 +368,30 @@
         <cc:local-out id="call_store_msg_for_output_file" endpoint="vm://standard_logging/store_msg_for_output_file">
             <cc:set name="output.filename" value="props['running.process'].replace(' ','_') + '_Configuration.html'"/>
         </cc:local-out>
+        <cc:local-out id="call_render-processing-stats" endpoint="vm://standard_logging/render-processing-stats">
+            <cc:set name="currentfile-name" value="'For Page ' + props['page.current'] + ' of ' + props['page.total']"/>
+            <cc:set name="record-totalcount" value="props['record.count.total']"/>
+            <cc:set name="record-filecount" value="props['record.counter']"/>
+        </cc:local-out>
+        <cc:async-mediation id="return-msg">
+            <cc:steps>
+                <cc:copy id="cp-back-to-msg" input="variable" input-variable="input.msg"/>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:async-mediation id="store-file" routes-to="put_log_processing_stats">
+            <cc:steps>
+                <cc:copy id="cp-msg" output="variable" output-variable="input.msg"/>
+                <cc:write id="write-blankxml">
+                    <cc:message>
+                        <cc:text>&lt;blankxml/></cc:text>
+                    </cc:message>
+                </cc:write>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:local-in id="log_processing_msg_return_msg" routes-to="store-file" access="public" icon="local-in-log_processing_msg_return_msg.png" tooltip="Sub Routine Used to Log and Processing Message and reset to existing (input) message.">
+            
+        </cc:local-in>
+        <cc:local-out id="call_log_processing_msg_return_msg" routes-response-to="split_response" endpoint="vm://standard_configuration_properties/log_processing_msg_return_msg"><cc:set name="store.filename" value="'Logging_Output.txt'"/></cc:local-out>
     </cc:assembly>
 
 </beans>

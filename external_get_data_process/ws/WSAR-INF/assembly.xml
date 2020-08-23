@@ -99,7 +99,8 @@
         </cc:local-out>
         <cc:local-out id="call_create_wd_get_call" routes-response-to="call_store_msg_return_msg_get" endpoint="vm://@{props['web.service.get.create.ws.xml.endpoint']}">
             <cc:set name="web.service.create.ws.xml.filename" value="props['web.service.get.create.ws.xml.filename']"/>
-        <cc:set name="page.start" value="props['page.end']"/></cc:local-out>
+            <cc:set name="page.start" value="props['page.end']"/>
+        </cc:local-out>
         <cc:local-in id="get_external_web_service_call" routes-to="setup-props" access="public" icon="local-in-get_workday_paged_web_service_call.png">
             <cc:parameter name="web.service.get.response.endpoint"/>
             <cc:parameter name="web.service.request.log"/>
@@ -130,22 +131,13 @@
             <cc:set name="web.service.get.external.api.set.endpoint.url" value="'false'"/>
         </cc:local-out>
         <cc:local-out id="call_get_external_paging_result" endpoint="vm://external_get_data_process/get_external_paging_result">
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-        <cc:set name="set.authentication.token" value="props['web.service.get.external.api.set.authorization.token']"/><cc:set name="set.authentication.token.subroutine" value="props['web.service.get.external.api.set.authorization.token.subroutine']"/><cc:set name="set.headers" value="props['web.service.get.external.api.set.headers']"/><cc:set name="set.headers.subroutine" value="props['web.service.get.external.api.set.headers.subroutine']"/><cc:set name="set.url.extrapath" value="props['web.service.get.external.api.set.url.extrapath']"/><cc:set name="set.url.extrapath.subroutine" value="props['web.service.get.external.api.set.url.extrapath.subroutine']"/></cc:local-out>
+            <cc:set name="set.authentication.token" value="props['web.service.get.external.api.set.authorization.token']"/>
+            <cc:set name="set.authentication.token.subroutine" value="props['web.service.get.external.api.set.authorization.token.subroutine']"/>
+            <cc:set name="set.headers" value="props['web.service.get.external.api.set.headers']"/>
+            <cc:set name="set.headers.subroutine" value="props['web.service.get.external.api.set.headers.subroutine']"/>
+            <cc:set name="set.url.extrapath" value="props['web.service.get.external.api.set.url.extrapath']"/>
+            <cc:set name="set.url.extrapath.subroutine" value="props['web.service.get.external.api.set.url.extrapath.subroutine']"/>
+        </cc:local-out>
         <cc:local-out id="call_determine_endpoint" endpoint="vm://standard_get_data_process/determine_endpoint"/>
         <cc:async-mediation id="setup-props" routes-to="rtr_page_data">
             <cc:steps>

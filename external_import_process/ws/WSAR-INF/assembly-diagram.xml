@@ -94,6 +94,12 @@
   <visualProperties x="1737" y="43">
     <element href="assembly.xml#call_conform_xml"/>
   </visualProperties>
+  <visualProperties x="2137" y="585">
+    <element href="assembly.xml#route_valid_call"/>
+  </visualProperties>
+  <visualProperties x="4526" y="672">
+    <element href="assembly.xml#call_process_Failed_Msg"/>
+  </visualProperties>
   <connections type="routesResponseTo">
     <source href="assembly.xml#call_create_wd_put_call"/>
     <target href="assembly.xml#call_store_msg_return_msg_put"/>
@@ -145,10 +151,6 @@
   <connections type="routesResponseTo">
     <source href="assembly.xml#call_make-http-rest-binding-call"/>
     <target href="assembly.xml#call_putIntMsg_put_log"/>
-  </connections>
-  <connections type="routesTo">
-    <source href="assembly.xml#set-wd-id"/>
-    <target href="assembly.xml#call_make-http-rest-binding-call"/>
   </connections>
   <connections type="routesResponseTo">
     <source href="assembly.xml#http-rest-out"/>
@@ -210,6 +212,22 @@
     <source href="assembly.xml#put_external_web_serivce_call"/>
     <target href="assembly.xml#call_conform_xml"/>
   </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#set-wd-id"/>
+    <target href="assembly.xml#route_valid_call"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#//@beans/@mixed.1/@route.1/@subRoute.1"/>
+    <target href="assembly.xml#call_make-http-rest-binding-call"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#//@beans/@mixed.1/@route.1/@subRoute.0"/>
+    <target href="assembly.xml#call_process_Failed_Msg"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_process_Failed_Msg"/>
+    <target href="assembly.xml#call_create_transaction_log_record_err"/>
+  </connections>
   <swimlanes bgColor="9498256" name="Local In" alignment="MIDDLE">
     <elements href="#//@swimlanes.21"/>
     <elements href="assembly.xml#bckp_msg"/>
@@ -232,10 +250,7 @@
     <elements href="assembly.xml#rtr-trans-to-import"/>
   </swimlanes>
   <swimlanes bgColor="9498256" name="Split Envelope WS Call" elements="//@swimlanes.5 //@swimlanes.17 //@swimlanes.9" alignment="MIDDLE"/>
-  <swimlanes bgColor="12566463" name="Error Processing" orientation="VERTICAL" alignment="MIDDLE">
-    <elements href="assembly.xml#set-wd-id"/>
-    <elements href="#//@swimlanes.16"/>
-  </swimlanes>
+  <swimlanes bgColor="12566463" name="Submit Process" orientation="VERTICAL" elements="//@swimlanes.22 //@swimlanes.16" alignment="MIDDLE"/>
   <swimlanes bgColor="15066597" name="Make Web Service Call" orientation="VERTICAL" alignment="MIDDLE">
     <elements href="assembly.xml#call_make-http-rest-binding-call"/>
     <elements href="assembly.xml#call_putIntMsg_put_log"/>
@@ -260,15 +275,15 @@
     <elements href="assembly.xml#call_store_msg_return_msg_api_rsp"/>
     <elements href="assembly.xml#set-output-id"/>
   </swimlanes>
-  <swimlanes x="1523" y="732" bgColor="9354996" name="Error Records" orientation="VERTICAL" alignment="MIDDLE">
+  <swimlanes x="1523" y="732" bgColor="7256553" name="Error Processing" alignment="END">
     <elements href="assembly.xml#call_process_Err_Msg"/>
-    <elements href="assembly.xml#call_create_transaction_log_record_err"/>
+    <elements href="#//@swimlanes.23"/>
   </swimlanes>
   <swimlanes x="1696" y="514" bgColor="8454143" name="Router Sub-process" orientation="VERTICAL" alignment="MIDDLE">
     <elements href="#//@swimlanes.18"/>
     <elements href="assembly.xml#call_create_transaction_log_record_skipped"/>
   </swimlanes>
-  <swimlanes x="1679" y="494" bgColor="15066597" name="Submit Process" alignment="MIDDLE">
+  <swimlanes x="1679" y="494" bgColor="15066597" name="Split WS Call" alignment="MIDDLE">
     <elements href="assembly.xml#split_ws_put"/>
     <elements href="#//@swimlanes.7"/>
   </swimlanes>
@@ -282,5 +297,13 @@
     <elements href="assembly.xml#put_external_web_serivce_call"/>
     <elements href="assembly.xml#call_conform_xml"/>
     <elements href="assembly.xml#call_store_msg_return_msg_source"/>
+  </swimlanes>
+  <swimlanes x="1816" y="518" bgColor="7256553" name="Preprocess and Validate" alignment="MIDDLE">
+    <elements href="assembly.xml#set-wd-id"/>
+    <elements href="assembly.xml#route_valid_call"/>
+  </swimlanes>
+  <swimlanes x="1830" y="858" name="Process Failed" orientation="VERTICAL" alignment="MIDDLE">
+    <elements href="assembly.xml#call_process_Failed_Msg"/>
+    <elements href="assembly.xml#call_create_transaction_log_record_err"/>
   </swimlanes>
 </wdnm:Diagram>

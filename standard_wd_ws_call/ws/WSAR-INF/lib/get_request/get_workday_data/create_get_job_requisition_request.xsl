@@ -86,6 +86,13 @@
                                         </bsvc:ID>
                                     </bsvc:Subscriber_Reference>
                                 </bsvc:Transaction_Log_Criteria_Data>
+                                <bsvc:Field_And_Parameter_Criteria_Data>
+                                    <bsvc:Provider_Reference>
+                                        <bsvc:ID bsvc:type="WID">
+                                            <xsl:value-of select="$is.system.wid"/>
+                                        </bsvc:ID>
+                                    </bsvc:Provider_Reference>
+                                </bsvc:Field_And_Parameter_Criteria_Data>
                             </bsvc:Request_Criteria>
                         </xsl:when>
                         <xsl:otherwise>
@@ -143,9 +150,9 @@
                         <bsvc:Include_Roles>
                             <xsl:value-of select="$job.req.include.roles"/>
                         </bsvc:Include_Roles>
-                        <bsvc:Include_Requisition_Compensation>
+                        <!--<bsvc:Include_Requisition_Compensation>
                             <xsl:value-of select="$job.req.include.requisition.compensation"/>
-                        </bsvc:Include_Requisition_Compensation>
+                        </bsvc:Include_Requisition_Compensation>-->
                     </bsvc:Response_Group>
                 </bsvc:Get_Job_Requisitions_Request>
             </soapenv:Body>

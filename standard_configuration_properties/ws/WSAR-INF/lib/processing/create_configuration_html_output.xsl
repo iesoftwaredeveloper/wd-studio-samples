@@ -80,12 +80,16 @@
     <xsl:param name="web.service.get.external.api.set.authorization.token.subroutine"/>
     <xsl:param name="web.service.get.external.api.set.url.extrapath"/>
     <xsl:param name="web.service.get.external.api.set.url.extrapath.subroutine"/>
+    <xsl:param name="web.service.get.external.api.convert.response.json.to.xml"/>
     <!-- PUT Properties -->
     <xsl:param name="web.service.put.application"/>
     <xsl:param name="web.service.put.request.filename"/>
     <xsl:param name="web.service.put.request.endpoint"/>
     <xsl:param name="web.service.put.create.ws.xml.filename"/>
     <xsl:param name="web.service.put.create.ws.xml.subroutine"/>
+    <xsl:param name="web.service.put.conform.xml"/>
+    <xsl:param name="web.service.put.conform.xml.filename"/>
+    <xsl:param name="web.service.put.conform.xml.endpoint"/>
     <xsl:param name="web.service.put.lookup.wd.data"/>
     <xsl:param name="web.service.put.lookup.wd.data.application"/>
     <xsl:param name="web.service.put.lookup.wd.data.request.type"/>
@@ -130,6 +134,9 @@
     <xsl:param name="single.instance.filter.1.wids"/>
     <xsl:param name="single.instance.filter.2.wids"/>
     <xsl:param name="single.instance.filter.3.wids"/>
+    <xsl:param name="single.instance.filter.1.name"/>
+    <xsl:param name="single.instance.filter.2.name"/>
+    <xsl:param name="single.instance.filter.3.name"/>
     <!-- Update Attributes -->
     <xsl:param name="multi.instance.update.1.wids"/>
     <xsl:param name="multi.instance.update.2.wids"/>
@@ -455,6 +462,27 @@
                         </td>
                     </tr>
                     <tr>
+                        <td>set-process-props-get</td>
+                        <td>web.service.put.conform.xml</td>
+                        <td>
+                            <xsl:value-of select="$web.service.get.conform.xml"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>set-process-props-get</td>
+                        <td>web.service.put.conform.xml.filename</td>
+                        <td>
+                            <xsl:value-of select="$web.service.put.conform.xml.filename"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>set-process-props-get</td>
+                        <td>web.service.put.conform.xml.endpoint</td>
+                        <td>
+                            <xsl:value-of select="$web.service.put.conform.xml.endpoint"/>
+                        </td>
+                    </tr>
+                    <tr>
                         <td>set-process-props-put</td>
                         <td>web.service.put.lookup.wd.data</td>
                         <td>
@@ -611,7 +639,7 @@
                     </tr>
                     <tr>
                         <td><xsl:value-of select="$set.get.external.api.label"/></td>
-                        <td>web.service.get.external.api.http.rcontent.type</td>
+                        <td>web.service.get.external.api.http.content.type</td>
                         <td>
                             <xsl:value-of select="$web.service.get.external.api.http.content.type"/>
                         </td>
@@ -677,6 +705,13 @@
                         <td>web.service.get.external.api.set.url.extrapath.subroutine</td>
                         <td>
                             <xsl:value-of select="$web.service.get.external.api.set.url.extrapath.subroutine"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><xsl:value-of select="$set.get.external.api.label"/></td>
+                        <td>web.service.get.external.api.convert.response.json.to.xml</td>
+                        <td>
+                            <xsl:value-of select="$web.service.get.external.api.convert.response.json.to.xml"/>
                         </td>
                     </tr>
                 </table>
@@ -889,6 +924,27 @@
                         <td>single.instance.filter.3.wids</td>
                         <td>
                             <xsl:value-of select="$single.instance.filter.3.wids"/>
+                        </td>
+                    </tr>
+                     <tr>
+                        <td>set-attribute-values</td>
+                        <td>single.instance.filter.1.name</td>
+                        <td>
+                            <xsl:value-of select="$single.instance.filter.1.name"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>set-attribute-values</td>
+                        <td>single.instance.filter.2.name</td>
+                        <td>
+                            <xsl:value-of select="$single.instance.filter.2.name"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>set-attribute-values</td>
+                        <td>single.instance.filter.3.name</td>
+                        <td>
+                            <xsl:value-of select="$single.instance.filter.3.name"/>
                         </td>
                     </tr>
                     <tr>

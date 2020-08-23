@@ -53,7 +53,7 @@
     <element href="assembly.xml#agg-error-records"/>
   </visualProperties>
   <visualProperties>
-    <element href="assembly.xml#RenderProcessingStatistics"/>
+    <element href="assembly.xml#render-processing-stats"/>
   </visualProperties>
   <visualProperties>
     <element href="assembly.xml#start_progress_bar"/>
@@ -218,10 +218,6 @@
     <target href="assembly.xml#emptyvarforrender"/>
   </connections>
   <connections type="routesTo">
-    <source href="assembly.xml#emptyvarforrender"/>
-    <target href="assembly.xml#AggregatorRenderRecords"/>
-  </connections>
-  <connections type="routesTo">
     <source href="assembly.xml#AggregatorRenderRecords"/>
     <target href="assembly.xml#setpercentcomplete"/>
   </connections>
@@ -314,7 +310,7 @@
     <target href="assembly.xml#save_processing_rpt"/>
   </connections>
   <connections type="routesTo">
-    <source href="assembly.xml#RenderProcessingStatistics"/>
+    <source href="assembly.xml#render-processing-stats"/>
     <target href="assembly.xml#bckp_msg"/>
   </connections>
   <connections type="routesTo">
@@ -328,6 +324,10 @@
   <connections type="routesTo">
     <source href="assembly.xml#zip_and_store_output"/>
     <target href="assembly.xml#zip-for-transfer"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#emptyvarforrender"/>
+    <target href="assembly.xml#setpercentcomplete"/>
   </connections>
   <swimlanes x="25" y="28" bgColor="8454016" name="Store Logging Message" alignment="MIDDLE">
     <elements href="assembly.xml#store_msg_return_msg"/>
@@ -408,7 +408,7 @@
   <swimlanes x="144" y="941" bgColor="12632256" name="Create and Aggregate Logging Data" orientation="VERTICAL" elements="//@swimlanes.13 //@swimlanes.14" alignment="MIDDLE"/>
   <swimlanes x="1368" y="727" bgColor="8454016" name="Swimlane" elements="//@swimlanes.22 //@swimlanes.31" alignment="END"/>
   <swimlanes x="1189" y="1159" bgColor="8454016" name="Start Progress Bar" alignment="MIDDLE">
-    <elements href="assembly.xml#RenderProcessingStatistics"/>
+    <elements href="assembly.xml#render-processing-stats"/>
     <elements href="assembly.xml#bckp_msg"/>
     <elements href="assembly.xml#start_progress_bar"/>
     <elements href="assembly.xml#emptyvarforrender"/>

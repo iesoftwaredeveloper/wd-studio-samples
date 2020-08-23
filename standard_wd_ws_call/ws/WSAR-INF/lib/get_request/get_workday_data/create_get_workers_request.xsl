@@ -25,6 +25,9 @@
     <xsl:param name="web.service.start.date"/>
     <xsl:param name="web.service.end.date"/>
     <xsl:param name="web.service.effective.date"/>
+    <xsl:param name="is.system.wid"/>
+    <xsl:param name="transaction.log.service.name"/>
+    <xsl:param name="transaction.log.date.range.type"/>
     <!-- Get Workers Standard Parameters -->
     <xsl:param name="exclude.companies"/>
     <xsl:param name="exclude.company.hierarchies"/>
@@ -118,18 +121,31 @@
                     </xsl:choose>
                     <bsvc:Request_Criteria>
                         <xsl:if test="$web.service.get.request.type = 'transaction_log'
-                            or $web.service.get.request.type = 'transaction_log_termination'">
+                            or $web.service.get.request.type = 'transaction_log_termination'
+                            or $web.service.get.request.type = 'single_worker'">
                             <bsvc:Transaction_Log_Criteria_Data>
                                 <bsvc:Transaction_Date_Range_Data>
-                                    <bsvc:Updated_From>
-                                        <xsl:value-of select="$web.service.start.date"/>
-                                    </bsvc:Updated_From>
-                                    <bsvc:Updated_Through>
-                                        <xsl:value-of select="$web.service.end.date"/>
-                                    </bsvc:Updated_Through>
+                                    <xsl:choose>
+                                        <xsl:when test="$transaction.log.date.range.type = 'Effective Dates'">
+                                            <bsvc:Effective_From>
+                                                <xsl:value-of select="$web.service.start.date"/>
+                                            </bsvc:Effective_From>
+                                            <bsvc:Effective_Through>
+                                                <xsl:value-of select="$web.service.end.date"/>
+                                            </bsvc:Effective_Through>
+                                        </xsl:when>
+                                        <xsl:otherwise>
+                                            <bsvc:Updated_From>
+                                                <xsl:value-of select="$web.service.start.date"/>
+                                            </bsvc:Updated_From>
+                                            <bsvc:Updated_Through>
+                                                <xsl:value-of select="$web.service.end.date"/>
+                                            </bsvc:Updated_Through>
+                                        </xsl:otherwise>
+                                    </xsl:choose>
                                 </bsvc:Transaction_Date_Range_Data>
-                                <bsvc:Transaction_Type_References>
-                                    <xsl:if test="$multi.instance.filter.2.wids != 'no'">
+                                <xsl:if test="$multi.instance.filter.2.wids != 'no'">
+                                    <bsvc:Transaction_Type_References>
                                         <xsl:for-each select="tokenize($multi.instance.filter.2.wids,';')">
                                             <bsvc:Transaction_Type_Reference>
                                                 <bsvc:ID bsvc:type="WID">
@@ -137,11 +153,18 @@
                                                 </bsvc:ID>
                                             </bsvc:Transaction_Type_Reference>
                                         </xsl:for-each>
-                                    </xsl:if>
-                                </bsvc:Transaction_Type_References>
+                                    </bsvc:Transaction_Type_References>
+                                </xsl:if>
+                                <bsvc:Subscriber_Reference>
+                                    <bsvc:ID bsvc:type="WID">
+                                        <xsl:value-of select="$is.system.wid"/>
+                                    </bsvc:ID>
+                                </bsvc:Subscriber_Reference>
                             </bsvc:Transaction_Log_Criteria_Data>
                         </xsl:if>
-                        <xsl:if test="$web.service.get.request.type = 'organization' or $web.service.get.request.type = 'transaction_log'">
+                        <xsl:if test="$web.service.get.request.type = 'organization'
+                            or $web.service.get.request.type = 'transaction_log'
+                            or $web.service.get.request.type = 'active_only'">
                             <xsl:if test="$multi.instance.filter.1.wids != 'no'">
                                 <xsl:for-each select="tokenize($multi.instance.filter.1.wids,',')">
                                     <bsvc:Organization_Reference>
@@ -152,10 +175,20 @@
                                 </xsl:for-each>
                             </xsl:if>
                         </xsl:if>
+                        <bsvc:Field_And_Parameter_Criteria_Data>
+                            <bsvc:Provider_Reference>
+                                <bsvc:ID bsvc:type="WID">
+                                    <xsl:value-of select="$is.system.wid"/>
+                                </bsvc:ID>
+                            </bsvc:Provider_Reference>
+                        </bsvc:Field_And_Parameter_Criteria_Data>
                         <bsvc:Exclude_Inactive_Workers>
                             <xsl:choose>
                                 <xsl:when test="$web.service.get.request.type = 'transaction_log'">
                                     <xsl:value-of select="false()"/>
+                                </xsl:when>
+                                <xsl:when test="$web.service.get.request.type = 'active_only'">
+                                    <xsl:value-of select="true()"/>
                                 </xsl:when>
                                 <xsl:otherwise>
                                     <xsl:value-of select="$exclude.inactive.workers"/>
