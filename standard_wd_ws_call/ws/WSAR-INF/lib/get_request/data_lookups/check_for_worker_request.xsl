@@ -30,6 +30,7 @@
     <xsl:param name="transaction.log.service.name"/>
     
         <xsl:variable name="applicant.event.check" select="document('mctx:vars/applicant.check.xml')"/>
+    <xsl:variable name="ssn.data.check" select="document('mctx:vars/ssn.data.response.xml')"/>
 
     <xsl:template match="/">
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:bsvc="urn:com.workday/bsvc">
@@ -43,64 +44,84 @@
             <soapenv:Body>
                 <bsvc:Get_Workers_Request>
                     <xsl:attribute name="bsvc:version" select="$web.service.version"/>
-                    <bsvc:Request_References>
-                        <xsl:attribute name="bsvc:Skip_Non_Existing_Instances" select="1"/>
-                        <xsl:attribute name="bsvc:Ignore_Invalid_References" select="1"/>
-                        <bsvc:Worker_Reference>
-                            <bsvc:ID bsvc:type="Employee_ID">
-                                <xsl:value-of select="normalize-space($worker.id)"/>
-                            </bsvc:ID>
-                        </bsvc:Worker_Reference>
-                        <bsvc:Worker_Reference>
-                            <bsvc:ID bsvc:type="Contingent_Worker_ID">
-                                <xsl:value-of select="normalize-space($worker.id)"/>
-                            </bsvc:ID>
-                        </bsvc:Worker_Reference>
-                        <xsl:if test="exists($applicant.event.check//crd:About_Worker)">
-                            <bsvc:Worker_Reference>
-                                <bsvc:ID>
-                                    <xsl:attribute name="bsvc:type" select="$applicant.event.check//crd:About_Worker/crd:ID[@crd:type != 'WID']/@crd:type"/>
-                                    <xsl:value-of select="$applicant.event.check//crd:About_Worker/crd:ID[@crd:type != 'WID']"/>
-                                </bsvc:ID>
-                            </bsvc:Worker_Reference>
-                        </xsl:if>
-                    </bsvc:Request_References>
-                    <bsvc:Request_Criteria>
-                        <bsvc:Transaction_Log_Criteria_Data>
-                            <bsvc:Transaction_Date_Range_Data>
-                                <bsvc:Updated_From>
-                                    <xsl:value-of select="$web.service.start.date"/>
-                                </bsvc:Updated_From>
-                                <bsvc:Updated_Through>
-                                    <xsl:value-of select="$web.service.end.date"/>
-                                </bsvc:Updated_Through>
-                            </bsvc:Transaction_Date_Range_Data>
-                            <xsl:if test="$multi.instance.filter.2.wids != 'no'">
-                                <bsvc:Transaction_Type_References>
-                                    <xsl:for-each select="tokenize($multi.instance.filter.2.wids,';')">
-                                        <bsvc:Transaction_Type_Reference>
-                                            <bsvc:ID bsvc:type="WID">
-                                                <xsl:value-of select="normalize-space(.)"/>
-                                            </bsvc:ID>
-                                        </bsvc:Transaction_Type_Reference>
-                                    </xsl:for-each>
-                                </bsvc:Transaction_Type_References>
-                            </xsl:if>
-                        </bsvc:Transaction_Log_Criteria_Data>
-                        <bsvc:Exclude_Inactive_Workers>
-                            <xsl:value-of select="false()"/>
-                        </bsvc:Exclude_Inactive_Workers>
-                        <bsvc:Exclude_Employees>
-                                <xsl:value-of select="false()"/>
-                        </bsvc:Exclude_Employees>
-                        <bsvc:Exclude_Contingent_Workers>
-                                <xsl:value-of select="false()"/>
-                        </bsvc:Exclude_Contingent_Workers>
-                    </bsvc:Request_Criteria>
+                    <xsl:choose>
+                        <xsl:when test="$web.service.lookup.request.type = 'ssn'">
+                            <bsvc:Request_Criteria>
+                                <bsvc:National_ID_Criteria_Data>
+                                    <bsvc:Identifier_ID>
+                                        <xsl:value-of select="$ssn.data.check//ssn"/>
+                                    </bsvc:Identifier_ID>
+                                    <bsvc:Country_Reference>
+                                        <bsvc:ID bsvc:type="ISO_3166-1_Alpha-3_Code">USA</bsvc:ID>
+                                    </bsvc:Country_Reference>
+                                </bsvc:National_ID_Criteria_Data>
+                                <bsvc:Field_And_Parameter_Criteria_Data>
+                                    <bsvc:Provider_Reference>
+                                        <bsvc:ID bsvc:type="WID">
+                                            <xsl:value-of select="$is.system.wid"/>
+                                        </bsvc:ID>
+                                    </bsvc:Provider_Reference>
+                                </bsvc:Field_And_Parameter_Criteria_Data>
+                                <bsvc:Exclude_Inactive_Workers>
+                                    <xsl:value-of select="false()"/>
+                                </bsvc:Exclude_Inactive_Workers>
+                                <bsvc:Exclude_Employees>
+                                    <xsl:value-of select="false()"/>
+                                </bsvc:Exclude_Employees>
+                                <bsvc:Exclude_Contingent_Workers>
+                                    <xsl:value-of select="false()"/>
+                                </bsvc:Exclude_Contingent_Workers>
+                            </bsvc:Request_Criteria>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <bsvc:Request_References>
+                                <xsl:attribute name="bsvc:Skip_Non_Existing_Instances" select="1"/>
+                                <xsl:attribute name="bsvc:Ignore_Invalid_References" select="1"/>
+                                <xsl:if test="normalize-space($worker.id) != 'null'">
+                                    <bsvc:Worker_Reference>
+                                        <bsvc:ID bsvc:type="Employee_ID">
+                                            <xsl:value-of select="normalize-space($worker.id)"/>
+                                        </bsvc:ID>
+                                    </bsvc:Worker_Reference>
+                                    <bsvc:Worker_Reference>
+                                        <bsvc:ID bsvc:type="Contingent_Worker_ID">
+                                            <xsl:value-of select="normalize-space($worker.id)"/>
+                                        </bsvc:ID>
+                                    </bsvc:Worker_Reference>
+                                </xsl:if>
+                                <xsl:if test="exists($applicant.event.check//crd:About_Worker)">
+                                    <bsvc:Worker_Reference>
+                                        <bsvc:ID>
+                                            <xsl:attribute name="bsvc:type" select="$applicant.event.check//crd:About_Worker/crd:ID[@crd:type != 'WID']/@crd:type"/>
+                                            <xsl:value-of select="$applicant.event.check//crd:About_Worker/crd:ID[@crd:type != 'WID']"/>
+                                        </bsvc:ID>
+                                    </bsvc:Worker_Reference>
+                                </xsl:if>
+                            </bsvc:Request_References>
+                            <bsvc:Request_Criteria>
+                                <bsvc:Field_And_Parameter_Criteria_Data>
+                                    <bsvc:Provider_Reference>
+                                        <bsvc:ID bsvc:type="WID">
+                                            <xsl:value-of select="$is.system.wid"/>
+                                        </bsvc:ID>
+                                    </bsvc:Provider_Reference>
+                                </bsvc:Field_And_Parameter_Criteria_Data>
+                                <bsvc:Exclude_Inactive_Workers>
+                                    <xsl:value-of select="false()"/>
+                                </bsvc:Exclude_Inactive_Workers>
+                                <bsvc:Exclude_Employees>
+                                    <xsl:value-of select="false()"/>
+                                </bsvc:Exclude_Employees>
+                                <bsvc:Exclude_Contingent_Workers>
+                                    <xsl:value-of select="false()"/>
+                                </bsvc:Exclude_Contingent_Workers>
+                            </bsvc:Request_Criteria>
+                        </xsl:otherwise>
+                    </xsl:choose>
                     <bsvc:Response_Filter>
-                        <bsvc:As_Of_Effective_Date>
+                        <!--<bsvc:As_Of_Effective_Date>
                             <xsl:value-of select="$web.service.effective.date"/>
-                        </bsvc:As_Of_Effective_Date>
+                        </bsvc:As_Of_Effective_Date>-->
                         <bsvc:Count>
                             <xsl:value-of select="$web.service.count"/>
                         </bsvc:Count>

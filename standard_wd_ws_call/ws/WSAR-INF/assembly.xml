@@ -10,7 +10,7 @@
      xmlns:wd="urn:com.workday/bsvc"
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
  
-	<cc:assembly id="WorkdayAssembly" version="2019.6">
+	<cc:assembly id="WorkdayAssembly" version="2020.36">
         <cc:async-mediation id="xslt_get_web_service_xml">
             <cc:steps>
                 <cc:xslt id="create_ws_request" url="@{props['web.service.create.ws.xml.filename']}"/>

@@ -10,7 +10,7 @@
      xmlns:wd="urn:com.workday/bsvc"
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
  
-    <cc:assembly id="WorkdayAssembly" version="2019.6">
+    <cc:assembly id="WorkdayAssembly" version="2020.36">
         <cc:local-out id="call_aggregateprocessingdetails" execute-when="props['web.service.summary.log'] == true &amp;&amp; props['web.service.calls.counter'] != props['web.service.calls.total']" endpoint="vm://standard_logging/aggregate_processing_details">
             <cc:set name="summarylog.filename" value="'Summary_Log_Information'"/>
             <cc:set name="summarylog.file.extension" value="'html'"/>
@@ -27,7 +27,7 @@
             <cc:set name="record.counter" value="props['record.counter']"/>
             <cc:set name="file.number" value="props['file.number.current']"/>
             <cc:set name="file.record.counter" value="props['file.record.counter']"/>
-            <cc:set name="file.name" value="props['sftp.filename']"/>
+            <cc:set name="file.name" value="(props['sftp.filename']=='no filename provided')? props['running.process'].toLowerCase().replace(' ','_'):props['sftp.filename']"/>
             <cc:set name="source.transaction.id" value="props['source.transaction.id'] + ' {' + props['record.counter'] + '-' + props['web.service.calls.counter'] + '}'"/>
             <cc:set name="workday.transaction.id" value="props['workday.transaction.id']"/>
             <cc:set name="record.status" value="'imported'"/>
@@ -35,7 +35,7 @@
             <cc:set name="error.message.detail" value="''"/>
             <cc:set name="additional.information" value="''"/>
             <cc:set name="web.service.call.name" value="props['workday.web.service.call']"/>
-        </cc:local-out>
+        <cc:set name="transaction.grouping" value="'page_'+props['file.number.current']"/></cc:local-out>
         <cc:local-out id="call_putIntMsg_put_log" execute-when="props['web.service.request.log'] == true" routes-response-to="call_create_transaction_log_record" endpoint="vm://wcc/PutIntegrationMessage">
             <cc:set name="is.message.severity" value="'INFO'"/>
             <cc:set name="is.message.summary" value="'Processed Web Service Call: ' + props['web.service.calls.counter'] + ' of ' + props['web.service.calls.total']"/>
@@ -47,13 +47,13 @@
             <cc:set name="file.record.counter" value="props['file.record.counter']"/>
             <cc:set name="file.name" value="props['sftp.filename']"/>
             <cc:set name="source.transaction.id" value="props['record.counter']"/>
-            <cc:set name="workday.transaction.id" value="'N/A'"/>
+            <cc:set name="workday.transaction.id" value="(props['workday.transaction.id'] == null)? 'N/A':props['workday.transaction.id'] "/>
             <cc:set name="record.status" value="'skipped'"/>
             <cc:set name="error.reason" value="''"/>
             <cc:set name="error.message.detail" value="''"/>
-            <cc:set name="additional.information" value="''"/>
-            <cc:set name="web.service.call.name" value="'N/A'"/>
-        </cc:local-out>
+            <cc:set name="additional.information" value="props['workday.web.service.validation.message']"/>
+            <cc:set name="web.service.call.name" value="(props['workday.web.service.call'] == null)? 'N/A':props['workday.web.service.call']"/>
+        <cc:set name="transaction.grouping" value="'page_'+props['file.number.current']"/></cc:local-out>
         <cc:local-out id="call_create_transaction_log_record_err" execute-when="props['web.service.summary.log'] == true" routes-response-to="call_aggregateprocessingdetails" endpoint="vm://standard_logging/create_transaction_log_record">
             <cc:set name="record.counter" value="props['record.counter']"/>
             <cc:set name="file.number" value="props['file.number.current']"/>
@@ -66,14 +66,14 @@
             <cc:set name="error.message.detail" value="context.errorMessage + &quot;\n&quot; + props['workday.web.service.validation.message']"/>
             <cc:set name="additional.information" value="''"/>
             <cc:set name="web.service.call.name" value="props['workday.web.service.call']"/>
-        </cc:local-out>
+        <cc:set name="transaction.grouping" value="'page_'+props['file.number.current']"/></cc:local-out>
         <cc:local-out id="call_process_Err_Msg" routes-response-to="call_create_transaction_log_record_err" endpoint="vm://standard_logging/process_Err_Msg">
             <cc:set name="failed-on-import" value="true"/>
             <cc:set name="include-file" value="false"/>
             <cc:set name="severity" value="'WARNING'"/>
             <cc:set name="error.message.detail.expanded" value="context.errorMessage + &quot;\n&quot; + props['workday.transaction.id'] + &quot;\n&quot; + props['workday.web.service.validation.message']"/>
-            <cc:set name="error.message.detail" value="'Submit Web Service Call Failure'"/>
-        </cc:local-out>
+            <cc:set name="error.message.detail" value="'Submit API Call Failure'"/>
+        <cc:set name="message.rich.text" value="false"/></cc:local-out>
         <cc:async-mediation id="set-wd-id" routes-to="route_valid_call" handle-downstream-errors="true">
             <cc:steps>
                 <cc:copy id="cp-to-var" output="variable" output-variable="ws.put.split.source"/>
@@ -93,6 +93,7 @@
                     <cc:expression>props['source.transaction.id'] = (props['web.service.put.workday.id.tag'] == null)? '' : vars['ws.put.split.source'].xpath(&quot;//&quot;+props['web.service.put.workday.id.tag'], props['web.service.put.workday.id.namespace']) </cc:expression>
                     <cc:expression>props['workday.web.service.validation.passed'] = (vars['ws.put.split.source'].xpath(&quot;//&quot;+props['web.service.put.xml.split.tag']+&quot;/@validation_passed&quot;, props['web.service.put.xml.split.namespace'])!= '')?vars['ws.put.split.source'].xpath(&quot;//&quot;+props['web.service.put.xml.split.tag']+&quot;/@validation_passed&quot;, props['web.service.put.xml.split.namespace']):'true'</cc:expression>
                     <cc:expression>props['workday.web.service.validation.message'] = (vars['ws.put.split.source'].xpath(&quot;//&quot;+props['web.service.put.xml.split.tag']+&quot;/@validation_message&quot;, props['web.service.put.xml.split.namespace'])!= '')?vars['ws.put.split.source'].xpath(&quot;//&quot;+props['web.service.put.xml.split.tag']+&quot;/@validation_message&quot;, props['web.service.put.xml.split.namespace']):''</cc:expression>
+                    <cc:expression>props['workday.web.service.skip.transaction'] = (vars['ws.put.split.source'].xpath(&quot;//&quot;+props['web.service.put.xml.split.tag']+&quot;/@skip_transaction&quot;, props['web.service.put.xml.split.namespace'])!= '')?vars['ws.put.split.source'].xpath(&quot;//&quot;+props['web.service.put.xml.split.tag']+&quot;/@skip_transaction&quot;, props['web.service.put.xml.split.namespace']):'false'</cc:expression>
                 </cc:eval>
             </cc:steps>
             <cc:send-error id="SendError" rethrow-error="false" routes-to="call_process_Err_Msg"/>
@@ -135,7 +136,7 @@
         </cc:async-mediation>
         <cc:local-out id="call_split_ws_call" endpoint="vm://external_import_process/split_ws_call"/>
         <cc:local-out id="call_store_msg_return_msg_put" execute-when="props['web.service.request.log'] == true" routes-response-to="call_split_ws_call" endpoint="vm://standard_logging/store_msg_return_msg">
-            <cc:set name="store.filename" value="props['running.process'].toLowerCase().replace(' ','_')+'_webservice_put_request.xml'"/>
+            <cc:set name="store.filename" value="props['running.process'].toLowerCase().replace(' ','_')+'_webservice_put_request_full.xml'"/>
         </cc:local-out>
         <cc:local-out id="call_create_wd_put_call" routes-response-to="call_store_msg_return_msg_put" endpoint="vm://@{props['web.service.put.create.ws.xml.endpoint']}">
             <cc:set name="web.service.create.ws.xml.filename" value="props['web.service.put.create.ws.xml.filename']"/>
@@ -176,7 +177,7 @@
             <cc:parameter name="conform.XML.filename" required="false"/>
             <cc:parameter name="conform.XML.subroutine" required="false"/>
         </cc:local-in>
-        <cc:http-out id="http-rest-out" store-message="both" execute-when="props['update.data'] == true" routes-response-to="convert-json-to-xml" endpoint="@{props['http.rest.endpoint']}@{props['http.external.api.url.extrapath']}" ignore-dynamic-endpoints="true" accept-gzip="true" auto-inproc="true" http-method="@{props['http.rest.method']}" streaming="false">
+        <cc:http-out id="http-rest-out" store-message="both" routes-response-to="call_store_msg_return_msg_api_rsp_json" endpoint="@{props['http.rest.endpoint']}@{props['http.external.api.url.extrapath']}" ignore-dynamic-endpoints="true" accept-gzip="true" auto-inproc="true" http-method="@{props['http.rest.method']}" streaming="false">
         </cc:http-out>
         <cc:local-in id="make-http-rest-binding-call" routes-to="call_set_url_extrapath" access="private">
             <cc:parameter name="http.header.authorization.token" required="true"/>
@@ -204,7 +205,7 @@
             <cc:set name="web.service.put.external.api.set.url.extrapath.subroutine" value="props['web.service.put.external.api.set.url.extrapath.subroutine']"/>
             <cc:set name="web.service.put.external.api.convert.response.json.to.xml" value="props['web.service.put.external.api.convert.response.json.to.xml']"/>
         </cc:local-out>
-        <cc:async-mediation id="convert-json-to-xml" routes-to="call_store_msg_return_msg_api_rsp" execute-steps-when="props['web.service.put.external.api.convert.response.json.to.xml'] == true &amp;&amp; props['update.data'] == true">
+        <cc:async-mediation id="convert-json-to-xml" routes-to="call_store_msg_return_msg_api_rsp" execute-steps-when="props['web.service.put.external.api.convert.response.json.to.xml'] == true">
             <cc:steps>
                 <cc:json-to-xml id="json-to-xml-rsp" output="message" output-mimetype="text/xml"/>
             </cc:steps>
@@ -216,16 +217,16 @@
             <cc:set name="http.username.attribute" value="props['web.service.put.external.api.authentication.usesrname.attribute']"/>
             <cc:set name="http.password.attribute" value="props['web.service.put.external.api.authentication.password.attribute']"/>
         </cc:local-out>
-        <cc:local-out id="call_set_headers" store-message="none" routes-response-to="http-rest-out" endpoint="vm://@{props['web.service.put.external.api.set.headers.subroutine']}">
+        <cc:local-out id="call_set_headers" store-message="none" routes-response-to="call_push-data" endpoint="vm://@{props['web.service.put.external.api.set.headers.subroutine']}">
             <cc:set name="http.header.user.agent" value="props['http.header.user.agent']"/>
             <cc:set name="http.header.authorization.token" value="props['http.authorization.token']"/>
             <cc:set name="http.header.content.type" value="props['web.service.put.external.api.http.content.type']"/>
             <cc:set name="external.api.convert.to.text.filename" value="props['web.service.put.external.api.set.headers.filename']"/>
             <cc:set name="external.api.convert.to.json" value="'true'"/>
-        </cc:local-out>
+        <cc:set name="log.filename" value="'webservice_put_request'"/></cc:local-out>
         <cc:local-in id="set_url_extrapath" routes-to="set_external_url_extrapath" access="private">
             <cc:parameter name="web.service.put.application"/>
-            <cc:parameter name="web.service.put.external.api.version"/>
+            <cc:parameter name="web.service.put.external.api.version" required="false"/>
             <cc:parameter default="'false'" name="set.url.extrapath" required="true"/>
             <cc:parameter name="set.url.extrapath.subroutine"/>
             <cc:out-parameter name="http.external.api.url.extrapath"/>
@@ -247,7 +248,7 @@
             <cc:set name="web.service.put.external.api.set.url.extrapath" value="'false'"/>
             <cc:set name="web.service.put.external.api.set.url.extrapath.subroutine"/>
         </cc:local-out>
-        <cc:async-mediation id="set-output-id" execute-steps-when="props['update.data'] == true">
+        <cc:async-mediation id="set-output-id">
             <cc:steps>
                 <cc:eval id="set_rsp_id">
                     <cc:expression>props['workday.transaction.id'] = parts[0].xpath(&quot;/root/data/id&quot;)</cc:expression>
@@ -255,7 +256,7 @@
                 </cc:eval>
             </cc:steps>
         </cc:async-mediation>
-        <cc:local-out id="call_store_msg_return_msg_api_rsp" execute-when="props['web.service.request.log'] == true &amp;&amp; props['update.data'] == true" routes-response-to="set-output-id" endpoint="vm://standard_logging/store_msg_return_msg">
+        <cc:local-out id="call_store_msg_return_msg_api_rsp" execute-when="props['web.service.response.log'] == true &amp;&amp; props['web.service.put.external.api.convert.response.json.to.xml'] == true" routes-response-to="set-output-id" endpoint="vm://standard_logging/store_msg_return_msg">
             <cc:set name="store.filename" value="props['web.service.calls.counter']+'_'+ props['running.process'].toLowerCase() + '_external_api_response.xml'"/>
         </cc:local-out>
         <cc:local-out id="call_conform_xml" store-message="none" execute-when="props['conform.XML'] == 'true'" routes-response-to="call_store_msg_return_msg_source" endpoint="vm://@{props['conform.XML.subroutine']}">
@@ -263,11 +264,13 @@
         </cc:local-out>
         <cc:route id="route_valid_call">
             <cc:mvel-strategy>
+                <cc:choose-route expression="props['workday.web.service.skip.transaction'] == 'true'" route="skip-transaction"/>
                 <cc:choose-route expression="props['workday.web.service.validation.passed']!='false'" route="passed-validation"/>
                 <cc:choose-route expression="props['workday.web.service.validation.passed']=='false'" route="failed-validation"/>
             </cc:mvel-strategy>
             <cc:sub-route name="failed-validation" routes-to="call_process_Failed_Msg"/>
             <cc:sub-route name="passed-validation" routes-to="call_make-http-rest-binding-call"/>
+            <cc:sub-route name="skip-transaction" routes-to="call_create_transaction_log_record_skipped"/>
         </cc:route>
         <cc:local-out id="call_process_Failed_Msg" routes-response-to="call_create_transaction_log_record_err" endpoint="vm://standard_logging/process_Err_Msg">
             <cc:set name="failed-on-import" value="false"/>
@@ -276,6 +279,11 @@
             <cc:set name="error.message.detail.expanded" value="props['workday.transaction.id'] + &quot;\n&quot; + props['workday.web.service.validation.message']"/>
             <cc:set name="error.message.detail" value="'Transaction Failed Validation'"/>
         </cc:local-out>
+        <cc:local-out id="call_store_msg_return_msg_api_rsp_json" execute-when="props['web.service.response.log'] == true" routes-response-to="convert-json-to-xml" endpoint="vm://standard_logging/store_msg_return_msg">
+            <cc:set name="store.filename" value="props['web.service.calls.counter']+'_'+ props['running.process'].toLowerCase() + '_external_api_response.json'"/>
+        </cc:local-out>
+        <cc:local-in id="push-data" routes-to="http-rest-out"/>
+        <cc:local-out id="call_push-data" endpoint="vm://external_import_process/push-data"/>
     </cc:assembly>
 
 </beans>

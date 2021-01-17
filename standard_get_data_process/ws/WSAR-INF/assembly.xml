@@ -10,7 +10,7 @@
      xmlns:wd="urn:com.workday/bsvc"
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
  
-    <cc:assembly id="WorkdayAssembly" version="2019.6">
+    <cc:assembly id="WorkdayAssembly" version="2020.36">
         <cc:local-out id="call_get_response_endpoint" store-message="none" endpoint="vm://@{props['web.service.get.response.endpoint']}">
             <cc:set name="page.current" value="props['is.paged.get.current.page']"/>
             <cc:set name="page.total" value="props['is.paged.get.total.pages']"/>
@@ -25,24 +25,31 @@
             <cc:steps>
                 <cc:copy id="cp_to_lkp_var" output="variable" output-variable="lookup.wd.data.xml"/>
                 <cc:copy id="reset_msg" input="variable" input-variable="msg.bckp"/>
+                <cc:eval id="clr-msg-bckp">
+                    <cc:expression>vars['msg.bckp'] = '&lt;blankxml/>'</cc:expression>
+                </cc:eval>
             </cc:steps>
         </cc:async-mediation>
         <cc:workday-out-soap id="get_workday_data_call" routes-response-to="call_store_msg_return_msg_get_lkp_rsp" application="@{props['web.service.lookup.application']}" version="@{props['web.service.version']}"/>
         <cc:local-out id="call_store_msg_return_msg_get_lkp" execute-when="props['web.service.request.log'] == true" routes-response-to="get_workday_data_call" endpoint="vm://standard_logging/store_msg_return_msg">
-            <cc:set name="store.filename" value="props['running.process'].toLowerCase().replace(' ','_')+'_lookup_data_webservice_get_request.xml'"/>
+            <cc:set name="store.filename" value="props['running.process'].toLowerCase().replace(' ','_')+props['lookup.type']+'_lookup_data_webservice_get_request.xml'"/>
         </cc:local-out>
         <cc:async-mediation id="xslt_get_web_service_xml_lkp" routes-to="call_create_wd_web_service_call" handle-downstream-errors="true">
             <cc:steps>
                 <cc:copy id="bckp_msg" output="variable" output-variable="msg.bckp"/>
+                <cc:eval id="set-props-lkp">
+                    <cc:expression>props['lookup.type']= (props['lookup.type']=='')? '':'_'+props['lookup.type'].toLowerCase().replace(' ','_')</cc:expression>
+                    <cc:expression>props['error.retrieving.data']='false'</cc:expression>
+                </cc:eval>
             </cc:steps>
-            <cc:send-error id="SendError" routes-to="copy_to_variable"/>
+            <cc:send-error id="SendError" routes-to="set-error-rsp"/>
         </cc:async-mediation>
         <cc:local-in id="get_workday_lookup_data" routes-to="xslt_get_web_service_xml_lkp" access="public">
             <cc:parameter name="web.service.lookup.filename" required="true"/>
             <cc:parameter name="web.service.lookup.application" required="true"/>
             <cc:parameter default="''" name="web.service.lookup.request.type" required="false"/>
-            <cc:parameter default="'standard_wd_ws_call/create_wd_web_service_call'" name="web.service.lookup.ws.create.endpoint" required="false"/>
-        </cc:local-in>
+            <cc:parameter default="'standard_wd_ws_call/create_wd_web_service_call'" name="web.service.lookup.ws.create.endpoint" required="false"/><cc:parameter default="''" name="lookup.type" required="false"/>
+        <cc:out-parameter name="error.retrieving.data"/></cc:local-in>
         <cc:local-out id="call_determine_endpoint" endpoint="vm://standard_get_data_process/determine_endpoint"/>
         <cc:workday-out-rest id="make_workday_raas_call" routes-response-to="call_determine_endpoint" extra-path="@{props['report.extra.path']}"/>
         <cc:local-out id="put_raas_call_msg" execute-when="props['web.service.request.log'] == true" routes-response-to="make_workday_raas_call" endpoint="vm://wcc/PutIntegrationMessage">
@@ -112,6 +119,9 @@
             <cc:steps>
                 <cc:copy id="cp_to_lkp_var" output="variable" output-variable="lookup.wd.data.xml"/>
                 <cc:copy id="reset_msg" input="variable" input-variable="msg.bckp"/>
+                <cc:eval id="clr-msg-bckp">
+                    <cc:expression>vars['msg.bckp'] = '&lt;blankxml/>'</cc:expression>
+                </cc:eval>
             </cc:steps>
         </cc:async-mediation>
         <cc:local-out id="call_store_msg_return_msg_get_lkp_rsp_raas" execute-when="props['web.service.response.log'] == true" routes-response-to="copy_to_variable_raas" endpoint="vm://standard_logging/store_msg_return_msg">
@@ -120,12 +130,16 @@
         <cc:async-mediation id="bckp_msg" routes-to="put_raas_call_msg_lkp" handle-downstream-errors="true">
             <cc:steps>
                 <cc:copy id="bckp_msg" output="variable" output-variable="msg.bckp"/>
+                <cc:eval id="set-props-lkp">
+                    <cc:expression>props['lookup.type']= (props['lookup.type']=='')? '':'_'+props['lookup.type'].toLowerCase().replace(' ','_')</cc:expression>
+                    <cc:expression>props['error.retrieving.data']='false'</cc:expression>
+                </cc:eval>
             </cc:steps>
-            <cc:send-error id="SendError" routes-to="copy_to_variable_raas"/>
+            <cc:send-error id="SendError" routes-to="set-error-rsp-raas"/>
         </cc:async-mediation>
         <cc:local-in id="get_workday_lookup_data_raas" routes-to="bckp_msg" access="public">
-            <cc:parameter name="report.extra.path" required="true"/>
-        </cc:local-in>
+            <cc:parameter name="report.extra.path" required="true"/><cc:parameter default="''" name="lookup.type" required="false"/>
+        <cc:out-parameter name="error.retrieving.data"/></cc:local-in>
         <cc:local-out id="put_raas_call_msg_lkp" execute-when="props['web.service.request.log'] == true" routes-response-to="make_workday_raas_call_lkp" endpoint="vm://wcc/PutIntegrationMessage">
             <cc:set name="is.message.severity" value="'INFO'"/>
             <cc:set name="is.message.summary" value="'Executing RaaS with Endpoint: ' + props['report.extra.path']"/>
@@ -135,6 +149,20 @@
         <cc:local-out id="call_create_wd_web_service_call" routes-response-to="call_store_msg_return_msg_get_lkp" endpoint="vm://@{props['web.service.lookup.ws.create.endpoint']}">
             <cc:set name="web.service.create.ws.xml.filename" value="props['web.service.lookup.filename']"/>
         </cc:local-out>
+        <cc:async-mediation id="set-error-rsp" routes-to="copy_to_variable">
+            <cc:steps>
+                <cc:eval id="set-error">
+                    <cc:expression>props['error.retrieving.data']='true'</cc:expression>
+                </cc:eval>
+            </cc:steps>
+        </cc:async-mediation>
+        <cc:async-mediation id="set-error-rsp-raas" routes-to="copy_to_variable_raas">
+            <cc:steps>
+                <cc:eval id="set-error">
+                    <cc:expression>props['error.retrieving.data']='true'</cc:expression>
+                </cc:eval>
+            </cc:steps>
+        </cc:async-mediation>
     </cc:assembly>
 
 </beans>

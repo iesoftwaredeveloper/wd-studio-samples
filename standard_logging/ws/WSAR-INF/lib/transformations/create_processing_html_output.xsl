@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+<xsl:stylesheet version="3.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:fhc="https://github.com/firehawk-consulting/firehawk"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     xmlns:tl="https://github.com/firehawk-consulting/firehawk/schemas/transaction_log.xsd"
-    exclude-result-prefixes="xsl fhc xs tl">
+    xmlns:map="http://www.w3.org/2005/xpath-functions/map"
+    exclude-result-prefixes="#all">
     <!--xsl:output method="text"/-->
     <xsl:variable name="linefeed"><xsl:text>&#xA;</xsl:text></xsl:variable>
     <xsl:variable name="carriagereturn"><xsl:text>&#13;</xsl:text></xsl:variable>
@@ -11,6 +12,16 @@
     <xsl:variable name="delimiter"><xsl:text>&#x09;</xsl:text></xsl:variable>
     <xsl:param name="summarylog.filename"/>
     <xsl:param name="summarylog.file.extension"/>
+    
+    <xsl:output indent="yes" omit-xml-declaration="yes" method="html"/>
+    <xsl:mode streamable="yes" on-no-match="shallow-skip" use-accumulators="#all"/>
+    
+    <xsl:accumulator name="record.count.by.status" as="map(xs:string,xs:integer)" initial-value="map{}" streamable="yes">
+        <xsl:accumulator-rule match="tl:status/text()">
+            <xsl:variable name="new.value" select="if (map:contains($value,.)) then map:get($value,.) else 0"/>
+            <xsl:sequence select="map:put($value, xs:string(.), $new.value + 1)"/>
+        </xsl:accumulator-rule>
+    </xsl:accumulator>
 
     <xsl:function name="fhc:forceValue" as="xs:decimal">
         <xsl:param name="inputdata"/>
@@ -26,7 +37,7 @@
 
     <xsl:template match="/">
         <tl:summary_log>
-            <xsl:for-each-group select="//tl:transaction_record" group-by="@tl:transaction_grouping">
+            <xsl:for-each-group select="copy-of(Process_Details/tl:transaction_record)" composite="yes" group-by="@tl:transaction_grouping">
                 <xsl:variable name="currentsummarysplit">
                     <xsl:value-of select="current-grouping-key()"/>
                 </xsl:variable>
@@ -78,10 +89,10 @@
                                     </tr>
                                     <tr>
                                         <td>
-                                            <xsl:value-of select="max(current-group()//tl:file_data/tl:instance_number)"/>
+                                            <!--<xsl:value-of select="max(current-group()//tl:file_data/tl:instance_number)"/>-->
                                         </td>
                                         <td>
-                                            <xsl:value-of select="count(//current-group()[tl:record_stats/tl:status='imported'])"/>
+                                            <xsl:value-of select="count(current-group()[tl:record_stats/tl:status='imported'])"/>
                                         </td>
                                         <td>
                                             <xsl:value-of select="count(current-group()[tl:record_stats/tl:status='skipped'])"/>
@@ -93,16 +104,16 @@
                                             <xsl:value-of select="count(current-group())"/>
                                         </td>
                                         <td>
-                                            <xsl:value-of select="format-number(fhc:forceValue(sum(current-group()//fhc:forceValue(tl:record_stats//tl:amount))),'#,##0.00')"/>
+                                            <!--<xsl:value-of select="format-number(fhc:forceValue(sum(current-group()//fhc:forceValue(tl:record_stats//tl:amount))),'#,##0.00')"/>-->
                                         </td>
                                     </tr>
                                 </table>
                                 <br/>
                                 <br/>
-                                <xsl:for-each-group select="current-group()" group-by="tl:record_stats/tl:web_service_call_name">
+                                <xsl:for-each-group select="copy-of(current-group())" group-by="tl:record_stats/tl:web_service_call_name">
                                     <xsl:variable name="ws.call.name" select="current-grouping-key()"/>
-                                    <xsl:for-each-group select="current-group()" group-by="tl:record_stats/tl:status">
-                                        <xsl:sort select="tl:record_stats/tl:status"/>
+                                    <xsl:for-each-group select="copy-of(current-group())" group-by="tl:record_stats/tl:status">
+                                        <!--<xsl:sort select="tl:record_stats/tl:status"/>-->
                                         <table style="width:100%">
                                             <caption>
                                                 <xsl:value-of select="$ws.call.name"/>
@@ -132,49 +143,51 @@
     </xsl:template>
 
     <xsl:template match="tl:transaction_record">
-        <tr>
-            <td>
-                <xsl:value-of select="tl:record_stats/tl:web_service_call_name"/>
-            </td>
-            <td>
-                <xsl:value-of select="@tl:transaction_record_number"/>
-            </td>
-            <td>
-                <xsl:value-of select="tl:file_data/tl:instance_number"/>
-            </td>
-            <td>
-                <xsl:value-of select="tl:file_data/tl:source_filename"/>
-            </td>
-            <td>
-                <xsl:value-of select="tl:file_data/tl:record_number"/>
-            </td>
-            <td>
-                <xsl:value-of select="tl:record_stats/tl:source_id"/>
-            </td>
-            <td>
-                <!-- <xsl:choose>
-                    <xsl:when test="tl:record_stats/tl:status = 'failed'"/>
-                    <xsl:otherwise> -->
-                        <xsl:value-of select="tl:record_stats/tl:workday_id"/>
-                    <!-- </xsl:otherwise>
-                </xsl:choose> -->
-            </td>
-            <td>
-                <xsl:value-of select="tl:record_stats/tl:status"/>
-            </td>
-            <td>
-                <xsl:value-of select="normalize-space(tl:record_error_info/tl:reason)"/>
-            </td>
-            <td>
-                <xsl:value-of select="normalize-space(tl:record_error_info/tl:description)"/>
-            </td>
-            <td>
-                <xsl:value-of select="format-number(fhc:forceValue(tl:record_stats/tl:amount), '#,##0.00')"/>
-            </td>
-            <td>
-                <xsl:value-of select="tl:record_stats/tl:additional_information"/>
-            </td>
-        </tr>
+        <xsl:iterate select="./copy-of()">
+            <tr>
+                <td>
+                    <xsl:value-of select="tl:record_stats/tl:web_service_call_name"/>
+                </td>
+                <td>
+                    <xsl:value-of select="@tl:transaction_record_number"/>
+                </td>
+                <td>
+                    <xsl:value-of select="tl:file_data/tl:instance_number"/>
+                </td>
+                <td>
+                    <xsl:value-of select="tl:file_data/tl:source_filename"/>
+                </td>
+                <td>
+                    <xsl:value-of select="tl:file_data/tl:record_number"/>
+                </td>
+                <td>
+                    <xsl:value-of select="tl:record_stats/tl:source_id"/>
+                </td>
+                <td>
+                    <!-- <xsl:choose>
+                        <xsl:when test="tl:record_stats/tl:status = 'failed'"/>
+                        <xsl:otherwise> -->
+                            <xsl:value-of select="tl:record_stats/tl:workday_id"/>
+                        <!-- </xsl:otherwise>
+                    </xsl:choose> -->
+                </td>
+                <td>
+                    <xsl:value-of select="tl:record_stats/tl:status"/>
+                </td>
+                <td>
+                    <xsl:value-of select="normalize-space(tl:record_error_info/tl:reason)"/>
+                </td>
+                <td>
+                    <xsl:value-of select="normalize-space(tl:record_error_info/tl:description)"/>
+                </td>
+                <td>
+                    <xsl:value-of select="format-number(fhc:forceValue(tl:record_stats/tl:amount), '#,##0.00')"/>
+                </td>
+                <td>
+                    <xsl:value-of select="tl:record_stats/tl:additional_information"/>
+                </td>
+            </tr>
+        </xsl:iterate>
     </xsl:template>
 
     <xsl:template name="header-record">

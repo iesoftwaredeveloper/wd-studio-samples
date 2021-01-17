@@ -47,6 +47,7 @@
                         <xsl:when test="$web.service.lookup.request.type = 'job_req_list'">
                             <bsvc:Request_References bsvc:Skip_Non_Existing_Instances="false">
                                 <xsl:apply-templates select="//jobs[1]/data/requisition_id"/>
+                                <xsl:apply-templates select="//job_requisition_id"/>
                             </bsvc:Request_References>
                         </xsl:when>
                         <xsl:when test="$web.service.get.request.type = 'default'">
@@ -117,7 +118,7 @@
                         <bsvc:Additional_Locations_Reference bsvc:Descriptor="string">
                             <bsvc:ID bsvc:type="string">string</bsvc:ID>
                         </bsvc:Additional_Locations_Reference>-->
-                    
+
                     <bsvc:Response_Filter>
                         <xsl:if test="$web.service.lookup.request.type = 'job_req_list'">
                             <bsvc:As_Of_Effective_Date>
@@ -160,6 +161,14 @@
     </xsl:template>
     
     <xsl:template match="requisition_id">
+        <bsvc:Job_Requisition_Reference>
+            <bsvc:ID bsvc:type="Job_Requisition_ID">
+                <xsl:value-of select="normalize-space(.)"/>
+            </bsvc:ID>
+        </bsvc:Job_Requisition_Reference>
+    </xsl:template>
+    
+        <xsl:template match="job_requisition_id">
         <bsvc:Job_Requisition_Reference>
             <bsvc:ID bsvc:type="Job_Requisition_ID">
                 <xsl:value-of select="normalize-space(.)"/>

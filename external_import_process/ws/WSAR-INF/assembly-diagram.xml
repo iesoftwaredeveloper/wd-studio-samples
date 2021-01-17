@@ -100,6 +100,15 @@
   <visualProperties x="4526" y="672">
     <element href="assembly.xml#call_process_Failed_Msg"/>
   </visualProperties>
+  <visualProperties x="3636" y="1600">
+    <element href="assembly.xml#call_store_msg_return_msg_api_rsp_json"/>
+  </visualProperties>
+  <visualProperties x="283" y="889">
+    <element href="assembly.xml#push-data"/>
+  </visualProperties>
+  <visualProperties x="773" y="771">
+    <element href="assembly.xml#call_push-data"/>
+  </visualProperties>
   <connections type="routesResponseTo">
     <source href="assembly.xml#call_create_wd_put_call"/>
     <target href="assembly.xml#call_store_msg_return_msg_put"/>
@@ -152,10 +161,6 @@
     <source href="assembly.xml#call_make-http-rest-binding-call"/>
     <target href="assembly.xml#call_putIntMsg_put_log"/>
   </connections>
-  <connections type="routesResponseTo">
-    <source href="assembly.xml#http-rest-out"/>
-    <target href="assembly.xml#convert-json-to-xml"/>
-  </connections>
   <connections type="routesTo">
     <source href="assembly.xml#bckp_msg"/>
     <target href="assembly.xml#call_set_authentication_token"/>
@@ -192,10 +197,6 @@
     <source href="assembly.xml#call_set_url_extrapath"/>
     <target href="assembly.xml#call_set_headers"/>
   </connections>
-  <connections type="routesResponseTo">
-    <source href="assembly.xml#call_set_headers"/>
-    <target href="assembly.xml#http-rest-out"/>
-  </connections>
   <connections type="routesTo">
     <source href="assembly.xml#convert-json-to-xml"/>
     <target href="assembly.xml#call_store_msg_return_msg_api_rsp"/>
@@ -227,6 +228,26 @@
   <connections type="routesResponseTo">
     <source href="assembly.xml#call_process_Failed_Msg"/>
     <target href="assembly.xml#call_create_transaction_log_record_err"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#//@beans/@mixed.1/@route.1/@subRoute.2"/>
+    <target href="assembly.xml#call_create_transaction_log_record_skipped"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#http-rest-out"/>
+    <target href="assembly.xml#call_store_msg_return_msg_api_rsp_json"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_store_msg_return_msg_api_rsp_json"/>
+    <target href="assembly.xml#convert-json-to-xml"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_set_headers"/>
+    <target href="assembly.xml#call_push-data"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#push-data"/>
+    <target href="assembly.xml#http-rest-out"/>
   </connections>
   <swimlanes bgColor="9498256" name="Local In" alignment="MIDDLE">
     <elements href="#//@swimlanes.21"/>
@@ -264,15 +285,16 @@
   <swimlanes bgColor="42495" name="Put and Split Data" elements="//@swimlanes.4 //@swimlanes.10" alignment="MIDDLE"/>
   <swimlanes x="66" y="106" bgColor="15128749" name="External Import Process" orientation="VERTICAL" elements="//@swimlanes.11" alignment="MIDDLE"/>
   <swimlanes x="2498" y="711" bgColor="9498256" name="Make HTTP Call" elements="//@swimlanes.19 //@swimlanes.20" alignment="MIDDLE"/>
-  <swimlanes x="116" y="927" bgColor="15066597" name="Make HTTP oAuth Call" orientation="VERTICAL" alignment="MIDDLE">
+  <swimlanes x="116" y="927" bgColor="15066597" name="Make HTTP oAuth Call" alignment="MIDDLE">
     <elements href="assembly.xml#make-http-rest-binding-call"/>
     <elements href="assembly.xml#call_set_url_extrapath"/>
     <elements href="assembly.xml#call_set_headers"/>
-    <elements href="assembly.xml#http-rest-out"/>
+    <elements href="assembly.xml#call_push-data"/>
   </swimlanes>
-  <swimlanes x="854" y="938" bgColor="15066597" name="Process API Response" orientation="VERTICAL" alignment="MIDDLE">
+  <swimlanes x="854" y="938" bgColor="15066597" name="Process API Response" alignment="MIDDLE">
+    <elements href="assembly.xml#push-data"/>
+    <elements href="assembly.xml#http-rest-out"/>
     <elements href="assembly.xml#convert-json-to-xml"/>
-    <elements href="assembly.xml#call_store_msg_return_msg_api_rsp"/>
     <elements href="assembly.xml#set-output-id"/>
   </swimlanes>
   <swimlanes x="1523" y="732" bgColor="7256553" name="Error Processing" alignment="END">
@@ -287,7 +309,7 @@
     <elements href="assembly.xml#split_ws_put"/>
     <elements href="#//@swimlanes.7"/>
   </swimlanes>
-  <swimlanes x="120" y="914" bgColor="8454143" name="HTTP API Call" elements="//@swimlanes.14 //@swimlanes.15" alignment="MIDDLE"/>
+  <swimlanes x="120" y="914" bgColor="8454143" name="HTTP API Call" orientation="VERTICAL" elements="//@swimlanes.14 //@swimlanes.15 //@swimlanes.24" alignment="MIDDLE"/>
   <swimlanes x="158" y="919" bgColor="15066597" name="Set URL Extrapath" orientation="VERTICAL" alignment="MIDDLE">
     <elements href="assembly.xml#set_url_extrapath"/>
     <elements href="assembly.xml#set_external_url_extrapath"/>
@@ -305,5 +327,9 @@
   <swimlanes x="1830" y="858" name="Process Failed" orientation="VERTICAL" alignment="MIDDLE">
     <elements href="assembly.xml#call_process_Failed_Msg"/>
     <elements href="assembly.xml#call_create_transaction_log_record_err"/>
+  </swimlanes>
+  <swimlanes x="572" y="1087" bgColor="15066597" name="Log Data">
+    <elements href="assembly.xml#call_store_msg_return_msg_api_rsp_json"/>
+    <elements href="assembly.xml#call_store_msg_return_msg_api_rsp"/>
   </swimlanes>
 </wdnm:Diagram>

@@ -10,7 +10,7 @@
      xmlns:wd="urn:com.workday/bsvc"
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
  
-    <cc:assembly id="WorkdayAssembly" version="2019.6">
+    <cc:assembly id="WorkdayAssembly" version="2020.36">
         <cc:aggregator id="aggregate_filedetails" routes-to="tmp-details" force-batch-when="props['filetoprocess.totalcount'] == props['filetoprocess.current']">
             <cc:size-batch-strategy/>
             <cc:xml-message-content-collater output="variable" output-mimetype="text/xml" output-variable="filedetails.xml">
@@ -263,7 +263,7 @@
             <cc:parameter default="''" name="processfile.subroutine" required="false"/>
             <cc:parameter default="false" name="missing.file.error" required="true"/>
         </cc:local-in>
-        <cc:local-out id="call_process_file_subRoutine" store-message="none" endpoint="vm://@{props['processfile.subroutine']}">
+        <cc:local-out id="call_process_file_subRoutine" store-message="none" endpoint="vm://standard_get_data_process/determine_endpoint">
             <cc:set name="filetoprocess.totalcount" value="props['page.total']"/>
             <cc:set name="filetoprocess.current" value="props['file.number.retrieve']"/>
             <cc:set name="conform.XML" value="props['web.service.get.conform.xml']"/>

@@ -232,8 +232,8 @@
     <elements href="assembly.xml#cr_html_file"/>
     <elements href="assembly.xml#call_store_msg_for_output_file"/>
   </swimlanes>
-  <swimlanes x="2433" y="433" bgColor="8454143" name="Swimlane" orientation="VERTICAL" elements="//@swimlanes.16 //@swimlanes.18"/>
-  <swimlanes x="2486" y="463" bgColor="9498256" name="Swimlane" alignment="MIDDLE">
+  <swimlanes x="2433" y="433" bgColor="8454143" name="Log Processing" orientation="VERTICAL" elements="//@swimlanes.16 //@swimlanes.18"/>
+  <swimlanes x="2486" y="463" bgColor="9498256" name="Log and Return Message" alignment="MIDDLE">
     <elements href="assembly.xml#log_processing_msg_return_msg"/>
     <elements href="assembly.xml#store-file"/>
     <elements href="assembly.xml#put_log_processing_stats"/>

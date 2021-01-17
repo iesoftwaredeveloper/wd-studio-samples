@@ -122,10 +122,25 @@
                     <bsvc:Request_Criteria>
                         <xsl:if test="$web.service.get.request.type = 'transaction_log'
                             or $web.service.get.request.type = 'transaction_log_termination'
+                            or $web.service.get.request.type = 'transaction_log_retro'
                             or $web.service.get.request.type = 'single_worker'">
                             <bsvc:Transaction_Log_Criteria_Data>
                                 <bsvc:Transaction_Date_Range_Data>
                                     <xsl:choose>
+                                        <xsl:when test="$web.service.get.request.type = 'transaction_log_retro'">
+                                            <bsvc:Effective_From>
+                                                <xsl:value-of select="xs:dateTime($web.service.effective.date)  - xs:dayTimeDuration('P30D')"/>
+                                            </bsvc:Effective_From>
+                                            <bsvc:Effective_Through>
+                                                <xsl:value-of select="$web.service.start.date"/>
+                                            </bsvc:Effective_Through>
+                                            <bsvc:Updated_From>
+                                                <xsl:value-of select="$web.service.start.date"/>
+                                            </bsvc:Updated_From>
+                                            <bsvc:Updated_Through>
+                                                <xsl:value-of select="$web.service.end.date"/>
+                                            </bsvc:Updated_Through>
+                                        </xsl:when>
                                         <xsl:when test="$transaction.log.date.range.type = 'Effective Dates'">
                                             <bsvc:Effective_From>
                                                 <xsl:value-of select="$web.service.start.date"/>

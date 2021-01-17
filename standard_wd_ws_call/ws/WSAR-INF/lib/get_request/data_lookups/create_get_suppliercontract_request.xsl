@@ -22,7 +22,7 @@
     <xsl:param name="include.attachmentdata" select="false()"/>
     <xsl:param name="web.service.version"/>
     <xsl:param name="web.service.count"/>
-    <xsl:param name="web.service.request.type" select="'default'"/>
+    <xsl:param name="web.service.lookup.request.type" select="'default'"/>
     
     <xsl:variable name="suppliercontract.list" select="document('mctx:vars/source.data')"/>
     
@@ -49,7 +49,7 @@
                                 </bsvc:Supplier_Contract_Reference>
                             </bsvc:Request_References>
                         </xsl:when>
-                        <xsl:when test="$web.service.request.type = 'per_supplier_contract'">
+                        <xsl:when test="$web.service.lookup.request.type = 'per_supplier_contract'">
                             <bsvc:Request_References>
                                 <xsl:for-each select="distinct-values($suppliercontract.list//tfxc:record[position() != 1]//node()[name() != ''][fhcf:get-column-position('idnumber1')])">
                                     <xsl:if test="normalize-space(.) != ''">
@@ -62,7 +62,7 @@
                                 </xsl:for-each>
                             </bsvc:Request_References>
                         </xsl:when>
-                        <xsl:when test="$web.service.request.type = 'per_supplier'">
+                        <xsl:when test="$web.service.lookup.request.type = 'per_supplier'">
                             <bsvc:Request_Criteria>
                                 <xsl:for-each select="distinct-values($suppliercontract.list//tfxc:record[position() != 1]//node()[name() != ''][fhcf:get-column-position('idnumber1')])">
                                     <xsl:if test="normalize-space(.) != ''">

@@ -1,8 +1,8 @@
 <xsl:stylesheet version="2.0"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:bsvc="urn:com.workday/bsvc"
-    xmlns:ecmc="https://ecmc.org/supplier_invoice_format"
-    exclude-result-prefixes="xsl ecmc">
+    xmlns:fhcsi="https://github.com/firehawk-consulting/firehawk/schemas/financials/supplierinvoicedatastandard.xsd"
+    exclude-result-prefixes="#all">
     <xsl:output method="xml" version="1.0" encoding="iso-8859-1" indent="yes" omit-xml-declaration="yes"/>
 
     <xsl:param name="purchaseorder.number" select="''"/>
@@ -13,6 +13,7 @@
     <xsl:param name="web.service.version"/>
     <xsl:param name="web.service.count"/>
     <xsl:param name="web.service.request.type" select="'default'"/>
+    <xsl:param name="web.service.put.lookup.wd.data.request.type" select="'default'"/>
 
     <xsl:template match="/">
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" 
@@ -21,6 +22,11 @@
             <soapenv:Body>
                 <!-- <bsvc:Request> -->
                     <xsl:choose>
+                        <xsl:when test="$web.service.put.lookup.wd.data.request.type = 'cXML_po'">
+                            <xsl:call-template name="get_purchase_order">
+                                <xsl:with-param name="po.number" select="//fhcsi:workday_po_number"/>
+                            </xsl:call-template>
+                        </xsl:when>
                         <xsl:when test="$web.service.request.type = 'default'">
                             <xsl:call-template name="get_purchase_order">
                                 <xsl:with-param name="po.number" select="$purchaseorder.number"/>
@@ -28,11 +34,6 @@
                         </xsl:when>
                         <xsl:when test="$web.service.request.type = 'per_po'">
                             <xsl:call-template name="get_purchase_orders"/>
-                        </xsl:when>
-                        <xsl:when test="$web.service.request.type = 'cXML_po'">
-                            <xsl:call-template name="get_purchase_order">
-                                <xsl:with-param name="po.number" select="//InvoiceDetailOrder/InvoiceDetailOrderInfo/OrderReference/@orderID"/>
-                            </xsl:call-template>
                         </xsl:when>
                     </xsl:choose>
                 <!-- </bsvc:Request> -->

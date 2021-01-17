@@ -1,12 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-    xmlns:xs="http://www.w3.org/2001/XMLSchema"
-    xmlns:bsvc="urn:com.workday/bsvc"
-    xmlns:wd="urn:com.workday/bsvc"
-    xmlns:intsys="java:com.workday.esb.intsys.xpath.ParsedIntegrationSystemFunctions"
-    exclude-result-prefixes="xs intsys wd" version="2.0">
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:bsvc="urn:com.workday/bsvc" xmlns:wd="urn:com.workday/bsvc" xmlns:intsys="java:com.workday.esb.intsys.xpath.ParsedIntegrationSystemFunctions" exclude-result-prefixes="xs intsys wd" version="2.0">
     <xsl:output method="xml" version="1.0" indent="yes" omit-xml-declaration="yes"/>
-    
+
     <!-- Filter Parameters -->
     <xsl:param name="multi.instance.filter.1.wids"/>
     <xsl:param name="multi.instance.filter.2.wids"/>
@@ -27,6 +22,8 @@
     <xsl:param name="web.service.effective.date"/>
     <xsl:param name="is.system.wid"/>
     <xsl:param name="transaction.log.service.name"/>
+    
+    <xsl:variable name="ssn.data.check" select="document('mctx:vars/ssn.data.response.xml')"/>
 
     <xsl:template match="/">
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:bsvc="urn:com.workday/bsvc">
@@ -40,13 +37,29 @@
             <soapenv:Body>
                 <bsvc:Get_Former_Workers_Request>
                     <xsl:attribute name="bsvc:version" select="$web.service.version"/>
-                    <bsvc:Request_References>
-                        <bsvc:Former_Worker_Reference>
-                            <bsvc:ID bsvc:type="Former_Worker_ID">
-                                <xsl:value-of select="normalize-space($worker.id)"/>
-                            </bsvc:ID>
-                        </bsvc:Former_Worker_Reference>
-                    </bsvc:Request_References>
+                    <xsl:choose>
+                        <xsl:when test="$web.service.lookup.request.type = 'ssn'">
+                            <bsvc:Request_Criteria>
+                                <bsvc:National_ID_Criteria_Data>
+                                    <bsvc:Identifier_ID>
+                                        <xsl:value-of select="$ssn.data.check//ssn"/>
+                                    </bsvc:Identifier_ID>
+                                    <bsvc:Country_Reference>
+                                        <bsvc:ID bsvc:type="ISO_3166-1_Alpha-3_Code">USA</bsvc:ID>
+                                    </bsvc:Country_Reference>
+                                </bsvc:National_ID_Criteria_Data>
+                            </bsvc:Request_Criteria>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <bsvc:Request_References>
+                                <bsvc:Former_Worker_Reference>
+                                    <bsvc:ID bsvc:type="Former_Worker_ID">
+                                        <xsl:value-of select="normalize-space($worker.id)"/>
+                                    </bsvc:ID>
+                                </bsvc:Former_Worker_Reference>
+                            </bsvc:Request_References>
+                        </xsl:otherwise>
+                    </xsl:choose>
                     <bsvc:Response_Filter>
                         <!--<bsvc:As_Of_Effective_Date>
                             <xsl:value-of select="$web.service.effective.date"/>

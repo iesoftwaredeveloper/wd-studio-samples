@@ -169,6 +169,9 @@
   <visualProperties x="2094" y="803">
     <element href="assembly.xml#reset_msg"/>
   </visualProperties>
+  <visualProperties x="879" y="1071">
+    <element href="assembly.xml#call_store_msg_return_msg_1"/>
+  </visualProperties>
   <connections type="routesTo">
     <source href="assembly.xml#store_msg_return_msg"/>
     <target href="assembly.xml#store-file"/>
@@ -306,10 +309,6 @@
     <target href="assembly.xml#call_zip_and_store_output"/>
   </connections>
   <connections type="routesTo">
-    <source href="assembly.xml#agg-process-record"/>
-    <target href="assembly.xml#save_processing_rpt"/>
-  </connections>
-  <connections type="routesTo">
     <source href="assembly.xml#render-processing-stats"/>
     <target href="assembly.xml#bckp_msg"/>
   </connections>
@@ -328,6 +327,14 @@
   <connections type="routesTo">
     <source href="assembly.xml#emptyvarforrender"/>
     <target href="assembly.xml#setpercentcomplete"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#agg-process-record"/>
+    <target href="assembly.xml#call_store_msg_return_msg_1"/>
+  </connections>
+  <connections type="routesResponseTo">
+    <source href="assembly.xml#call_store_msg_return_msg_1"/>
+    <target href="assembly.xml#save_processing_rpt"/>
   </connections>
   <swimlanes x="25" y="28" bgColor="8454016" name="Store Logging Message" alignment="MIDDLE">
     <elements href="assembly.xml#store_msg_return_msg"/>
@@ -349,6 +356,7 @@
     <elements href="assembly.xml#aggregate_processing_details"/>
     <elements href="assembly.xml#cp-input-param"/>
     <elements href="assembly.xml#agg-process-record"/>
+    <elements href="assembly.xml#call_store_msg_return_msg_1"/>
     <elements href="assembly.xml#save_processing_rpt"/>
   </swimlanes>
   <swimlanes bgColor="8454016" name="Aggregate Error Records" alignment="MIDDLE">

@@ -3,7 +3,8 @@
     xmlns:wd="urn:com.workday/bsvc"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     xmlns:tfxc="https://github.com/firehawk-consulting/firehawk/schemas/text_to_xml/transform_file_to_xml_unparsed.xsd"
-    exclude-result-prefixes="xs wd"
+    xmlns:ecmc="https://ecmc.org/ad_hoc_payment_format"
+    exclude-result-prefixes="#all"
     version="2.0">
 
     <xsl:param name="web.service.start.date"/>
@@ -44,6 +45,20 @@
                     <xsl:if test="$web.service.put.lookup.wd.data.request.type = 'payee_list'">
                         <bsvc:Request_References>
                             <xsl:for-each select="$lookup.data//tfxc:col2">
+                                <xsl:if test="string-length(normalize-space(.)) != 0">
+                                    <bsvc:Ad_Hoc_Payee_Reference>
+                                        <bsvc:ID>
+                                            <xsl:attribute name="bsvc:type" select="'Ad_hoc_Payee_ID'"/>
+                                            <xsl:value-of select="normalize-space(.)"/>
+                                        </bsvc:ID>
+                                    </bsvc:Ad_Hoc_Payee_Reference>
+                                </xsl:if>
+                            </xsl:for-each>
+                        </bsvc:Request_References>
+                    </xsl:if>
+                    <xsl:if test="$web.service.put.lookup.wd.data.request.type = 'ecmcpayee'">
+                        <bsvc:Request_References>
+                            <xsl:for-each select="//ecmc:ad_hoc_payment/ecmc:payeereferenceid">
                                 <xsl:if test="string-length(normalize-space(.)) != 0">
                                     <bsvc:Ad_Hoc_Payee_Reference>
                                         <bsvc:ID>

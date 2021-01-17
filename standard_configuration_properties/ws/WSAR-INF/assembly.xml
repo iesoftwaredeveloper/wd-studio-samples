@@ -10,7 +10,7 @@
      xmlns:wd="urn:com.workday/bsvc"
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-    <cc:assembly id="WorkdayAssembly" version="2019.6">
+    <cc:assembly id="WorkdayAssembly" version="2020.36">
         <cc:local-out id="call_get_request_endpoint" store-message="none" routes-response-to="call_parse_and_store_logging_info" endpoint="vm://@{props['web.service.get.request.endpoint']}">
             <cc:set name="report.extra.path" value="props['report.extra.path'] + props['report.filter']"/>
             <cc:set name="web.service.version" value="props['web.service.version']"/>
@@ -84,10 +84,10 @@
             <cc:set name="lookup.wd.data.filename" value="props['web.service.put.lookup.wd.data.filename']"/>
             <cc:set name="lookup.wd.data.request.type" value="props['web.service.put.lookup.wd.data.request.type']"/>
             <cc:set name="lookup.wd.data.application" value="props['web.service.put.lookup.wd.data.application']"/>
-            
-            
-            
-        <cc:set name="web.service.conform.xml.filename" value="props['web.service.put.conform.xml.filename']"/><cc:set name="web.service.put.conform.xml" value="props['web.service.put.conform.xml']"/><cc:set name="web.service.put.conform.xml.endpoint" value="props['web.service.put.conform.xml.endpoint']"/></cc:local-out>
+            <cc:set name="web.service.conform.xml.filename" value="props['web.service.put.conform.xml.filename']"/>
+            <cc:set name="web.service.put.conform.xml" value="props['web.service.put.conform.xml']"/>
+            <cc:set name="web.service.put.conform.xml.endpoint" value="props['web.service.put.conform.xml.endpoint']"/>
+        </cc:local-out>
         <cc:splitter id="split_response" no-split-message-error="false">
             <cc:sub-route name="process_xml" routes-to="record-counters"/>
             <cc:xml-stream-splitter namespaces="@{props['xml.split.namespace']}" xpath="//@{props['xml.split.tag']}"/>
@@ -116,6 +116,7 @@
                     <cc:expression>props['web.service.include.attachments'] = intsys.getAttributeAsBoolean('Web Service Include Attachments',true)</cc:expression>
                     <cc:expression>props['web.service.changes.only'] = intsys.getAttributeAsBoolean('Web Service Changes Only',true)</cc:expression>
                     <cc:expression>props['web.service.configuration.log'] = intsys.getAttributeAsBoolean('Log Configuration Information',true)</cc:expression>
+                    <cc:expression>props['current.environment'] = intsys.getAttribute('Current Environment')</cc:expression>
                 </cc:eval>
             </cc:steps>
         </cc:async-mediation>
@@ -391,7 +392,9 @@
         <cc:local-in id="log_processing_msg_return_msg" routes-to="store-file" access="public" icon="local-in-log_processing_msg_return_msg.png" tooltip="Sub Routine Used to Log and Processing Message and reset to existing (input) message.">
             
         </cc:local-in>
-        <cc:local-out id="call_log_processing_msg_return_msg" routes-response-to="split_response" endpoint="vm://standard_configuration_properties/log_processing_msg_return_msg"><cc:set name="store.filename" value="'Logging_Output.txt'"/></cc:local-out>
+        <cc:local-out id="call_log_processing_msg_return_msg" routes-response-to="split_response" endpoint="vm://standard_configuration_properties/log_processing_msg_return_msg">
+            <cc:set name="store.filename" value="'Logging_Output.txt'"/>
+        </cc:local-out>
     </cc:assembly>
 
 </beans>
