@@ -25,6 +25,11 @@
         <tl:transaction_record>
             <xsl:attribute name="tl:transaction_grouping" select="$transaction.grouping"/>
             <xsl:attribute name="tl:transaction_record_number" select="$record.counter"/>
+            <tl:file_record_status_grouping>
+                <xsl:value-of select="$transaction.grouping"/>
+                <xsl:value-of select="'-'"/>
+                <xsl:value-of select="$record.status"/>
+            </tl:file_record_status_grouping>
             <tl:file_data>
                 <xsl:if test="string-length(xs:string($file.number)) != 0">
                     <tl:instance_number>
@@ -34,13 +39,13 @@
                         <xsl:value-of select="$file.record.counter"/>
                     </tl:record_number>
                 </xsl:if>
+            </tl:file_data>
+            <tl:record_stats>
                 <xsl:if test="string-length($file.name) != 0">
                     <tl:source_filename>
                         <xsl:value-of select="$file.name"/>
                     </tl:source_filename>
                 </xsl:if>
-            </tl:file_data>
-            <tl:record_stats>
                 <tl:source_id>
                     <xsl:value-of select="$source.transaction.id"/>
                 </tl:source_id>
@@ -63,19 +68,17 @@
                 <tl:amount>
                     <xsl:value-of select="$transaction.amount"/>
                 </tl:amount>
-            </tl:record_stats>
-            <tl:record_error_info>
                 <xsl:if test="string-length($error.reason) != 0">
-                    <tl:reason>
+                    <tl:record_error_reason>
                         <xsl:value-of select="$error.reason"/>
-                    </tl:reason>
+                    </tl:record_error_reason>
                 </xsl:if>
                 <xsl:if test="string-length($error.message.detail) != 0">
-                    <tl:description>
+                    <tl:record_error_description>
                         <xsl:value-of select="$error.message.detail"/>
-                    </tl:description>
+                    </tl:record_error_description>
                 </xsl:if>
-            </tl:record_error_info>
+            </tl:record_stats>
         </tl:transaction_record>
     </xsl:template>
 </xsl:stylesheet>

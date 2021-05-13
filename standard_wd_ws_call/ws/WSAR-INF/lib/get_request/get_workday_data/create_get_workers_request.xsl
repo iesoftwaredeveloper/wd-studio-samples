@@ -129,7 +129,7 @@
                                     <xsl:choose>
                                         <xsl:when test="$web.service.get.request.type = 'transaction_log_retro'">
                                             <bsvc:Effective_From>
-                                                <xsl:value-of select="xs:dateTime($web.service.effective.date)  - xs:dayTimeDuration('P30D')"/>
+                                                <xsl:value-of select="xs:dateTime($web.service.effective.date) - xs:dayTimeDuration('P30D')"/>
                                             </bsvc:Effective_From>
                                             <bsvc:Effective_Through>
                                                 <xsl:value-of select="$web.service.start.date"/>
@@ -159,22 +159,26 @@
                                         </xsl:otherwise>
                                     </xsl:choose>
                                 </bsvc:Transaction_Date_Range_Data>
-                                <xsl:if test="$multi.instance.filter.2.wids != 'no'">
-                                    <bsvc:Transaction_Type_References>
-                                        <xsl:for-each select="tokenize($multi.instance.filter.2.wids,';')">
-                                            <bsvc:Transaction_Type_Reference>
-                                                <bsvc:ID bsvc:type="WID">
-                                                    <xsl:value-of select="normalize-space(.)"/>
-                                                </bsvc:ID>
-                                            </bsvc:Transaction_Type_Reference>
-                                        </xsl:for-each>
-                                    </bsvc:Transaction_Type_References>
-                                </xsl:if>
-                                <bsvc:Subscriber_Reference>
-                                    <bsvc:ID bsvc:type="WID">
-                                        <xsl:value-of select="$is.system.wid"/>
-                                    </bsvc:ID>
-                                </bsvc:Subscriber_Reference>
+                                <xsl:choose>
+                                    <xsl:when test="$multi.instance.filter.2.wids != 'no'">
+                                        <bsvc:Transaction_Type_References>
+                                            <xsl:for-each select="tokenize($multi.instance.filter.2.wids,',')">
+                                                <bsvc:Transaction_Type_Reference>
+                                                    <bsvc:ID bsvc:type="WID">
+                                                        <xsl:value-of select="normalize-space(.)"/>
+                                                    </bsvc:ID>
+                                                </bsvc:Transaction_Type_Reference>
+                                            </xsl:for-each>
+                                        </bsvc:Transaction_Type_References>
+                                    </xsl:when>
+                                    <xsl:otherwise>
+                                        <bsvc:Subscriber_Reference>
+                                            <bsvc:ID bsvc:type="WID">
+                                                <xsl:value-of select="$is.system.wid"/>
+                                            </bsvc:ID>
+                                        </bsvc:Subscriber_Reference>
+                                    </xsl:otherwise>
+                                </xsl:choose>
                             </bsvc:Transaction_Log_Criteria_Data>
                         </xsl:if>
                         <xsl:if test="$web.service.get.request.type = 'organization'

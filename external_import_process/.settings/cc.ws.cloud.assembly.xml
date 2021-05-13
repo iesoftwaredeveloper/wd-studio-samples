@@ -12,7 +12,6 @@
     <value class="java.lang.Boolean" key="ICcFacetInstallDataModelProperties.MODULE_SERVICE_NAME_CUSTOM">false</value>
     <list key="IWsCloudAssemblyFacetInstallDataModelProperties.MEMBER_OF_CLOUD_COLLECTIONS">
         <value class="java.lang.String">saviynt_outbound</value>
-        <value class="java.lang.String">greenhouse_connection_collection</value>
     </list>
     <value class="java.lang.Boolean" key="ICcFacetInstallDataModelProperties.MODULE_SERVICE_NAME_VERSION">false</value>
     <value class="java.lang.Boolean" key="ICcFacetInstallDataModelProperties.EXPORT_REFERENCED_WEBSERVICE_PROJECT_CLASSPATH">false</value>

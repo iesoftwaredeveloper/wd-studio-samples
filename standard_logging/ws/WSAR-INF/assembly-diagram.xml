@@ -172,6 +172,12 @@
   <visualProperties x="879" y="1071">
     <element href="assembly.xml#call_store_msg_return_msg_1"/>
   </visualProperties>
+  <visualProperties x="1684" y="1138">
+    <element href="assembly.xml#clear_processing_stats"/>
+  </visualProperties>
+  <visualProperties x="324" y="1071">
+    <element href="assembly.xml#PutIntegrationMessage"/>
+  </visualProperties>
   <connections type="routesTo">
     <source href="assembly.xml#store_msg_return_msg"/>
     <target href="assembly.xml#store-file"/>
@@ -199,14 +205,6 @@
   <connections type="routesTo">
     <source href="assembly.xml#agg-failed-record"/>
     <target href="assembly.xml#cp-msg_to_failed-var"/>
-  </connections>
-  <connections type="routesTo">
-    <source href="assembly.xml#aggregate_processing_details"/>
-    <target href="assembly.xml#cp-input-param"/>
-  </connections>
-  <connections type="routesTo">
-    <source href="assembly.xml#cp-input-param"/>
-    <target href="assembly.xml#agg-process-record"/>
   </connections>
   <connections type="routesTo">
     <source href="assembly.xml#aggregate_error_record_details"/>
@@ -328,13 +326,21 @@
     <source href="assembly.xml#emptyvarforrender"/>
     <target href="assembly.xml#setpercentcomplete"/>
   </connections>
-  <connections type="routesTo">
-    <source href="assembly.xml#agg-process-record"/>
-    <target href="assembly.xml#call_store_msg_return_msg_1"/>
-  </connections>
   <connections type="routesResponseTo">
     <source href="assembly.xml#call_store_msg_return_msg_1"/>
     <target href="assembly.xml#save_processing_rpt"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#agg-process-record"/>
+    <target href="assembly.xml#save_processing_rpt"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#aggregate_processing_details"/>
+    <target href="assembly.xml#cp-input-param"/>
+  </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#cp-input-param"/>
+    <target href="assembly.xml#agg-process-record"/>
   </connections>
   <swimlanes x="25" y="28" bgColor="8454016" name="Store Logging Message" alignment="MIDDLE">
     <elements href="assembly.xml#store_msg_return_msg"/>
@@ -356,7 +362,6 @@
     <elements href="assembly.xml#aggregate_processing_details"/>
     <elements href="assembly.xml#cp-input-param"/>
     <elements href="assembly.xml#agg-process-record"/>
-    <elements href="assembly.xml#call_store_msg_return_msg_1"/>
     <elements href="assembly.xml#save_processing_rpt"/>
   </swimlanes>
   <swimlanes bgColor="8454016" name="Aggregate Error Records" alignment="MIDDLE">
@@ -365,7 +370,7 @@
     <elements href="assembly.xml#agg-error-records"/>
   </swimlanes>
   <swimlanes x="29" y="1131" bgColor="12632256" name="Render Processing Statistics" orientation="VERTICAL" elements="//@swimlanes.26 //@swimlanes.27" alignment="MIDDLE"/>
-  <swimlanes x="94" y="1039" bgColor="12632256" name="Aggregate Failed Information and Processing Details" orientation="VERTICAL" elements="//@swimlanes.4 //@swimlanes.2 //@swimlanes.3" alignment="MIDDLE"/>
+  <swimlanes x="94" y="1039" bgColor="12632256" name="Aggregate Failed Information and Processing Details" orientation="VERTICAL" elements="//@swimlanes.4 //@swimlanes.2 //@swimlanes.32 //@swimlanes.3" alignment="MIDDLE"/>
   <swimlanes bgColor="12566463" name="Zip and Store" elements="//@swimlanes.8 //@swimlanes.29 //@swimlanes.30" alignment="MIDDLE"/>
   <swimlanes bgColor="16443110" name="Store Failure Report" orientation="VERTICAL" alignment="MIDDLE">
     <elements href="assembly.xml#store_consol_file"/>
@@ -432,6 +437,7 @@
     <elements href="assembly.xml#zip_and_store_output"/>
     <elements href="assembly.xml#zip-for-transfer"/>
     <elements href="assembly.xml#call_store_consol_file"/>
+    <elements href="assembly.xml#clear_processing_stats"/>
   </swimlanes>
   <swimlanes x="455" y="684" bgColor="16443110" name="Zip and Store" orientation="VERTICAL" alignment="MIDDLE">
     <elements href="assembly.xml#setfilename"/>
@@ -442,5 +448,9 @@
     <elements href="assembly.xml#split_var_processing"/>
     <elements href="assembly.xml#copytranstomsg"/>
     <elements href="assembly.xml#spli-single-log-file"/>
+  </swimlanes>
+  <swimlanes x="373" y="932" name="Swimlane">
+    <elements href="assembly.xml#PutIntegrationMessage"/>
+    <elements href="assembly.xml#call_store_msg_return_msg_1"/>
   </swimlanes>
 </wdnm:Diagram>

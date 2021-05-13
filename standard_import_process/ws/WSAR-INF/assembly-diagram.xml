@@ -176,6 +176,10 @@
     <source href="assembly.xml#//@beans/@mixed.1/@route.1/@subRoute.0"/>
     <target href="assembly.xml#call_process_Failed_Msg"/>
   </connections>
+  <connections type="routesTo">
+    <source href="assembly.xml#//@beans/@mixed.1/@route.1/@subRoute.2"/>
+    <target href="assembly.xml#call_create_transaction_log_record_skipped"/>
+  </connections>
   <swimlanes x="18" y="-13" bgColor="12566463" name="Put Web Service Call" orientation="VERTICAL" elements="//@swimlanes.1 //@swimlanes.3" alignment="MIDDLE"/>
   <swimlanes x="26" y="141" bgColor="9498256" name="Local In">
     <elements href="assembly.xml#put_workday_web_serivce_call"/>

@@ -114,7 +114,7 @@
             <cc:set name="web.service.lookup.filename" value="props['web.service.get.lookup.wd.data.filename']"/>
             <cc:set name="web.service.lookup.application" value="props['web.service.get.lookup.wd.data.application']"/>
             <cc:set name="web.service.lookup.request.type" value="props['web.service.get.lookup.wd.data.request.type']"/>
-        </cc:local-out>
+        <cc:set name="web.service.lookup.ws.create.endpoint" value="(props['web.service.get.lookup.wd.data.create.call.endpoint']=='')?'standard_wd_ws_call/create_wd_web_service_call':props['web.service.get.lookup.wd.data.create.call.endpoint']"/></cc:local-out>
         <cc:async-mediation id="copy_to_variable_raas">
             <cc:steps>
                 <cc:copy id="cp_to_lkp_var" output="variable" output-variable="lookup.wd.data.xml"/>

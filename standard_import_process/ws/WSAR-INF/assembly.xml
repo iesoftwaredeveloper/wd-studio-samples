@@ -43,7 +43,7 @@
             <cc:parameter name="lookup.wd.data.application" required="false"/>
             <cc:parameter default="'false'" name="web.service.put.conform.xml" required="false"/>
             <cc:parameter name="web.service.put.conform.xml.endpoint" required="false"/>
-            <cc:parameter name="web.service.conform.xml.filename" required="false"/>
+            <cc:parameter name="web.service.conform.xml.filename" required="false"/><cc:parameter default="'standard_wd_ws_call/create_wd_web_service_call'" name="lookup.wd.data.create.call.endpoint" required="false"/>
         </cc:local-in>
         <cc:splitter id="split_ws_put" no-split-message-error="false">
             <cc:sub-route name="make_ws_soap_call" routes-to="set-wd-id"/>
@@ -63,7 +63,7 @@
             <cc:set name="error.message.detail" value="''"/>
             <cc:set name="additional.information" value="props['additional.information'] + props['workday.web.service.additional.log.information']"/>
             <cc:set name="web.service.call.name" value="props['workday.web.service.call']"/>
-        </cc:local-out>
+        <cc:set name="transaction.amount" value="props['workday.web.service.transaction.amount']"/></cc:local-out>
         <cc:local-out id="call_process_Err_Msg" routes-response-to="call_create_transaction_log_record_err" endpoint="vm://standard_logging/process_Err_Msg">
             <cc:set name="failed-on-import" value="true"/>
             <cc:set name="include-file" value="false"/>
@@ -83,7 +83,7 @@
             <cc:set name="error.message.detail" value="context.errorMessage + &quot;\n&quot; + props['workday.web.service.validation.message']"/>
             <cc:set name="additional.information" value="props['additional.information'] + props['workday.web.service.additional.log.information']"/>
             <cc:set name="web.service.call.name" value="props['workday.web.service.call']"/>
-        </cc:local-out>
+        <cc:set name="transaction.amount" value="props['workday.web.service.transaction.amount']"/></cc:local-out>
         <cc:async-mediation id="set-wd-id" routes-to="route_valid_call" handle-downstream-errors="true">
             <cc:steps>
                 <cc:copy id="cp-ws-call" output="variable" output-variable="ws.put.msg"/>
@@ -100,6 +100,8 @@
                     <cc:expression>props['workday.web.service.validation.passed'] = (vars['ws.put.msg'].xpath(&quot;//env:Body/@validation_passed&quot;)!= '')?vars['ws.put.msg'].xpath(&quot;//env:Body/@validation_passed&quot;):'true'</cc:expression>
                     <cc:expression>props['workday.web.service.validation.message'] = (vars['ws.put.msg'].xpath(&quot;//env:Body/@validation_message&quot;)!= '')?vars['ws.put.msg'].xpath(&quot;//env:Body/@validation_message&quot;):''</cc:expression>
                     <cc:expression>props['workday.web.service.additional.log.information'] = (vars['ws.put.msg'].xpath(&quot;//env:Body/@additional_log_information&quot;)!= '')?vars['ws.put.msg'].xpath(&quot;//env:Body/@additional_log_information&quot;):''</cc:expression>
+                    <cc:expression>props['workday.web.service.skip.transaction'] = (vars['ws.put.msg'].xpath(&quot;//env:Body/@skip_transaction&quot;)!= '')?vars['ws.put.msg'].xpath(&quot;//env:Body/@skip_transaction&quot;):'false'</cc:expression>
+                    <cc:expression>props['workday.web.service.transaction.amount'] = (vars['ws.put.msg'].xpath(&quot;//env:Body/@transaction_amount&quot;)!= '')?vars['ws.put.msg'].xpath(&quot;//env:Body/@transaction_amount&quot;):'0'</cc:expression>
                 </cc:eval>
             </cc:steps>
             <cc:send-error id="SendError" routes-to="call_process_Err_Msg">
@@ -109,7 +111,7 @@
             <cc:set name="web.service.lookup.filename" value="props['lookup.wd.data.filename']"/>
             <cc:set name="web.service.lookup.application" value="props['lookup.wd.data.application']"/>
             <cc:set name="web.service.lookup.request.type" value="props['lookup.wd.data.request.type']"/>
-        </cc:local-out>
+        <cc:set name="web.service.lookup.ws.create.endpoint" value="props['lookup.wd.data.create.call.endpoint']"/></cc:local-out>
         <cc:async-mediation id="bckp_msg" routes-to="call_lookup_and_conform">
             <cc:steps>
                 <cc:copy id="cp-bckp-msg" output="variable" output-variable="source.data"/>
@@ -136,7 +138,7 @@
             <cc:set name="file.number.total" value="props['page.total']"/>
             <cc:set name="file.number.current" value="props['page.current']"/>
             <cc:set name="summary.log.file.extension" value="'html'"/>
-            <cc:set name="continue.loop" value="'yes'"/>
+            <cc:set name="continue.loop" value="'true'"/>
             <cc:set name="web.service.calls.counter" value="props['web.service.calls.counter']"/>
             <cc:set name="web.service.calls.total" value="props['web.service.calls.total']"/>
         </cc:local-out>
@@ -167,20 +169,22 @@
             <cc:set name="file.record.counter" value="props['file.record.counter']"/>
             <cc:set name="file.name" value="props['sftp.filename']"/>
             <cc:set name="source.transaction.id" value="props['record.counter']"/>
-            <cc:set name="workday.transaction.id" value="'N/A'"/>
+            <cc:set name="workday.transaction.id" value="props['workday.transaction.id']"/>
             <cc:set name="record.status" value="'skipped'"/>
             <cc:set name="error.reason" value="''"/>
             <cc:set name="error.message.detail" value="''"/>
-            <cc:set name="additional.information" value="props['additional.information']"/>
-            <cc:set name="web.service.call.name" value="'N/A'"/>
+            <cc:set name="additional.information" value="props['workday.web.service.additional.log.information']"/>
+            <cc:set name="web.service.call.name" value="(props['workday.web.service.call'] == null)? 'N/A':props['workday.web.service.call']"/>
         </cc:local-out>
         <cc:route id="route_valid_call">
             <cc:mvel-strategy>
+                <cc:choose-route expression="props['workday.web.service.skip.transaction'] == 'true'" route="skip-transaction"/>
                 <cc:choose-route expression="props['workday.web.service.validation.passed']!='false'" route="passed-validation"/>
                 <cc:choose-route expression="props['workday.web.service.validation.passed']=='false'" route="failed-validation"/>
             </cc:mvel-strategy>
             <cc:sub-route name="failed-validation" routes-to="call_process_Failed_Msg"/>
             <cc:sub-route name="passed-validation" routes-to="make_workday_soap_call"/>
+            <cc:sub-route name="skip-transaction" routes-to="call_create_transaction_log_record_skipped"/>
         </cc:route>
         <cc:local-out id="call_process_Failed_Msg" routes-response-to="call_create_transaction_log_record_err" endpoint="vm://standard_logging/process_Err_Msg">
             <cc:set name="failed-on-import" value="false"/>

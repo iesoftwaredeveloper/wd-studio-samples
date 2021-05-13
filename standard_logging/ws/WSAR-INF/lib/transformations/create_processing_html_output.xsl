@@ -13,7 +13,7 @@
     <xsl:param name="summarylog.filename"/>
     <xsl:param name="summarylog.file.extension"/>
     
-    <xsl:output indent="yes" omit-xml-declaration="yes" method="html"/>
+    <xsl:output indent="yes" omit-xml-declaration="no" method="xml"/>
     <xsl:mode streamable="yes" on-no-match="shallow-skip" use-accumulators="#all"/>
     
     <xsl:accumulator name="record.count.by.status" as="map(xs:string,xs:integer)" initial-value="map{}" streamable="yes">
@@ -45,6 +45,7 @@
                     <xsl:attribute name="tl:filename">
                         <xsl:value-of select="'summarylevel_'"/>
                         <xsl:value-of select="$summarylog.filename"/>
+                        <xsl:value-of select="'_'"/>
                         <xsl:value-of select="$currentsummarysplit"/>
                         <xsl:value-of select="'.'"/>
                         <xsl:value-of select="$summarylog.file.extension"/>
@@ -89,7 +90,7 @@
                                     </tr>
                                     <tr>
                                         <td>
-                                            <!--<xsl:value-of select="max(current-group()//tl:file_data/tl:instance_number)"/>-->
+                                            <xsl:value-of select="max(current-group()//tl:file_data/tl:instance_number)"/>
                                         </td>
                                         <td>
                                             <xsl:value-of select="count(current-group()[tl:record_stats/tl:status='imported'])"/>
@@ -104,7 +105,7 @@
                                             <xsl:value-of select="count(current-group())"/>
                                         </td>
                                         <td>
-                                            <!--<xsl:value-of select="format-number(fhc:forceValue(sum(current-group()//fhc:forceValue(tl:record_stats//tl:amount))),'#,##0.00')"/>-->
+                                            <xsl:value-of select="format-number(fhc:forceValue(sum(current-group()//fhc:forceValue(tl:record_stats//tl:amount))),'#,##0.00')"/>
                                         </td>
                                     </tr>
                                 </table>
@@ -175,10 +176,10 @@
                     <xsl:value-of select="tl:record_stats/tl:status"/>
                 </td>
                 <td>
-                    <xsl:value-of select="normalize-space(tl:record_error_info/tl:reason)"/>
+                    <xsl:value-of select="normalize-space(tl:record_stats/tl:record_error_reason)"/>
                 </td>
                 <td>
-                    <xsl:value-of select="normalize-space(tl:record_error_info/tl:description)"/>
+                    <xsl:value-of select="normalize-space(tl:record_stats/tl:record_error_description)"/>
                 </td>
                 <td>
                     <xsl:value-of select="format-number(fhc:forceValue(tl:record_stats/tl:amount), '#,##0.00')"/>
