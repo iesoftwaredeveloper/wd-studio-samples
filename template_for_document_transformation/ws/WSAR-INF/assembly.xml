@@ -18,7 +18,7 @@
         <cc:local-out id="GetEventDocuments" routes-response-to="process_documents" endpoint="vm://wcc/GetEventDocuments">
             <cc:set name="ie.event.wid" value="lp.isSet() ? lp.getIntegrationEventWID() : null"/>
         </cc:local-out>
-        <cc:async-mediation id="convert_transform" execute-steps-when="vars['wd.retrieve.variable'].fileName.contains('.csv')||vars['wd.retrieve.variable'].fileName.contains('.txt')">
+        <cc:async-mediation id="convert_transform" routes-to="call_store_msg_for_output_file" execute-steps-when="vars['wd.retrieve.variable'].fileName.contains('.csv')||vars['wd.retrieve.variable'].fileName.contains('.txt')">
             <cc:steps>
                 <cc:csv-to-xml id="make_xml" output="message" input="variable" input-variable="wd.retrieve.variable" rootName="inputFile" rowName="record" separator="," useFirstLineAsHeader="false"/>
                 <cc:xslt id="create_output" url="@{props['transformation.filename']}"/>
@@ -64,99 +64,6 @@
         <cc:local-out id="call_store_msg_for_output_file" execute-when="vars['wd.retrieve.variable'].fileName.contains('.csv')||vars['wd.retrieve.variable'].fileName.contains('.txt')" endpoint="vm://template_for_doc_transformation/store_msg_for_output_file">
             <cc:set name="output.filename" value="vars['wd.retrieve.variable'].fileName"/>
         </cc:local-out>
-        <cc:async-mediation id="set-launch-props_cand">
-            <cc:steps>
-                <cc:eval id="set-props">
-                    <cc:expression>props['process.type'] = 'Candidate Data'</cc:expression>
-                    <cc:expression>props['web.service.start.date'] = lp.getSimpleData('Applied From Date')</cc:expression>
-                    <cc:expression>props['web.service.end.date'] = lp.getSimpleData('Applied To Date')</cc:expression>
-                    <cc:expression>props['properties.file'] = 'lib/config_files/jobsync_configuration_properties.xml'</cc:expression>
-                    <cc:expression>props['integration.system.id'] = 'jobsync/jobsync/jobsync-candidate-out'</cc:expression>
-                </cc:eval>
-            </cc:steps>
-        </cc:async-mediation>
-        <cc:workday-in id="jobsync-candidate-out" routes-to="set-launch-props_cand">
-            <cc:integration-system name="template_for_doc_transformation0">
-        <cloud:param name="Applied From Date">
-          <cloud:type>
-            <cloud:simple-type>datetime</cloud:simple-type>
-          </cloud:type>
-        </cloud:param>
-        <cloud:param name="Applied To Date">
-          <cloud:type>
-            <cloud:simple-type>datetime</cloud:simple-type>
-          </cloud:type>
-        </cloud:param>
-        <cloud:attribute-map-service name="JobSync Candidate Output">
-          <cloud:attribute name="Recruiting Stage">
-            <cloud:type>
-              <cloud:class-report-field description="Calendar Type Maps to Recruiting Stages" type="WID" singular="false">cd2942959b7210000882ca9e0b3c000e</cloud:class-report-field>
-            </cloud:type>
-            <cloud:display-option>required-for-launch</cloud:display-option>
-          </cloud:attribute>
-        </cloud:attribute-map-service>
-        <cloud:service-reference name="JobSync Standard Extract Properties"/>
-        <cloud:service-reference name="Standard Get Web Service Attributes"/>
-        <cloud:service-reference name="Standard Logging Attributes"/>
-        <cloud:service-reference name="JobSync Connection Properties"/>
-        <cloud:service-reference name="Job Requisition Transaction Log"/>
-        <cloud:service-reference name="Standard Get Job Requisition Data Properties"/>
-      </cc:integration-system>
-        </cc:workday-in>
-        <cc:async-mediation id="set-launch-props_jobreq-in">
-            <cc:steps>
-                <cc:eval id="set-props">
-                    <cc:expression>props['process.type'] = 'Enhance Job Requisition Application'</cc:expression>
-                    <cc:expression>props['properties.file'] = 'lib/config_files/jobsync_configuration_properties.xml'</cc:expression>
-                    <cc:expression>props['integration.system.id'] = 'jobsync/jobsync/jobsync-candidate-in'</cc:expression>
-                </cc:eval>
-            </cc:steps>
-        </cc:async-mediation>
-        <cc:workday-in id="jobsync-jobreq-in-enhancement" routes-to="set-launch-props_jobreq-in">
-            <cc:integration-system name="template_for_doc_transformation1">
-        <cloud:attribute-map-service name="JobSync Import Job Requisition Attributes">
-          <cloud:attribute name="Import Job Requisition Data">
-            <cloud:type>
-              <cloud:simple-type>boolean</cloud:simple-type>
-            </cloud:type>
-            <cloud:display-option>required-for-launch</cloud:display-option>
-          </cloud:attribute>
-        </cloud:attribute-map-service>
-        <cloud:retrieval-service name="JobSync Update Job Requisition Retrieval Service"/>
-        <cloud:service-reference name="Standard Logging Attributes"/>
-        <cloud:service-reference name="Standard Put Web Service Attributes"/>
-      </cc:integration-system>
-        </cc:workday-in>
-        <cc:async-mediation id="set-launch-props_jobapp">
-            <cc:steps>
-                <cc:eval id="set-props">
-                    <cc:expression>props['process.type'] = 'Job Application Data'</cc:expression>
-                    <cc:expression>props['web.service.start.date'] = lp.getSimpleData('Applied From Date')</cc:expression>
-                    <cc:expression>props['web.service.end.date'] = lp.getSimpleData('Applied To Date')</cc:expression>
-                    <cc:expression>props['properties.file'] = 'lib/config_files/jobsync_configuration_properties.xml'</cc:expression>
-                    <cc:expression>props['integration.system.id'] = 'jobsync/jobsync/jobsync-candidate-out'</cc:expression>
-                </cc:eval>
-            </cc:steps>
-        </cc:async-mediation>
-        <cc:workday-in id="jobsync-job-application-out" routes-to="set-launch-props_jobapp">
-            <cc:integration-system name="template_for_doc_transformation2">
-        <cloud:param name="Applied From Date">
-          <cloud:type>
-            <cloud:simple-type>datetime</cloud:simple-type>
-          </cloud:type>
-        </cloud:param>
-        <cloud:param name="Applied To Date">
-          <cloud:type>
-            <cloud:simple-type>datetime</cloud:simple-type>
-          </cloud:type>
-        </cloud:param>
-        <cloud:service-reference name="JobSync Outbound Files"/>
-        <cloud:service-reference name="JobSync Standard Extract Properties"/>
-        <cloud:service-reference name="JobSync Delivery Service"/>
-        <cloud:service-reference name="Standard Get Web Service Attributes"/>
-        <cloud:service-reference name="Standard Logging Attributes"/>
-      </cc:integration-system>
-        </cc:workday-in>
 	</cc:assembly>
 
 </beans>

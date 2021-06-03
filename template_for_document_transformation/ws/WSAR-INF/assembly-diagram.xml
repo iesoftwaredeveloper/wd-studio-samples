@@ -28,24 +28,6 @@
   <visualProperties x="1003" y="414">
     <element href="assembly.xml#call_store_msg_for_output_file"/>
   </visualProperties>
-  <visualProperties>
-    <element href="assembly.xml#jobsync-candidate-out"/>
-  </visualProperties>
-  <visualProperties>
-    <element href="assembly.xml#set-launch-props_cand"/>
-  </visualProperties>
-  <visualProperties>
-    <element href="assembly.xml#jobsync-jobreq-in-enhancement"/>
-  </visualProperties>
-  <visualProperties>
-    <element href="assembly.xml#set-launch-props_jobreq-in"/>
-  </visualProperties>
-  <visualProperties>
-    <element href="assembly.xml#jobsync-job-application-out"/>
-  </visualProperties>
-  <visualProperties>
-    <element href="assembly.xml#set-launch-props_jobapp"/>
-  </visualProperties>
   <connections type="routesTo">
     <source href="assembly.xml#//@beans/@mixed.1/@route.0/@subRoute.0"/>
     <target href="assembly.xml#convert_transform"/>
@@ -71,45 +53,26 @@
     <target href="assembly.xml#send_file_to_wd"/>
   </connections>
   <connections type="routesTo">
-    <source href="assembly.xml#jobsync-candidate-out"/>
-    <target href="assembly.xml#set-launch-props_cand"/>
+    <source href="assembly.xml#convert_transform"/>
+    <target href="assembly.xml#call_store_msg_for_output_file"/>
   </connections>
-  <connections type="routesTo">
-    <source href="assembly.xml#jobsync-jobreq-in-enhancement"/>
-    <target href="assembly.xml#set-launch-props_jobreq-in"/>
-  </connections>
-  <connections type="routesTo">
-    <source href="assembly.xml#jobsync-job-application-out"/>
-    <target href="assembly.xml#set-launch-props_jobapp"/>
-  </connections>
-  <swimlanes x="914" y="168" bgColor="16443110" name="Convert and Store" alignment="MIDDLE">
+  <swimlanes x="914" y="168" bgColor="16443110" name="Convert and Store" orientation="VERTICAL" alignment="MIDDLE">
     <elements href="assembly.xml#convert_transform"/>
     <elements href="assembly.xml#call_store_msg_for_output_file"/>
   </swimlanes>
-  <swimlanes x="532" y="136" bgColor="16443110" name="Get and Process Documents" alignment="MIDDLE">
-    <elements href="assembly.xml#GetEventDocuments"/>
+  <swimlanes x="532" y="136" bgColor="16443110" name="Get and Process Documents" orientation="VERTICAL" alignment="MIDDLE">
     <elements href="assembly.xml#process_documents"/>
+    <elements href="assembly.xml#GetEventDocuments"/>
   </swimlanes>
-  <swimlanes x="165" y="184" bgColor="16443110" name="Template" alignment="MIDDLE">
+  <swimlanes x="165" y="184" bgColor="16443110" name="Template" orientation="VERTICAL" alignment="MIDDLE">
     <elements href="assembly.xml#transform_file"/>
     <elements href="assembly.xml#set-props-template"/>
   </swimlanes>
-  <swimlanes x="256" y="361" bgColor="8454016" name="Store Output Variable for Delivery" alignment="MIDDLE">
+  <swimlanes x="417" y="368" bgColor="8454016" name="Store Output Variable for Delivery" alignment="MIDDLE">
     <elements href="assembly.xml#store_msg_for_output_file"/>
     <elements href="assembly.xml#store-file-output"/>
     <elements href="assembly.xml#send_file_to_wd"/>
   </swimlanes>
-  <swimlanes x="49" y="74" name="Swimlane" elements="//@swimlanes.2 //@swimlanes.1 //@swimlanes.0" alignment="MIDDLE"/>
-  <swimlanes x="238" y="553" font="FreeMono|9|3" bgColor="3465866" fontColor="1" name="JobSync Candidates/Applicants (OutBound)" alignment="MIDDLE">
-    <elements href="assembly.xml#jobsync-candidate-out"/>
-    <elements href="assembly.xml#set-launch-props_cand"/>
-  </swimlanes>
-  <swimlanes x="755" y="571" font="FreeMono|9|3" bgColor="3465866" fontColor="1" name=" JobSync Job Requisition Enhancement (InBound) -- FUTURE USE" alignment="MIDDLE">
-    <elements href="assembly.xml#jobsync-jobreq-in-enhancement"/>
-    <elements href="assembly.xml#set-launch-props_jobreq-in"/>
-  </swimlanes>
-  <swimlanes x="1014" y="406" font="FreeMono|9|3" bgColor="3465866" fontColor="1" name="JobSync Job Application Process Information (OutBound) -- FUTURE USE" alignment="MIDDLE">
-    <elements href="assembly.xml#jobsync-job-application-out"/>
-    <elements href="assembly.xml#set-launch-props_jobapp"/>
-  </swimlanes>
+  <swimlanes x="49" y="74" bgColor="8454016" name="Transformation" elements="//@swimlanes.2 //@swimlanes.1 //@swimlanes.0" alignment="MIDDLE"/>
+  <swimlanes x="113" y="124" bgColor="31221" name="Swimlane" orientation="VERTICAL" elements="//@swimlanes.4 //@swimlanes.3" alignment="MIDDLE"/>
 </wdnm:Diagram>
